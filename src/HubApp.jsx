@@ -268,15 +268,13 @@ function LabsPage({ t, go }) {
       </div>
 
       <div style={s.labsGrid}>
-        {/* IGNITE — live, spans 2 cols */}
-        <div style={s.tc(true, false)}>
-          {/* Top accent bar — brighter */}
+        {/* IGNITE — live */}
+        <div style={{ ...s.tc(true, false), gridColumn: 'span 1' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #d4541a 0%, rgba(212,84,26,0.4) 60%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
-          {/* Decorative glow + bolt */}
           <div style={{ position: 'absolute', top: -10, right: -10, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,84,26,0.13) 0%, transparent 70%)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', top: 14, right: 20, fontSize: 54, lineHeight: 1, opacity: 0.22, pointerEvents: 'none', userSelect: 'none', filter: 'drop-shadow(0 0 12px rgba(212,84,26,0.5))' }}>⚡</div>
           <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
-          <div style={s.tn(true)}>{l.igniteName}</div>
+          <div style={s.tn(false)}>{l.igniteName}</div>
           <p style={s.tdesc}>{l.igniteDesc}</p>
           <div style={s.tags}>
             {['Plasma', 'Shipbuilding', 'PDF Export', 'EN / ES / PT'].map(tag => (
@@ -288,9 +286,7 @@ function LabsPage({ t, go }) {
 
         {/* CUTWISE — live */}
         <div style={s.tc(false, false)}>
-          {/* Top accent bar — blue */}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #378ADD 0%, rgba(55,138,221,0.35) 60%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
-          {/* Decorative glow + crosshair */}
           <div style={{ position: 'absolute', top: -10, right: -10, width: 110, height: 110, borderRadius: '50%', background: 'radial-gradient(circle, rgba(55,138,221,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', top: 14, right: 16, opacity: 0.22, pointerEvents: 'none', filter: 'drop-shadow(0 0 8px rgba(55,138,221,0.45))' }}>
             <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#378ADD" strokeWidth="1.1" strokeLinecap="round">
@@ -317,9 +313,9 @@ function LabsPage({ t, go }) {
           <button style={s.tcta} onClick={() => window.open('/labs/cutwise', '_self')}>{l.igniteCta.replace('calculator', 'selector')}</button>
         </div>
 
-        {/* CUTBOT AI — planned */}
-        <div style={s.tc(false, false)}>
-          <div style={s.ts}><span style={s.dotPlan} />{l.planned}</div>
+        {/* CUTBOT AI — concept */}
+        <div style={{ ...s.tc(false, false), opacity: 0.35 }}>
+          <div style={s.ts}><span style={s.dotPlan} />{l.exploring}</div>
           <div style={s.tn(false)}>{l.cutbotName}</div>
           <p style={s.tdesc}>{l.cutbotDesc}</p>
           <div style={s.tags}>
@@ -329,9 +325,9 @@ function LabsPage({ t, go }) {
           </div>
         </div>
 
-        {/* PROCESS FINDER — planned */}
-        <div style={s.tc(false, false)}>
-          <div style={s.ts}><span style={s.dotPlan} />{l.planned}</div>
+        {/* PROCESS FINDER — concept */}
+        <div style={{ ...s.tc(false, false), opacity: 0.35 }}>
+          <div style={s.ts}><span style={s.dotPlan} />{l.exploring}</div>
           <div style={s.tn(false)}>{l.processFindName}</div>
           <p style={s.tdesc}>{l.processFindDesc}</p>
           <div style={s.tags}>
@@ -341,9 +337,9 @@ function LabsPage({ t, go }) {
           </div>
         </div>
 
-        {/* PART FINDER — planned */}
-        <div style={s.tc(false, false)}>
-          <div style={s.ts}><span style={s.dotPlan} />{l.planned}</div>
+        {/* PART FINDER — concept */}
+        <div style={{ ...s.tc(false, false), opacity: 0.35 }}>
+          <div style={s.ts}><span style={s.dotPlan} />{l.exploring}</div>
           <div style={s.tn(false)}>{l.partFindName}</div>
           <p style={s.tdesc}>{l.partFindDesc}</p>
           <div style={s.tags}>
@@ -351,6 +347,14 @@ function LabsPage({ t, go }) {
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
+        </div>
+
+        {/* PLACEHOLDER — 6th slot to close the 3×2 grid */}
+        <div style={{ border: '0.5px dashed rgba(255,255,255,0.05)', borderRadius: 4, padding: '22px 20px', background: 'transparent', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 8, opacity: 0.3 }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', border: '0.5px dashed rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)', lineHeight: 1 }}>+</span>
+          </div>
+          <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>More coming</div>
         </div>
       </div>
 

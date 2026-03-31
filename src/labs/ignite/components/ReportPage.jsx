@@ -12,16 +12,28 @@ const APP_ICONS = {
   gouging: "⚡", tempAttach: "🔗",
 };
 
+// Default (en-US) formatters — overridden locally via makeFormatters(lang)
 const fmtCurrency = (n) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 const fmtNum = (n) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 
+// Locale map: PT and ES use period as thousands sep, comma as decimal sep
+const LOCALE_MAP = { en: "en-US", pt: "pt-BR", es: "es-ES" };
+function makeFormatters(lang) {
+  const locale = LOCALE_MAP[lang] || "en-US";
+  return {
+    fmtNum:      (n) => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(n),
+    fmtCurrency: (n) => "$\u202f" + new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(n),
+  };
+}
+
 const NEWSLETTER_URL = "https://www.linkedin.com/newsletters/industrial-cutting-processes-7419724116267520000/";
 const PROFILE_URL = "https://www.linkedin.com/in/guivrossi/";
 
 function getNarrative(appId, data, result, unit, lang) {
+  const { fmtNum, fmtCurrency } = makeFormatters(lang);
   const d = data;
   const isM = unit === "metric";
   const sp = isM ? "mm/min" : "ipm";
@@ -81,6 +93,7 @@ function getNarrative(appId, data, result, unit, lang) {
 }
 
 function getBreakdown(appId, data, result, unit, lang) {
+  const { fmtNum, fmtCurrency } = makeFormatters(lang);
   const d = data;
   const isM = unit === "metric";
   const sp = isM ? "mm/min" : "ipm";
@@ -202,6 +215,7 @@ function getBreakdown(appId, data, result, unit, lang) {
 }
 
 function DetailPanel({ appId, data, result, unit, lang }) {
+  const { fmtNum, fmtCurrency } = makeFormatters(lang);
   const breakdown = getBreakdown(appId, data, result, unit, lang);
   const narrative = getNarrative(appId, data, result, unit, lang);
   const metrics = [
@@ -243,6 +257,7 @@ function DetailPanel({ appId, data, result, unit, lang }) {
 function ResultCard({ appId, savings, timeSavings, totalSavings, data, unit, lang }) {
   const [open, setOpen] = useState(false);
   const tr = t[lang];
+  const { fmtNum, fmtCurrency } = makeFormatters(lang);
   const pct = totalSavings > 0 ? (savings / totalSavings) * 100 : 0;
   return (
     <div style={{ background: "var(--card-bg)", border: "1px solid " + (open ? "var(--plasma)" : "var(--border)"), borderRadius: "var(--radius)", overflow: "hidden", transition: "border-color 0.2s", marginBottom: "10px" }}>
@@ -423,6 +438,7 @@ export default function ReportPage({ apps, calcData, onRestart }) {
   const { lang, setLang } = useLanguage();
   const { unit } = useUnit();
   const tr = t[lang];
+  const { fmtNum, fmtCurrency } = makeFormatters(lang);
   const defaults = INDUSTRY_DEFAULTS[unit];
   const [leadCaptured, setLeadCaptured] = useState(false);
 

@@ -286,7 +286,10 @@ function LabsPage({ t, go }) {
         <div style={s.tc(false, false)}>
           <div style={s.tcBar(false)} />
           <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
-          <div style={s.tn(false)}>{l.cutwiseName}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{ ...s.tn(false), marginBottom: 0 }}>{l.cutwiseName}</span>
+            <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: 'rgba(252,211,77,0.12)', color: '#FCD34D', padding: '2px 7px', borderRadius: 2, border: '0.5px solid rgba(252,211,77,0.3)' }}>Beta</span>
+          </div>
           <p style={s.tdesc}>{l.cutwiseDesc}</p>
           <div style={s.tags}>
             <span style={s.tagAmber}>Experimental</span>

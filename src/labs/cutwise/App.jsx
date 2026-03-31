@@ -21,7 +21,6 @@ export default function CutwiseApp() {
           <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.3px' }}>cut<span style={{ color: '#378ADD' }}>wise</span></span>
           <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: '#FEF3C7', color: '#92400E', padding: '2px 7px', borderRadius: 20, border: '1px solid #FCD34D' }}>Beta</span>
         </div>
-        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: 20, border: '1px solid #e0e0e0', overflow: 'hidden' }}>
             {['imperial', 'metric'].map(u => (

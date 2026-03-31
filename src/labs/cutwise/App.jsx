@@ -8,6 +8,7 @@ export default function CutwiseApp() {
   const [screen, setScreen] = useState('hero')
   const [answers, setAnswers] = useState({})
   const [units, setUnits] = useState('metric')
+  const [lang, setLang] = useState('en')
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -22,6 +23,7 @@ export default function CutwiseApp() {
           <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: '#FEF3C7', color: '#92400E', padding: '2px 7px', borderRadius: 20, border: '1px solid #FCD34D' }}>Beta</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Units toggle */}
           <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: 20, border: '1px solid #e0e0e0', overflow: 'hidden' }}>
             {['imperial', 'metric'].map(u => (
               <button key={u} onClick={() => setUnits(u)} style={{
@@ -35,18 +37,31 @@ export default function CutwiseApp() {
               </button>
             ))}
           </div>
+          {/* Language toggle */}
+          <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: 20, border: '1px solid #e0e0e0', overflow: 'hidden' }}>
+            {['en', 'pt', 'es'].map(l => (
+              <button key={l} onClick={() => setLang(l)} style={{
+                padding: '4px 10px', fontSize: 10, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase',
+                background: lang === l ? '#fff' : 'transparent',
+                color: lang === l ? '#1a1a1a' : '#aaa',
+                borderRadius: 20, border: 'none',
+                boxShadow: lang === l ? '0 0 0 1px #e0e0e0' : 'none'
+              }}>{l}</button>
+            ))}
+          </div>
+          {/* Start button */}
           <button onClick={() => setScreen('wizard')} style={{
             padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 500,
             background: '#E6F1FB', border: '1px solid #85B7EB', color: '#0C447C'
           }}>
-            Start analysis
+            {lang === 'pt' ? 'Iniciar análise' : lang === 'es' ? 'Iniciar análisis' : 'Start analysis'}
           </button>
         </div>
       </nav>
 
-      {screen === 'hero' && <Hero onStart={() => setScreen('wizard')} onSample={() => setScreen('report')} />}
-      {screen === 'wizard' && <Wizard key={units} units={units} onComplete={(a) => { setAnswers(a); setScreen('report') }} />}
-      {screen === 'report' && <CutReport key={units} answers={answers} units={units} onRestart={() => { setAnswers({}); setScreen('wizard') }} />}
+      {screen === 'hero'   && <Hero    lang={lang} onStart={() => setScreen('wizard')} onSample={() => setScreen('report')} />}
+      {screen === 'wizard' && <Wizard  key={units} lang={lang} units={units} onComplete={(a) => { setAnswers(a); setScreen('report') }} />}
+      {screen === 'report' && <CutReport key={units} lang={lang} answers={answers} units={units} onRestart={() => { setAnswers({}); setScreen('wizard') }} />}
     </div>
   )
 }

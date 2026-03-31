@@ -80,75 +80,129 @@ function getNarrative(appId, data, result, unit, lang) {
   return narratives[appId]?.[lang] || narratives[appId]?.["en"] || "";
 }
 
-function getBreakdown(appId, data, result, unit) {
+function getBreakdown(appId, data, result, unit, lang) {
   const d = data;
   const isM = unit === "metric";
   const sp = isM ? "mm/min" : "ipm";
   const lu = isM ? "m" : "in";
+  const lft = isM ? "m" : "ft";
+
+  // ── Localised building blocks ────────────────────────────────────────────
+  const W = {
+    employees:   lang === "pt" ? "funcionários" : lang === "es" ? "empleados" : "employees",
+    day:         lang === "pt" ? "dia" : lang === "es" ? "día" : "day",
+    days:        lang === "pt" ? "dias" : lang === "es" ? "días" : "days",
+    hrsYr:       lang === "pt" ? "hrs/ano" : lang === "es" ? "hrs/año" : "hrs/yr",
+    hrsSavedYr:  lang === "pt" ? "hrs economizadas/ano" : lang === "es" ? "hrs ahorradas/año" : "hrs saved/yr",
+    totalYr:     lang === "pt" ? "total hrs/ano" : lang === "es" ? "total hrs/año" : "total hrs/yr",
+    perYr:       lang === "pt" ? "/ano" : lang === "es" ? "/año" : "/yr",
+    oxyfuel:     lang === "pt" ? "Oxicombustível" : lang === "es" ? "Oxicombustible" : "Oxyfuel",
+    operators:   lang === "pt" ? "operadores/ano" : lang === "es" ? "operadores/año" : "operators/yr",
+    week:        lang === "pt" ? "semana" : lang === "es" ? "semana" : "week",
+    weeks:       lang === "pt" ? "semanas" : lang === "es" ? "semanas" : "weeks",
+    shifts:      lang === "pt" ? "turnos" : lang === "es" ? "turnos" : "shifts",
+    shift:       lang === "pt" ? "turno" : lang === "es" ? "turno" : "shift",
+    setups:      lang === "pt" ? "configs." : lang === "es" ? "configs." : "setups",
+    cuttingTime: lang === "pt" ? "tempo de corte" : lang === "es" ? "tiempo de corte" : "cutting time",
+    timeSaved:   lang === "pt" ? "Tempo economizado x $" : lang === "es" ? "Tiempo ahorrado x $" : "Time saved x $",
+    hoursSaved:  lang === "pt" ? "Horas economizadas x $" : lang === "es" ? "Horas ahorradas x $" : "Hours saved x $",
+    starts:      lang === "pt" ? "partidas" : lang === "es" ? "arranques" : "starts",
+    secPreheat:  lang === "pt" ? "seg pré-aquecimento por partida eliminado" : lang === "es" ? "seg precalentamiento por arranque eliminado" : "sec preheat per start eliminated",
+    torchUseLabel: lang === "pt" ? "% de uso do maçarico, comprimento de corte ativo" : lang === "es" ? "% uso de antorcha, longitud de corte activa" : "% torch use, active cutting length",
+    plasmaFaster:  lang === "pt" ? "Tocha longa plasma 50% mais rápida" : lang === "es" ? "Antorcha larga plasma 50% más rápida" : "Plasma long torch 50% faster",
+    gasReplaced:   lang === "pt" ? "Gás $X/hr substituído por eletricidade $Y/hr" : lang === "es" ? "Gas $X/hr reemplazado por electricidad $Y/hr" : "Gas $X/hr replaced by electricity $Y/hr",
+    opSavings:     lang === "pt" ? "Economia operacional" : lang === "es" ? "Ahorro operativo" : "Operating savings",
+    laborOpSavings: lang === "pt" ? "Economia mão de obra + operacional" : lang === "es" ? "Ahorro mano de obra + operativo" : "Labor plus operating cost savings",
+    handPunch:     lang === "pt" ? "Puncionamento manual a " : lang === "es" ? "Punzonado manual a " : "Hand punching at ",
+    plasmaAt:      "Plasma at ",
+    cagTotalCost:  lang === "pt" ? "Custo total CAG" : lang === "es" ? "Costo total CAG" : "CAG total cost",
+    plasmaTotalCost: lang === "pt" ? "Custo total plasma" : lang === "es" ? "Costo total plasma" : "Plasma total cost",
+    costReduction: lang === "pt" ? "Redução de custo: mão de obra + consumíveis + esmerilamento" : lang === "es" ? "Reducción de costo: mano de obra + consumibles + esmerilado" : "Cost reduction labor plus consumables plus grinding",
+    flushCutting:  lang === "pt" ? "FlushCut " : lang === "es" ? "FlushCut " : "Flush cutting ",
+    ofDailyCutAt:  lang === "pt" ? "% do corte diário a " : lang === "es" ? "% del corte diario a " : "% of daily cutting at ",
+    currentMethod: lang === "pt" ? "Método atual " : lang === "es" ? "Método actual " : "Current method ",
+    useAt:         lang === "pt" ? "% de uso a " : lang === "es" ? "% de uso a " : "% use at ",
+    plusGrinding:  lang === "pt" ? " + esmerilamento" : lang === "es" ? " + esmerilado" : " plus grinding",
+    plasmaTime:    lang === "pt" ? "Tempo plasma" : lang === "es" ? "Tiempo plasma" : "Plasma time",
+    currentTime:   lang === "pt" ? "Tempo total atual" : lang === "es" ? "Tiempo total actual" : "Current total time",
+    grindPct:      lang === "pt" ? "Esmerilamento plasma a " : lang === "es" ? "Esmerilado plasma a " : "Plasma grinding at ",
+    ofOxyTime:     lang === "pt" ? "% do tempo oxicombustível" : lang === "es" ? "% del tiempo oxicombustible" : "% of oxyfuel time",
+    hrsYrOxy:      lang === "pt" ? "hrs/ano oxicombustível" : lang === "es" ? "hrs/año oxicombustible" : "hrs/yr oxyfuel",
+    vsOxyAt:       lang === "pt" ? " vs oxicombustível a " : lang === "es" ? " vs oxicombustible a " : " vs oxyfuel at ",
+    perRod:        lang === "pt" ? " por vareta" : lang === "es" ? " por varilla" : " per rod",
+    grindPer30m:   lang === "pt" ? " min esmer. por 30m" : lang === "es" ? " min esmer. por 30m" : " min grind per 30m",
+    plusLabel:     lang === "pt" ? " + $" : lang === "es" ? " + $" : " plus $",
+    stations:      lang === "pt" ? "estações" : lang === "es" ? "estaciones" : "stations",
+  };
+
+  const yr = W.perYr;
+  const empW = W.employees;
+  const hrYr = W.hrsYr;
+
   const breakdowns = {
     burnRate: [
-      { label: fmtNum(d.employees) + " employees x " + d.dailyCut + " " + lu + "/day x " + d.opDays + " days", value: fmtNum(d.employees * d.dailyCut * d.opDays) + " " + lu + "/yr total" },
-      { label: "At " + d.torchUse + "% torch use, active cutting length", value: fmtNum(d.employees * d.dailyCut * d.opDays * d.torchUse / 100) + " " + lu + "/yr" },
-      { label: "Plasma at " + d.plasmaSpeed + " " + sp + ", cutting time", value: fmtNum(result.plasmaTime) + " hrs/yr" },
-      { label: "Oxyfuel at " + d.torchSpeed + " " + sp + ", cutting time", value: fmtNum(result.torchTime) + " hrs/yr" },
-      { label: "Time saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: fmtNum(d.employees) + " " + empW + " x " + d.dailyCut + " " + lu + "/" + W.day + " x " + d.opDays + " " + W.days, value: fmtNum(d.employees * d.dailyCut * d.opDays) + " " + lu + yr + " total" },
+      { label: "At " + d.torchUse + W.torchUseLabel, value: fmtNum(d.employees * d.dailyCut * d.opDays * d.torchUse / 100) + " " + lu + yr },
+      { label: "Plasma at " + d.plasmaSpeed + " " + sp + ", " + W.cuttingTime, value: fmtNum(result.plasmaTime) + " " + hrYr },
+      { label: W.oxyfuel + " at " + d.torchSpeed + " " + sp + ", " + W.cuttingTime, value: fmtNum(result.torchTime) + " " + hrYr },
+      { label: W.timeSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
     noPreheat: [
-      { label: d.plasmaStarts + " starts/day x " + d.opDays + " days x " + d.employees + " employees", value: fmtNum(d.plasmaStarts * d.opDays * d.employees) + " starts/yr" },
-      { label: d.preheatTime + " sec preheat per start eliminated", value: fmtNum(d.plasmaStarts * d.opDays * d.employees * d.preheatTime / 3600) + " hrs saved/yr" },
-      { label: "Time saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.plasmaStarts + " " + W.starts + "/" + W.day + " x " + d.opDays + " " + W.days + " x " + d.employees + " " + empW, value: fmtNum(d.plasmaStarts * d.opDays * d.employees) + " " + W.starts + yr },
+      { label: d.preheatTime + " " + W.secPreheat, value: fmtNum(d.plasmaStarts * d.opDays * d.employees * d.preheatTime / 3600) + " " + W.hrsSavedYr },
+      { label: W.timeSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
     training: [
-      { label: d.trainEmployees + " employees/week x " + d.trainWeeks + " weeks", value: fmtNum(d.trainEmployees * d.trainWeeks) + " operators/yr" },
-      { label: "Oxyfuel: " + fmtNum(d.trainEmployees * d.trainWeeks) + " x " + d.oxyTraining + " hrs", value: fmtNum(d.trainEmployees * d.trainWeeks * d.oxyTraining) + " hrs/yr" },
-      { label: "Plasma: " + fmtNum(d.trainEmployees * d.trainWeeks) + " x " + d.plasmaTraining + " hrs", value: fmtNum(d.trainEmployees * d.trainWeeks * d.plasmaTraining) + " hrs/yr" },
-      { label: "Hours saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.trainEmployees + " " + empW + "/" + W.week + " x " + d.trainWeeks + " " + W.weeks, value: fmtNum(d.trainEmployees * d.trainWeeks) + " " + W.operators },
+      { label: W.oxyfuel + ": " + fmtNum(d.trainEmployees * d.trainWeeks) + " x " + d.oxyTraining + " hrs", value: fmtNum(d.trainEmployees * d.trainWeeks * d.oxyTraining) + " " + hrYr },
+      { label: "Plasma: " + fmtNum(d.trainEmployees * d.trainWeeks) + " x " + d.plasmaTraining + " hrs", value: fmtNum(d.trainEmployees * d.trainWeeks * d.plasmaTraining) + " " + hrYr },
+      { label: W.hoursSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
     setup: [
-      { label: "Oxyfuel: " + d.torchSetups + " setups x " + d.numShifts + " shifts x " + d.opDays + " days x " + d.employees + " emp", value: fmtNum(d.torchSetups * d.numShifts * d.opDays * d.employees * d.oxySetup / 60) + " hrs/yr" },
-      { label: "Plasma: " + d.plasmaSetups + " setups x " + d.numShifts + " shifts x " + d.opDays + " days x " + d.employees + " emp", value: fmtNum(d.plasmaSetups * d.numShifts * d.opDays * d.employees * d.plasmaSetup / 60) + " hrs/yr" },
-      { label: "Hours saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: W.oxyfuel + ": " + d.torchSetups + " " + W.setups + " x " + d.numShifts + " " + W.shifts + " x " + d.opDays + " " + W.days + " x " + d.employees + " " + empW, value: fmtNum(d.torchSetups * d.numShifts * d.opDays * d.employees * d.oxySetup / 60) + " " + hrYr },
+      { label: "Plasma: " + d.plasmaSetups + " " + W.setups + " x " + d.numShifts + " " + W.shifts + " x " + d.opDays + " " + W.days + " x " + d.employees + " " + empW, value: fmtNum(d.plasmaSetups * d.numShifts * d.opDays * d.employees * d.plasmaSetup / 60) + " " + hrYr },
+      { label: W.hoursSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
     grinding: [
-      { label: d.grindEmployees + " employees x " + d.dailyGrind + " hrs/day x " + d.opDays + " days", value: fmtNum(d.grindEmployees * d.dailyGrind * d.opDays) + " hrs/yr oxyfuel" },
-      { label: "Plasma grinding at " + d.plasmaGrindPct + "% of oxyfuel time", value: fmtNum(d.grindEmployees * d.dailyGrind * d.opDays * d.plasmaGrindPct / 100) + " hrs/yr" },
-      { label: "Hours saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.grindEmployees + " " + empW + " x " + d.dailyGrind + " hrs/" + W.day + " x " + d.opDays + " " + W.days, value: fmtNum(d.grindEmployees * d.dailyGrind * d.opDays) + " " + W.hrsYrOxy },
+      { label: W.grindPct + d.plasmaGrindPct + W.ofOxyTime, value: fmtNum(d.grindEmployees * d.dailyGrind * d.opDays * d.plasmaGrindPct / 100) + " " + hrYr },
+      { label: W.hoursSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
     skeleton: [
-      { label: d.skelEmployees + " employees x " + d.skelHours + " hrs/shift x " + d.skelShifts + " shifts x " + d.opDays + " days", value: fmtNum(d.skelEmployees * d.skelHours * d.skelShifts * d.opDays) + " hrs/yr" },
-      { label: "Plasma long torch 50% faster", value: fmtNum(d.skelEmployees * d.skelHours * d.skelShifts * d.opDays * 0.5) + " hrs saved/yr" },
-      { label: "Hours saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.skelEmployees + " " + empW + " x " + d.skelHours + " hrs/" + W.shift + " x " + d.skelShifts + " " + W.shifts + " x " + d.opDays + " " + W.days, value: fmtNum(d.skelEmployees * d.skelHours * d.skelShifts * d.opDays) + " " + hrYr },
+      { label: W.plasmaFaster, value: fmtNum(d.skelEmployees * d.skelHours * d.skelShifts * d.opDays * 0.5) + " " + W.hrsSavedYr },
+      { label: W.hoursSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
     beveling: [
-      { label: d.bevelStations + " stations x " + d.bevelHours + " hrs/day x " + d.opDays + " days", value: fmtNum(d.bevelStations * d.bevelHours * d.opDays) + " total hrs/yr" },
-      { label: "Plasma at " + d.bevelPlasmaSpeed + " " + sp + " vs oxyfuel at " + d.bevelOxySpeed + " " + sp, value: fmtNum(result.timeSavings) + " hrs saved/yr" },
-      { label: "Gas $" + d.gasCost + "/hr replaced by electricity $" + d.elecCost + "/hr", value: "Operating savings" },
-      { label: "Labor plus operating cost savings", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.bevelStations + " " + W.stations + " x " + d.bevelHours + " hrs/" + W.day + " x " + d.opDays + " " + W.days, value: fmtNum(d.bevelStations * d.bevelHours * d.opDays) + " " + W.totalYr },
+      { label: "Plasma at " + d.bevelPlasmaSpeed + " " + sp + W.vsOxyAt + d.bevelOxySpeed + " " + sp, value: fmtNum(result.timeSavings) + " " + W.hrsSavedYr },
+      { label: "Gas $" + d.gasCost + "/hr → $" + d.elecCost + "/hr (elec.)", value: W.opSavings },
+      { label: W.laborOpSavings, value: fmtCurrency(result.savings) + yr, total: true },
     ],
     marking: [
-      { label: d.markEmployees + " employees x " + d.dailyMark + " " + lu + "/day x " + d.opDays + " days", value: fmtNum(d.markEmployees * d.dailyMark * d.opDays) + " " + lu + "/yr" },
-      { label: "Plasma at " + d.plasmaMarkSpeed + " " + sp, value: fmtNum(result.plasmaTime) + " hrs/yr" },
-      { label: "Hand punching at " + d.punchSpeed + " " + sp, value: fmtNum(result.punchTime) + " hrs/yr" },
-      { label: "Hours saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.markEmployees + " " + empW + " x " + d.dailyMark + " " + lu + "/" + W.day + " x " + d.opDays + " " + W.days, value: fmtNum(d.markEmployees * d.dailyMark * d.opDays) + " " + lu + yr },
+      { label: "Plasma at " + d.plasmaMarkSpeed + " " + sp, value: fmtNum(result.plasmaTime) + " " + hrYr },
+      { label: W.handPunch + d.punchSpeed + " " + sp, value: fmtNum(result.punchTime) + " " + hrYr },
+      { label: W.hoursSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
     gouging: [
-      { label: d.gougEmployees + " employees x " + d.gougLength + " " + (isM ? "m" : "ft") + "/day x " + d.opDays + " days", value: fmtNum(d.gougEmployees * d.gougLength * d.opDays) + " " + (isM ? "m" : "ft") + "/yr" },
-      { label: "Plasma at " + d.plasmaGougSpeed + " " + sp + " plus " + d.grindAfterPlasma + " min grind per 30m", value: "Plasma total cost" },
-      { label: "CAG at " + d.cagSpeed + " " + sp + " plus $" + d.carbonRodCost + " per rod plus " + d.grindAfterCAG + " min grind per 30m", value: "CAG total cost" },
-      { label: "Cost reduction labor plus consumables plus grinding", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.gougEmployees + " " + empW + " x " + d.gougLength + " " + lft + "/" + W.day + " x " + d.opDays + " " + W.days, value: fmtNum(d.gougEmployees * d.gougLength * d.opDays) + " " + lft + yr },
+      { label: "Plasma at " + d.plasmaGougSpeed + " " + sp + " + " + d.grindAfterPlasma + W.grindPer30m, value: W.plasmaTotalCost },
+      { label: "CAG at " + d.cagSpeed + " " + sp + W.plusLabel + d.carbonRodCost + W.perRod + " + " + d.grindAfterCAG + W.grindPer30m, value: W.cagTotalCost },
+      { label: W.costReduction, value: fmtCurrency(result.savings) + yr, total: true },
     ],
     tempAttach: [
-      { label: d.employees + " employees x " + d.dailyCutLength + " " + lu + "/day x " + d.opDays + " days", value: fmtNum(d.employees * d.dailyCutLength * d.opDays) + " " + lu + "/yr" },
-      { label: "Flush cutting " + d.flushUse + "% of daily cutting at " + d.flushCutRate + " " + sp, value: "Plasma time" },
-      { label: "Current method " + d.torchCAGUse + "% use at " + d.altRate + " " + sp + " plus grinding", value: "Current total time" },
-      { label: "Hours saved x $" + d.laborRate + "/hr", value: fmtCurrency(result.savings) + "/yr", total: true },
+      { label: d.employees + " " + empW + " x " + d.dailyCutLength + " " + lu + "/" + W.day + " x " + d.opDays + " " + W.days, value: fmtNum(d.employees * d.dailyCutLength * d.opDays) + " " + lu + yr },
+      { label: W.flushCutting + d.flushUse + W.ofDailyCutAt + d.flushCutRate + " " + sp, value: W.plasmaTime },
+      { label: W.currentMethod + d.torchCAGUse + W.useAt + d.altRate + " " + sp + W.plusGrinding, value: W.currentTime },
+      { label: W.hoursSaved + d.laborRate + "/hr", value: fmtCurrency(result.savings) + yr, total: true },
     ],
   };
   return breakdowns[appId] || [];
 }
 
 function DetailPanel({ appId, data, result, unit, lang }) {
-  const breakdown = getBreakdown(appId, data, result, unit);
+  const breakdown = getBreakdown(appId, data, result, unit, lang);
   const narrative = getNarrative(appId, data, result, unit, lang);
   const metrics = [
     { label: lang === "en" ? "Time saved" : lang === "es" ? "Tiempo ahorrado" : "Tempo economizado", value: fmtNum(result.timeSavings) + " hrs/yr", highlight: true },
@@ -202,11 +256,11 @@ function ResultCard({ appId, savings, timeSavings, totalSavings, data, unit, lan
           <div style={{ height: "4px", background: "rgba(255,255,255,0.06)", borderRadius: "100px", overflow: "hidden", marginBottom: "4px" }}>
             <div style={{ height: "100%", width: Math.min(100, pct) + "%", background: "linear-gradient(90deg, var(--plasma), var(--spark))", borderRadius: "100px" }} />
           </div>
-          <div style={{ fontSize: "11px", color: "var(--text-muted)", textAlign: "right" }}>{pct.toFixed(0)}% of total</div>
+          <div style={{ fontSize: "11px", color: "var(--text-muted)", textAlign: "right" }}>{pct.toFixed(0)}% {lang === "pt" ? "do total" : lang === "es" ? "del total" : "of total"}</div>
         </div>
         <div style={{ textAlign: "right", flexShrink: 0, minWidth: "90px" }}>
           <div style={{ fontSize: "17px", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, color: "var(--plasma)" }}>{fmtCurrency(savings)}</div>
-          <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>per year</div>
+          <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>{lang === "pt" ? "por ano" : lang === "es" ? "por año" : "per year"}</div>
         </div>
         <div style={{ fontSize: "16px", color: "var(--plasma)", marginLeft: "6px", transition: "transform 0.2s", transform: open ? "rotate(90deg)" : "none", flexShrink: 0 }}>{">"}</div>
       </div>

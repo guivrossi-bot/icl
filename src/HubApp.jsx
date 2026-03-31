@@ -281,20 +281,19 @@ function LabsPage({ t, go }) {
           <button style={s.tcta} onClick={() => window.open(IGNITE_URL, '_self')}>{l.igniteCta}</button>
         </div>
 
-        {/* CUTWISE — building */}
-        <div style={s.tc(false, true)}>
-          <div style={s.tcBar(true)} />
-          <div style={s.ts}><span style={s.dotBuild} />{l.building}</div>
+        {/* CUTWISE — live */}
+        <div style={s.tc(false, false)}>
+          <div style={s.tcBar(false)} />
+          <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
           <div style={s.tn(false)}>{l.cutwiseName}</div>
           <p style={s.tdesc}>{l.cutwiseDesc}</p>
           <div style={s.tags}>
             <span style={s.tagAmber}>Experimental</span>
-            {['Plasma', 'Waterjet', 'Laser'].map(tag => (
+            {['Plasma', 'Waterjet', 'Laser', 'Oxyfuel'].map(tag => (
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
-          <div style={s.progressBar}><div style={s.progressFill} /></div>
-          <span style={s.buildingSub}>{l.buildingSub}</span>
+          <button style={s.tcta} onClick={() => window.open('/labs/cutwise', '_self')}>{l.igniteCta.replace('calculator', 'selector')}</button>
         </div>
 
         {/* CUTBOT AI — planned */}

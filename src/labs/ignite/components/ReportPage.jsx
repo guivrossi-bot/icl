@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { saveLead } from "../../../lib/supabase";
 import { useLanguage, useUnit } from "../lib/contexts";
 import t from "../lib/translations";
 import { INDUSTRY_DEFAULTS, APP_CALC_MAP } from "../lib/calculators";
@@ -245,7 +246,7 @@ function EmailBanner({ lang, totalSavings, apps, calcData, unit }) {
       );
       return;
     }
-    console.log("LEAD:", { name, email, company, totalSavings });
+    saveLead({ email, first_name: name, company, source: 'ignite', payload: { totalSavings, apps } });
     setGenerated(true);
     generatePDF({ apps, calcData, unit, lang, userInfo: { name, email, company } });
   };

@@ -40,6 +40,11 @@ export default function LandingPage({ onStart }) {
               {tr.imperial}
             </button>
           </div>
+          <a href="/" style={{ fontSize: 10, letterSpacing: '0.8px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 4 }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}>
+            ← ICL
+          </a>
         </div>
       </nav>
 

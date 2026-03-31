@@ -270,7 +270,11 @@ function LabsPage({ t, go }) {
       <div style={s.labsGrid}>
         {/* IGNITE — live, spans 2 cols */}
         <div style={s.tc(true, false)}>
-          <div style={s.tcBar(false)} />
+          {/* Top accent bar — brighter */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #d4541a 0%, rgba(212,84,26,0.4) 60%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
+          {/* Decorative glow + bolt */}
+          <div style={{ position: 'absolute', top: -10, right: -10, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,84,26,0.13) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 14, right: 20, fontSize: 54, lineHeight: 1, opacity: 0.22, pointerEvents: 'none', userSelect: 'none', filter: 'drop-shadow(0 0 12px rgba(212,84,26,0.5))' }}>⚡</div>
           <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
           <div style={s.tn(true)}>{l.igniteName}</div>
           <p style={s.tdesc}>{l.igniteDesc}</p>
@@ -284,7 +288,20 @@ function LabsPage({ t, go }) {
 
         {/* CUTWISE — live */}
         <div style={s.tc(false, false)}>
-          <div style={s.tcBar(false)} />
+          {/* Top accent bar — blue */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #378ADD 0%, rgba(55,138,221,0.35) 60%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
+          {/* Decorative glow + crosshair */}
+          <div style={{ position: 'absolute', top: -10, right: -10, width: 110, height: 110, borderRadius: '50%', background: 'radial-gradient(circle, rgba(55,138,221,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 14, right: 16, opacity: 0.22, pointerEvents: 'none', filter: 'drop-shadow(0 0 8px rgba(55,138,221,0.45))' }}>
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#378ADD" strokeWidth="1.1" strokeLinecap="round">
+              <circle cx="12" cy="12" r="8"/>
+              <circle cx="12" cy="12" r="2.5" fill="#378ADD" stroke="none"/>
+              <line x1="12" y1="2" x2="12" y2="6.5"/>
+              <line x1="12" y1="17.5" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="6.5" y2="12"/>
+              <line x1="17.5" y1="12" x2="22" y2="12"/>
+            </svg>
+          </div>
           <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <span style={{ ...s.tn(false), marginBottom: 0 }}>{l.cutwiseName}</span>

@@ -5,8 +5,13 @@ export default function Hero({ onStart, onSample }) {
       flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
       justifyContent: 'center', padding: '48px 24px', textAlign: 'center', gap: 20
     }}>
-      <div style={{ fontSize: 11, fontWeight: 500, color: '#888', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
-        Cutting technology selector
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 500, color: '#888', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+          Cutting technology selector
+        </div>
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: '#FEF3C7', color: '#92400E', padding: '2px 8px', borderRadius: 20, border: '1px solid #FCD34D' }}>
+          Beta
+        </span>
       </div>
       <h1 style={{ fontSize: 32, fontWeight: 600, lineHeight: 1.2, letterSpacing: '-0.5px', maxWidth: 520, color: '#1a1a1a' }}>
         Find the right cut for your{' '}
@@ -17,6 +22,12 @@ export default function Hero({ onStart, onSample }) {
         Answer a few questions about your job. Get a full comparison report across
         Laser, Plasma, Waterjet, and Oxyfuel — with cost breakdowns and a clear recommendation.
       </p>
+      <div style={{ maxWidth: 480, padding: '12px 16px', borderRadius: 10, background: '#FFFBEB', border: '1px solid #FCD34D', display: 'flex', gap: 10, alignItems: 'flex-start', textAlign: 'left' }}>
+        <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>⚠️</span>
+        <p style={{ fontSize: 12, color: '#78350F', lineHeight: 1.6, margin: 0 }}>
+          <strong>This is a beta.</strong> We're still building the process database — cost estimates and recommendations are directional, not definitive. Use results as a starting point, not a final answer. Feedback helps us improve.
+        </p>
+      </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
         {['Fiber laser', 'Plasma', 'Waterjet', 'Oxyfuel'].map(t => (
           <div key={t} style={{

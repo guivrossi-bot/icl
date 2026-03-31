@@ -4,8 +4,10 @@ import { LanguageContext, UnitContext } from "./lib/contexts";
 import LandingPage from "./components/LandingPage";
 import ApplicationSelector from "./components/ApplicationSelector";
 import CalculatorForms from "./components/CalculatorForms";
+import EmailGate from "./components/EmailGate";
 import LoadingScreen from "./components/LoadingScreen";
 import ReportPage from "./components/ReportPage";
+import { saveLead } from "../../lib/supabase";
 
 export default function App() {
   const [lang, setLang] = useState("en");
@@ -24,7 +26,16 @@ export default function App() {
       .catch(() => {});
   }, []);
 
-  const goToReport = () => setStep("report");
+  async function handleEmailSubmit({ email, name, company }) {
+    await saveLead({
+      email,
+      first_name: name,
+      company,
+      source: 'ignite',
+      payload: { selected_apps: selectedApps }
+    });
+    setStep("loading");
+  }
 
   return (
     <LanguageContext.Provider value={{ lang, setLang }}>
@@ -49,16 +60,20 @@ export default function App() {
               apps={selectedApps}
               calcData={calcData}
               setCalcData={setCalcData}
-              onNext={() => setStep("loading")}
+              onNext={() => setStep("email")}
               onBack={() => setStep("select")}
             />
           )}
 
-          {step === "loading" && (
-            <LoadingScreen
-              lang={lang}
-              onDone={goToReport}
+          {step === "email" && (
+            <EmailGate
+              onSubmit={handleEmailSubmit}
+              onBack={() => setStep("calculate")}
             />
+          )}
+
+          {step === "loading" && (
+            <LoadingScreen lang={lang} onDone={() => setStep("report")} />
           )}
 
           {step === "report" && (

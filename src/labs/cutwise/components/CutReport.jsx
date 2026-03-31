@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { saveFeedback } from '../../../lib/supabase'
 
 const TECHS = {
   plasma_conv:  { label: 'Plasma (Conventional)', short: 'Plasma Conv.', color: '#EF9F27' },
@@ -93,12 +93,13 @@ export default function CutReport({ answers, units, onRestart }) {
   const winnerCost = costs[winner[0]]
 
   async function submitFeedback() {
-    try {
-      await supabase.from('feedback_submissions').insert([{
-        overall_score: fbScore, comment: fbComment,
-        answers_payload: answers, recommended_process: winner[0]
-      }])
-    } catch (e) {}
+    await saveFeedback({
+      source: 'cutwise',
+      score: fbScore,
+      comment: fbComment,
+      recommended_process: winner[0],
+      payload: answers
+    })
     setFbDone(true)
   }
 

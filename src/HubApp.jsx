@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { translations, detectLang } from './i18n/translations'
+import { saveLead, saveMessage } from './lib/supabase'
 
 const NL_URL = 'https://www.linkedin.com/newsletters/7419724116267520000/?displayConfirmation=true'
 const LI_URL = 'https://www.linkedin.com/in/guivrossi/'
@@ -346,6 +347,15 @@ function LabsPage({ t, go }) {
 
 function MediaPage({ t }) {
   const m = t.media
+  const [email, setEmail] = useState('')
+  const [done, setDone] = useState(false)
+
+  async function handleNotify() {
+    if (!email.includes('@')) return
+    await saveLead({ email, source: 'media' })
+    setDone(true)
+  }
+
   return (
     <div>
       <div style={s.ph}>
@@ -356,11 +366,17 @@ function MediaPage({ t }) {
         <div style={s.mediaRing}><div style={s.mediaPlay} /></div>
         <p style={s.mediaSoon}>{m.coming}</p>
         <p style={s.mediaDesc}>{m.desc}</p>
-        <p style={s.notifyLbl}>{m.notifyLabel}</p>
-        <div style={s.notifyForm}>
-          <input style={s.notifyInput} type="email" placeholder={m.placeholder} />
-          <button style={s.notifyBtn}>{m.notifyBtn}</button>
-        </div>
+        {!done ? (
+          <>
+            <p style={s.notifyLbl}>{m.notifyLabel}</p>
+            <div style={s.notifyForm}>
+              <input style={s.notifyInput} type="email" placeholder={m.placeholder} value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleNotify()} />
+              <button style={s.notifyBtn} onClick={handleNotify}>{m.notifyBtn}</button>
+            </div>
+          </>
+        ) : (
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px' }}>✓ Got it — you'll hear from us first.</p>
+        )}
       </div>
     </div>
   )
@@ -545,6 +561,15 @@ function AboutPage({ t }) {
 
 function TalkPage({ t }) {
   const tk = t.talk
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [done, setDone] = useState(false)
+
+  async function handleSend() {
+    if (!form.email.includes('@') || !form.message.trim()) return
+    await saveMessage({ name: form.name, email: form.email, message: form.message })
+    setDone(true)
+  }
+
   return (
     <div style={s.talkPg}>
       <div>
@@ -562,12 +587,18 @@ function TalkPage({ t }) {
           </div>
         </div>
       </div>
-      <div style={s.talkForm}>
-        <div style={s.ff}><label style={s.fl}>{tk.nameLbl}</label><input style={s.fi} type="text" placeholder={tk.namePh} /></div>
-        <div style={s.ff}><label style={s.fl}>{tk.emailLbl}</label><input style={s.fi} type="email" placeholder={tk.emailPh} /></div>
-        <div style={s.ff}><label style={s.fl}>{tk.msgLbl}</label><textarea style={{ ...s.fi, ...s.fta }} placeholder={tk.msgPh} /></div>
-        <button style={s.fsub}>{tk.send}</button>
-      </div>
+      {!done ? (
+        <div style={s.talkForm}>
+          <div style={s.ff}><label style={s.fl}>{tk.nameLbl}</label><input style={s.fi} type="text" placeholder={tk.namePh} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
+          <div style={s.ff}><label style={s.fl}>{tk.emailLbl}</label><input style={s.fi} type="email" placeholder={tk.emailPh} value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
+          <div style={s.ff}><label style={s.fl}>{tk.msgLbl}</label><textarea style={{ ...s.fi, ...s.fta }} placeholder={tk.msgPh} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} /></div>
+          <button style={s.fsub} onClick={handleSend}>{tk.send}</button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 24 }}>
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>✓ Message received — I'll get back to you.</span>
+        </div>
+      )}
     </div>
   )
 }

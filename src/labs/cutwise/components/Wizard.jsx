@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
+import { saveLead } from '../../../lib/supabase'
 
 const STEPS = [
   { id: 'material', title: 'What are you cutting?', sub: 'Tell us about the material.',
@@ -333,13 +333,14 @@ export default function Wizard({ units, onComplete }) {
 
   async function handleSubmit() {
     if (!answers.email?.includes('@')) return
-    try {
-      await supabase.from('leads').insert([{
-        email: answers.email,
-        input_payload: answers,
-        recommended_process: sorted[0][0]
-      }])
-    } catch (e) { console.log('Supabase not connected yet') }
+    await saveLead({
+      email: answers.email,
+      first_name: answers.first_name,
+      company: answers.company,
+      source: 'cutwise',
+      recommended_process: sorted[0][0],
+      payload: answers
+    })
     setSubmitted(true)
     setTimeout(() => onComplete(answers), 1200)
   }

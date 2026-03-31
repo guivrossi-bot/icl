@@ -18,9 +18,18 @@ export default function CutwiseApp() {
         borderBottom: '1px solid #e8e8e8', background: '#fff',
         position: 'sticky', top: 0, zIndex: 10
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.3px' }}>cut<span style={{ color: '#378ADD' }}>wise</span></span>
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: '#FEF3C7', color: '#92400E', padding: '2px 7px', borderRadius: 20, border: '1px solid #FCD34D' }}>Beta</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#aaa', textDecoration: 'none', fontWeight: 500 }}
+            onMouseEnter={e => e.currentTarget.style.color = '#378ADD'}
+            onMouseLeave={e => e.currentTarget.style.color = '#aaa'}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            ICL
+          </a>
+          <div style={{ width: 1, height: 14, background: '#e0e0e0' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.3px' }}>cut<span style={{ color: '#378ADD' }}>wise</span></span>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: '#FEF3C7', color: '#92400E', padding: '2px 7px', borderRadius: 20, border: '1px solid #FCD34D' }}>Beta</span>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* Units toggle */}

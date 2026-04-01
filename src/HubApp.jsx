@@ -484,6 +484,7 @@ const chCategories = [
     label: 'Cutting Art',
     desc: 'Artists and fabricators using plasma, laser, and waterjet as a medium. Decorative panels, sculptures, architectural pieces that started as a cut.',
     accent: true,
+    disabled: CUTTING_ARTISTS.length === 0,
   },
   {
     icon: '◎',
@@ -523,78 +524,8 @@ const chCategories = [
   },
 ]
 
-const CUTTING_ARTISTS = [
-  {
-    name: 'Anthony Howe',
-    tag: 'Kinetic sculpture',
-    desc: 'Wind-driven plasma-cut steel that looks alive.',
-    url: 'https://www.aeternusdesign.com',
-    img: 'https://picsum.photos/seed/anthonyhowe/600/420',
-  },
-  {
-    name: 'Cal Lane',
-    tag: 'Lace-cut steel',
-    desc: 'Insanely delicate lace patterns cut into heavy steel.',
-    url: 'https://callane.com',
-    img: 'https://picsum.photos/seed/callane/600/420',
-  },
-  {
-    name: 'Kelly Phipps',
-    tag: 'Freehand torch',
-    desc: 'Draws directly with a plasma torch — raw, expressive.',
-    url: 'https://www.hypertherm.com/en-US/learn/plasma-cutting/metal-art/',
-    img: 'https://picsum.photos/seed/kellyphipps/600/420',
-  },
-  {
-    name: 'Cindy Chinn',
-    tag: 'Saw blade art',
-    desc: 'Turns old saw blades into intricate artwork with plasma.',
-    url: 'https://www.thesawlady.com',
-    img: 'https://picsum.photos/seed/cindychinn/600/420',
-  },
-  {
-    name: 'Jimmy Don Holmes',
-    tag: 'CNC wall art',
-    desc: 'Bold graphic pieces — you\'ve seen him on Fixer Upper.',
-    url: 'https://jimmydonholmes.com',
-    img: 'https://picsum.photos/seed/jimmydon/600/420',
-  },
-  {
-    name: 'Nicola Hébert',
-    tag: 'Mixed media',
-    desc: 'Tin Fish Studios — combines handheld and CNC plasma.',
-    url: 'https://www.tinfishstudios.com',
-    img: 'https://picsum.photos/seed/nicolahebert/600/420',
-  },
-  {
-    name: 'Lou Rodriguez',
-    tag: 'Large-scale sculpture',
-    desc: 'Massive dragons and creatures, plasma cut + welded.',
-    url: 'https://www.lourodriguezstudios.com',
-    img: 'https://picsum.photos/seed/lourodriguez/600/420',
-  },
-  {
-    name: 'Scott McKay',
-    tag: 'Industrial scale',
-    desc: 'Built a 25-ton train. Strongarm Forge.',
-    url: 'https://www.strongarmforge.com',
-    img: 'https://picsum.photos/seed/scottmckay/600/420',
-  },
-  {
-    name: 'Ruchika Grover',
-    tag: 'CAD + organic',
-    desc: 'CAD-to-cut with organic, non-industrial forms.',
-    url: 'https://www.ruchikagrover.com',
-    img: 'https://picsum.photos/seed/ruchika/600/420',
-  },
-  {
-    name: 'Karman Rheault',
-    tag: 'Drawing with fire',
-    desc: '"Drawing with fire" — expressive plasma as fine art.',
-    url: 'https://www.karmanrheault.com',
-    img: 'https://picsum.photos/seed/karman/600/420',
-  },
-]
+// Artists pending review — will be added back one by one after curation
+const CUTTING_ARTISTS = []
 
 function CuttingArtGallery({ onClose }) {
   const [hovered, setHovered] = useState(null)
@@ -733,14 +664,14 @@ function CoolHubPage() {
         {chCategories.map((cat) => (
           <div
             key={cat.label}
-            style={chCard(cat.accent, cat.accent)}
-            onClick={cat.accent ? () => setGalleryOpen(v => !v) : undefined}
+            style={chCard(cat.accent, cat.accent && !cat.disabled)}
+            onClick={cat.accent && !cat.disabled ? () => setGalleryOpen(v => !v) : undefined}
           >
             <div style={chBar(cat.accent)} />
             <div style={chIcon(cat.accent)}>{cat.icon}</div>
             <div style={{ fontSize: 8, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 4, height: 4, borderRadius: '50%', background: cat.accent ? C.accent : 'rgba(255,255,255,0.18)', display: 'inline-block' }} />
-              {cat.accent ? (galleryOpen ? 'Click to close' : 'Click to explore') : 'Building'}
+              {cat.accent && !cat.disabled ? (galleryOpen ? 'Click to close' : 'Click to explore') : 'Building'}
             </div>
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 2, color: '#fff', marginBottom: 8, lineHeight: 1 }}>{cat.label}</div>
             <p style={{ fontSize: 12, color: 'rgba(232,227,216,0.38)', lineHeight: 1.65, fontWeight: 300, margin: 0 }}>{cat.desc}</p>

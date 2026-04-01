@@ -489,14 +489,176 @@ const chCategories = [
   },
 ]
 
+const CUTTING_ARTISTS = [
+  {
+    name: 'Anthony Howe',
+    tag: 'Kinetic sculpture',
+    desc: 'Wind-driven plasma-cut steel that looks alive.',
+    url: 'https://www.aeternusdesign.com',
+    img: 'https://picsum.photos/seed/anthonyhowe/600/420',
+  },
+  {
+    name: 'Cal Lane',
+    tag: 'Lace-cut steel',
+    desc: 'Insanely delicate lace patterns cut into heavy steel.',
+    url: 'https://callane.com',
+    img: 'https://picsum.photos/seed/callane/600/420',
+  },
+  {
+    name: 'Kelly Phipps',
+    tag: 'Freehand torch',
+    desc: 'Draws directly with a plasma torch — raw, expressive.',
+    url: 'https://www.hypertherm.com/en-US/learn/plasma-cutting/metal-art/',
+    img: 'https://picsum.photos/seed/kellyphipps/600/420',
+  },
+  {
+    name: 'Cindy Chinn',
+    tag: 'Saw blade art',
+    desc: 'Turns old saw blades into intricate artwork with plasma.',
+    url: 'https://www.thesawlady.com',
+    img: 'https://picsum.photos/seed/cindychinn/600/420',
+  },
+  {
+    name: 'Jimmy Don Holmes',
+    tag: 'CNC wall art',
+    desc: 'Bold graphic pieces — you\'ve seen him on Fixer Upper.',
+    url: 'https://jimmydonholmes.com',
+    img: 'https://picsum.photos/seed/jimmydon/600/420',
+  },
+  {
+    name: 'Nicola Hébert',
+    tag: 'Mixed media',
+    desc: 'Tin Fish Studios — combines handheld and CNC plasma.',
+    url: 'https://www.tinfishstudios.com',
+    img: 'https://picsum.photos/seed/nicolahebert/600/420',
+  },
+  {
+    name: 'Lou Rodriguez',
+    tag: 'Large-scale sculpture',
+    desc: 'Massive dragons and creatures, plasma cut + welded.',
+    url: 'https://www.lourodriguezstudios.com',
+    img: 'https://picsum.photos/seed/lourodriguez/600/420',
+  },
+  {
+    name: 'Scott McKay',
+    tag: 'Industrial scale',
+    desc: 'Built a 25-ton train. Strongarm Forge.',
+    url: 'https://www.strongarmforge.com',
+    img: 'https://picsum.photos/seed/scottmckay/600/420',
+  },
+  {
+    name: 'Ruchika Grover',
+    tag: 'CAD + organic',
+    desc: 'CAD-to-cut with organic, non-industrial forms.',
+    url: 'https://www.ruchikagrover.com',
+    img: 'https://picsum.photos/seed/ruchika/600/420',
+  },
+  {
+    name: 'Karman Rheault',
+    tag: 'Drawing with fire',
+    desc: '"Drawing with fire" — expressive plasma as fine art.',
+    url: 'https://www.karmanrheault.com',
+    img: 'https://picsum.photos/seed/karman/600/420',
+  },
+]
+
+function CuttingArtGallery({ onClose }) {
+  const [hovered, setHovered] = useState(null)
+  return (
+    <div style={{ padding: '0 48px 48px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, paddingTop: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, letterSpacing: 3, color: '#fff' }}>
+            Cutting Art
+          </div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+            10 artists
+          </div>
+        </div>
+        <button onClick={onClose} style={{ background: 'none', border: `0.5px solid ${C.border}`, color: 'rgba(255,255,255,0.4)', fontSize: 11, padding: '4px 12px', borderRadius: 3, cursor: 'pointer', letterSpacing: '0.5px' }}>
+          ✕ close
+        </button>
+      </div>
+
+      {/* Disclaimer */}
+      <div style={{ marginBottom: 20, fontSize: 11, color: 'rgba(255,255,255,0.22)', lineHeight: 1.6, maxWidth: 640, borderLeft: `2px solid rgba(212,84,26,0.3)`, paddingLeft: 10 }}>
+        No affiliation, sponsorship, or commercial relationship with any of these artists.
+        I just think what they make is incredible — and figured others in this industry should know their work exists.
+      </div>
+
+      {/* Gallery grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+        {CUTTING_ARTISTS.map((artist, i) => (
+          <a
+            key={artist.name}
+            href={artist.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+            style={{ textDecoration: 'none', display: 'block', borderRadius: 4, overflow: 'hidden', position: 'relative', aspectRatio: '4/3', cursor: 'pointer' }}
+          >
+            {/* Image */}
+            <img
+              src={artist.img}
+              alt={artist.name}
+              loading="lazy"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: hovered === i ? 'brightness(0.45)' : 'brightness(0.6)', transition: 'filter 0.3s' }}
+            />
+
+            {/* Always-visible name bar */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              padding: '20px 12px 10px',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
+            }}>
+              <div style={{ fontSize: 10, color: C.accent, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 2, fontWeight: 500 }}>{artist.tag}</div>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 17, letterSpacing: 1.5, color: '#fff', lineHeight: 1 }}>{artist.name}</div>
+            </div>
+
+            {/* Hover overlay */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              opacity: hovered === i ? 1 : 0,
+              transition: 'opacity 0.25s',
+              padding: '12px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, marginBottom: 10 }}>{artist.desc}</div>
+              <div style={{ fontSize: 10, color: C.accent, letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
+                View work <span style={{ fontSize: 14 }}>→</span>
+              </div>
+            </div>
+
+            {/* Border glow on hover */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              border: `1.5px solid ${hovered === i ? 'rgba(212,84,26,0.6)' : 'rgba(255,255,255,0.06)'}`,
+              borderRadius: 4,
+              transition: 'border-color 0.25s',
+              pointerEvents: 'none',
+            }} />
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function CoolHubPage() {
-  const chCard = (accent) => ({
+  const [galleryOpen, setGalleryOpen] = useState(false)
+
+  const chCard = (accent, clickable) => ({
     border: `0.5px solid ${accent ? 'rgba(212,84,26,0.28)' : C.border}`,
     borderRadius: 4,
     padding: '22px 20px',
     background: accent ? 'linear-gradient(135deg, #12100d 0%, #0e1015 100%)' : C.bg2,
     position: 'relative',
     overflow: 'hidden',
+    cursor: clickable ? 'pointer' : 'default',
+    transition: clickable ? 'border-color 0.2s' : 'none',
   })
   const chBar = (accent) => ({
     position: 'absolute', top: 0, left: 0, right: 0, height: 1.5,
@@ -533,20 +695,33 @@ function CoolHubPage() {
       </div>
 
       {/* categories grid */}
-      <div style={{ padding: '16px 48px 28px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+      <div style={{ padding: '16px 48px 4px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
         {chCategories.map((cat) => (
-          <div key={cat.label} style={chCard(cat.accent)}>
+          <div
+            key={cat.label}
+            style={chCard(cat.accent, cat.accent)}
+            onClick={cat.accent ? () => setGalleryOpen(v => !v) : undefined}
+          >
             <div style={chBar(cat.accent)} />
             <div style={chIcon(cat.accent)}>{cat.icon}</div>
             <div style={{ fontSize: 8, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'inline-block' }} />
-              Building
+              <span style={{ width: 4, height: 4, borderRadius: '50%', background: cat.accent ? C.accent : 'rgba(255,255,255,0.18)', display: 'inline-block' }} />
+              {cat.accent ? (galleryOpen ? 'Click to close' : 'Click to explore') : 'Building'}
             </div>
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 2, color: '#fff', marginBottom: 8, lineHeight: 1 }}>{cat.label}</div>
             <p style={{ fontSize: 12, color: 'rgba(232,227,216,0.38)', lineHeight: 1.65, fontWeight: 300, margin: 0 }}>{cat.desc}</p>
           </div>
         ))}
       </div>
+
+      {/* Cutting Art Gallery — opens below the grid */}
+      {galleryOpen && (
+        <div style={{ margin: '12px 0 0', borderTop: `0.5px solid rgba(212,84,26,0.2)`, paddingTop: 24 }}>
+          <CuttingArtGallery onClose={() => setGalleryOpen(false)} />
+        </div>
+      )}
+
+      {!galleryOpen && <div style={{ paddingBottom: 28 }} />}
     </div>
   )
 }

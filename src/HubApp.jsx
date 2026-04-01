@@ -478,13 +478,15 @@ function NewsletterPage({ t }) {
   )
 }
 
+// Artists pending review — will be added back one by one after curation
+const CUTTING_ARTISTS = []
+
 const chCategories = [
   {
     icon: '✦',
     label: 'Cutting Art',
     desc: 'Artists and fabricators using plasma, laser, and waterjet as a medium. Decorative panels, sculptures, architectural pieces that started as a cut.',
     accent: true,
-    disabled: CUTTING_ARTISTS.length === 0,
   },
   {
     icon: '◎',
@@ -523,9 +525,6 @@ const chCategories = [
     accent: false,
   },
 ]
-
-// Artists pending review — will be added back one by one after curation
-const CUTTING_ARTISTS = []
 
 function CuttingArtGallery({ onClose }) {
   const [hovered, setHovered] = useState(null)
@@ -664,14 +663,14 @@ function CoolHubPage() {
         {chCategories.map((cat) => (
           <div
             key={cat.label}
-            style={chCard(cat.accent, cat.accent && !cat.disabled)}
-            onClick={cat.accent && !cat.disabled ? () => setGalleryOpen(v => !v) : undefined}
+            style={chCard(cat.accent, cat.accent && CUTTING_ARTISTS.length > 0)}
+            onClick={cat.accent && CUTTING_ARTISTS.length > 0 ? () => setGalleryOpen(v => !v) : undefined}
           >
             <div style={chBar(cat.accent)} />
             <div style={chIcon(cat.accent)}>{cat.icon}</div>
             <div style={{ fontSize: 8, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 4, height: 4, borderRadius: '50%', background: cat.accent ? C.accent : 'rgba(255,255,255,0.18)', display: 'inline-block' }} />
-              {cat.accent && !cat.disabled ? (galleryOpen ? 'Click to close' : 'Click to explore') : 'Building'}
+              {cat.accent && CUTTING_ARTISTS.length > 0 ? (galleryOpen ? 'Click to close' : 'Click to explore') : 'Building'}
             </div>
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 2, color: '#fff', marginBottom: 8, lineHeight: 1 }}>{cat.label}</div>
             <p style={{ fontSize: 12, color: 'rgba(232,227,216,0.38)', lineHeight: 1.65, fontWeight: 300, margin: 0 }}>{cat.desc}</p>

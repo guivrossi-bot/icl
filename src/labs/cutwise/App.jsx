@@ -1,14 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './index.css'
 import Hero from './components/Hero'
 import Wizard from './components/Wizard'
 import CutReport from './components/CutReport'
+
+function useMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth < 640)
+  useEffect(() => {
+    const handler = () => setMobile(window.innerWidth < 640)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return mobile
+}
 
 export default function CutwiseApp() {
   const [screen, setScreen] = useState('hero')
   const [answers, setAnswers] = useState({})
   const [units, setUnits] = useState('metric')
   const [lang, setLang] = useState('en')
+  const isMobile = useMobile()
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -33,8 +44,8 @@ export default function CutwiseApp() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Units toggle */}
-          <div style={{ display: 'flex', background: '#F5F8FC', borderRadius: 20, border: '1px solid #E8ECF2', overflow: 'hidden' }}>
+          {/* Units toggle — hidden on mobile */}
+          {!isMobile && <div style={{ display: 'flex', background: '#F5F8FC', borderRadius: 20, border: '1px solid #E8ECF2', overflow: 'hidden' }}>
             {['imperial', 'metric'].map(u => (
               <button key={u} onClick={() => setUnits(u)} style={{
                 padding: '4px 12px', fontSize: 11, fontWeight: 500, cursor: 'pointer',
@@ -46,7 +57,7 @@ export default function CutwiseApp() {
                 {u === 'imperial' ? 'in / lb' : 'mm / kg'}
               </button>
             ))}
-          </div>
+          </div>}
           {/* Language toggle */}
           <div style={{ display: 'flex', background: '#F5F8FC', borderRadius: 20, border: '1px solid #E8ECF2', overflow: 'hidden' }}>
             {['en', 'pt', 'es'].map(l => (
@@ -64,7 +75,7 @@ export default function CutwiseApp() {
             padding: '5px 16px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             background: '#EEF5FD', border: '1px solid #85B7EB', color: '#0C447C',
           }}>
-            {lang === 'pt' ? 'Iniciar análise' : lang === 'es' ? 'Iniciar análisis' : 'Start analysis'}
+            {lang === 'pt' ? 'Iniciar' : lang === 'es' ? 'Iniciar' : 'Start'}
           </button>
         </div>
       </nav>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { translations, detectLang } from './i18n/translations'
 import { saveLead, saveMessage } from './lib/supabase'
+import './hub.css'
 
 const NL_URL = 'https://www.linkedin.com/newsletters/7419724116267520000/?displayConfirmation=true'
 const LI_URL = 'https://www.linkedin.com/in/guivrossi/'
@@ -145,9 +146,10 @@ const s = {
 export default function HubApp() {
   const [lang, setLang] = useState(detectLang)
   const [page, setPage] = useState('home')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const t = translations[lang]
 
-  const go = (p) => setPage(p)
+  const go = (p) => { setPage(p); setMobileMenuOpen(false) }
   const changeLang = (l) => setLang(l)
 
   return (
@@ -155,11 +157,19 @@ export default function HubApp() {
       <div style={s.accentLine} />
 
       {/* NAV */}
-      <nav style={s.nav}>
+      <nav style={s.nav} className="hub-nav">
         <div style={s.navLeft} onClick={() => go('home')}>
           <span style={s.navLogo}>Industrial Cutting Labs<span style={s.navAccent}>.</span></span>
         </div>
-        <div style={s.navLinks}>
+        {/* Mobile hamburger — visible only on mobile via CSS */}
+        <button className="hub-menu-btn" onClick={() => setMobileMenuOpen(v => !v)} style={{
+          display: 'none', background: 'none', border: `0.5px solid ${C.border}`,
+          color: 'rgba(255,255,255,0.6)', padding: '5px 10px', borderRadius: 3, cursor: 'pointer',
+          fontSize: 14, fontFamily: "'DM Sans', sans-serif",
+        }}>
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
+        <div style={s.navLinks} className="hub-nav-links">
           {['home','labs','media','newsletter','coolhub','about'].map(p => (
             <button key={p} style={s.navBtn(page === p)} onClick={() => go(p)}>
               {t.nav[p] || p}
@@ -177,6 +187,30 @@ export default function HubApp() {
         </div>
       </nav>
 
+      {/* Mobile nav dropdown */}
+      {mobileMenuOpen && (
+        <div className="hub-mobile-menu" style={{
+          display: 'none', flexDirection: 'column', background: C.bg2, borderBottom: `0.5px solid ${C.border}`,
+        }}>
+          {['home','labs','media','newsletter','coolhub','about','talk'].map(p => (
+            <button key={p} onClick={() => go(p)} style={{
+              ...s.navBtn(page === p), padding: '14px 20px', textAlign: 'left',
+              borderBottom: `0.5px solid ${C.border}`, borderRadius: 0, width: '100%',
+              fontSize: 12, letterSpacing: '0.5px',
+            }}>
+              {t.nav[p] || p}
+            </button>
+          ))}
+          <div style={{ padding: '10px 16px', display: 'flex', gap: 6, borderTop: `0.5px solid ${C.border}` }}>
+            {['en','pt','es'].map(l => (
+              <button key={l} onClick={() => changeLang(l)} style={{
+                ...s.langBtn(lang === l), padding: '5px 10px', fontSize: 10,
+              }}>{l.toUpperCase()}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* PAGES */}
       {page === 'home' && <HomePage t={t} go={go} />}
       {page === 'labs' && <LabsPage t={t} go={go} />}
@@ -186,7 +220,7 @@ export default function HubApp() {
       {page === 'about' && <AboutPage t={t} />}
       {page === 'talk' && <TalkPage t={t} />}
 
-      <footer style={s.footer}>
+      <footer style={s.footer} className="hub-footer">
         <span style={s.fc}>{t.footer.copy}</span>
         <div style={s.fd} />
         <span style={s.fc}>{t.footer.tag}</span>
@@ -206,10 +240,10 @@ function HomePage({ t, go }) {
   ]
   return (
     <div>
-      <div style={s.homeHero}>
+      <div style={s.homeHero} className="hub-home-hero">
         <div>
           <div style={s.eyebrow}><span style={s.eyebrowLine} />Industrial Cutting Labs</div>
-          <h1 style={s.heroH1}>
+          <h1 style={s.heroH1} className="hub-home-h1">
             <span style={s.heroL1}>{h.l1}</span>
             <span style={s.heroL2}>{h.l2}</span>
             <span style={s.heroL3}>{h.l3}</span>
@@ -220,7 +254,7 @@ function HomePage({ t, go }) {
             <button style={s.btnGhost} onClick={() => go('about')}>{h.cta2}</button>
           </div>
         </div>
-        <div>
+        <div className="hub-home-right">
           <div style={s.heroSections}>
             {sections.map(sec => (
               <div key={sec.id} style={s.hsec(sec.feat)} onClick={() => go(sec.id)}>
@@ -235,14 +269,14 @@ function HomePage({ t, go }) {
           </div>
         </div>
       </div>
-      <div style={s.stats}>
+      <div style={s.stats} className="hub-stats">
         {[
           { val: '2', label: h.st },
           { val: '12', label: h.sy },
           { val: '4', label: h.sc },
           { val: '∞', label: h.sv },
         ].map((st, i) => (
-          <div key={i} style={s.stat(i < 3)}>
+          <div key={i} style={s.stat(i < 3)} className="hub-stat">
             <div style={s.statN}>{st.val}</div>
             <div style={s.statL}>{st.label}</div>
           </div>
@@ -256,18 +290,18 @@ function LabsPage({ t, go }) {
   const l = t.labs
   return (
     <div>
-      <div style={s.ph}>
+      <div style={s.ph} className="hub-ph">
         <div style={s.pl}><span style={s.plLine} />{l.label}</div>
         <h1 style={s.ph1}>{l.title}</h1>
         <p style={s.pd}>{l.desc}</p>
       </div>
 
-      <div style={s.disclaimer}>
+      <div style={s.disclaimer} className="hub-disclaimer">
         <span style={s.discIcon}>⚠</span>
         <span style={s.discText}>{l.disclaimer}</span>
       </div>
 
-      <div style={s.labsGrid}>
+      <div style={s.labsGrid} className="hub-labs-grid">
         {/* IGNITE — live */}
         <div style={{ ...s.tc(true, false), gridColumn: 'span 1' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #d4541a 0%, rgba(212,84,26,0.4) 60%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
@@ -358,7 +392,7 @@ function LabsPage({ t, go }) {
         </div>
       </div>
 
-      <div style={s.fbBanner}>
+      <div style={s.fbBanner} className="hub-fb-banner">
         <div style={s.fbMain}>
           <div style={s.fbTitle}>{l.feedbackTitle}</div>
           <div style={s.fbSub}>{l.feedbackSub}</div>
@@ -382,7 +416,7 @@ function MediaPage({ t }) {
 
   return (
     <div>
-      <div style={s.ph}>
+      <div style={s.ph} className="hub-ph">
         <div style={s.pl}><span style={s.plLine} />{m.label}</div>
         <h1 style={s.ph1}>{m.title}</h1>
       </div>
@@ -417,7 +451,7 @@ function NewsletterPage({ t }) {
     { num: 'Feb 28, 2026', title: 'Simplifying Industrial Networking with Plasma', date: '6 min read' },
   ]
   return (
-    <div style={s.nlPg}>
+    <div style={s.nlPg} className="hub-2col">
       <div>
         <div style={s.nlN}>01</div>
         <div style={s.pl}><span style={s.plLine} />{n.label}</div>
@@ -565,9 +599,9 @@ const CUTTING_ARTISTS = [
 function CuttingArtGallery({ onClose }) {
   const [hovered, setHovered] = useState(null)
   return (
-    <div style={{ padding: '0 48px 48px' }}>
+    <div style={{ padding: '0 48px 48px' }} className="hub-gallery">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, paddingTop: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, paddingTop: 4 }} className="hub-gallery-head">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, letterSpacing: 3, color: '#fff' }}>
             Cutting Art
@@ -588,7 +622,7 @@ function CuttingArtGallery({ onClose }) {
       </div>
 
       {/* Gallery grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }} className="hub-gallery-grid">
         {CUTTING_ARTISTS.map((artist, i) => (
           <a
             key={artist.name}
@@ -676,7 +710,7 @@ function CoolHubPage() {
 
   return (
     <div>
-      <div style={s.ph}>
+      <div style={s.ph} className="hub-ph">
         <div style={s.pl}><span style={s.plLine} />Cool Hub</div>
         <h1 style={s.ph1}>Unexpected Finds</h1>
         <p style={{ ...s.pd, maxWidth: 580 }}>
@@ -687,7 +721,7 @@ function CoolHubPage() {
       </div>
 
       {/* teaser banner */}
-      <div style={{ margin: '20px 48px 4px', padding: '13px 18px', background: 'rgba(212,84,26,0.04)', border: `0.5px solid rgba(212,84,26,0.12)`, borderRadius: 3, display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ margin: '20px 48px 4px', padding: '13px 18px', background: 'rgba(212,84,26,0.04)', border: `0.5px solid rgba(212,84,26,0.12)`, borderRadius: 3, display: 'flex', alignItems: 'center', gap: 12 }} className="hub-ch-teaser">
         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)' }}>◈</span>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', fontWeight: 300, lineHeight: 1.6 }}>
           All categories are being curated. Content drops as finds happen — no editorial schedule, no filler.
@@ -695,7 +729,7 @@ function CoolHubPage() {
       </div>
 
       {/* categories grid */}
-      <div style={{ padding: '16px 48px 4px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+      <div style={{ padding: '16px 48px 4px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }} className="hub-3col">
         {chCategories.map((cat) => (
           <div
             key={cat.label}
@@ -716,7 +750,7 @@ function CoolHubPage() {
 
       {/* Cutting Art Gallery — opens below the grid */}
       {galleryOpen && (
-        <div style={{ margin: '12px 0 0', borderTop: `0.5px solid rgba(212,84,26,0.2)`, paddingTop: 24 }}>
+        <div style={{ margin: '12px 0 0', borderTop: `0.5px solid rgba(212,84,26,0.2)`, paddingTop: 24 }} className="hub-ch-gallery">
           <CuttingArtGallery onClose={() => setGalleryOpen(false)} />
         </div>
       )}
@@ -736,12 +770,12 @@ function AboutPage({ t }) {
   ]
   return (
     <div>
-      <div style={s.ph}>
+      <div style={s.ph} className="hub-ph">
         <div style={s.pl}><span style={s.plLine} />{a.label}</div>
         <h1 style={s.ph1}>{a.title}</h1>
         <p style={{ ...s.pd, maxWidth: 600 }}>{a.mission}</p>
       </div>
-      <div style={s.valuesGrid}>
+      <div style={s.valuesGrid} className="hub-values-grid">
         {values.map(v => (
           <div key={v.n} style={s.valCard}>
             <div style={s.valNum}>{v.n}</div>
@@ -750,7 +784,7 @@ function AboutPage({ t }) {
           </div>
         ))}
       </div>
-      <div style={s.authorStrip}>
+      <div style={s.authorStrip} className="hub-author-strip">
         <div style={s.authorDot} />
         <span style={s.authorTxt}>{a.author}</span>
       </div>
@@ -770,7 +804,7 @@ function TalkPage({ t }) {
   }
 
   return (
-    <div style={s.talkPg}>
+    <div style={s.talkPg} className="hub-2col">
       <div>
         <div style={s.pl}><span style={s.plLine} />{tk.label}</div>
         <h1 style={s.ph1}>{tk.title}</h1>

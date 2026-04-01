@@ -1,0 +1,49 @@
+/* ── Mobile responsive overrides for HubApp ─────────────────────────── */
+@media (max-width: 767px) {
+
+  /* Nav */
+  .hub-nav          { padding: 0 16px !important; }
+  .hub-nav-links    { display: none !important; }
+  .hub-nav-lang     { display: none !important; }
+  .hub-menu-btn     { display: block !important; }
+  .hub-mobile-menu  { display: flex !important; }
+
+  /* Home hero */
+  .hub-home-hero    { grid-template-columns: 1fr !important; padding: 28px 16px 0 !important; gap: 0 !important; }
+  .hub-home-right   { display: none !important; }
+  .hub-home-h1      { font-size: 52px !important; }
+  .hub-stats        { padding: 24px 16px 0 !important; flex-wrap: wrap !important; }
+  .hub-stat         { min-width: 40% !important; }
+
+  /* Labs page */
+  .hub-disclaimer   { margin: 12px 16px 0 !important; }
+  .hub-labs-grid    { grid-template-columns: 1fr 1fr !important; padding: 16px 12px 20px !important; }
+  .hub-fb-banner    { margin: 0 12px 20px !important; flex-direction: column !important; gap: 10px !important; }
+
+  /* Section headers */
+  .hub-ph           { padding: 28px 16px 20px !important; }
+
+  /* 3-col grids (cool hub, etc.) */
+  .hub-3col         { grid-template-columns: 1fr !important; padding: 0 12px 24px !important; }
+
+  /* 2-col grids (newsletter, about, talk) */
+  .hub-2col         { grid-template-columns: 1fr !important; gap: 28px !important; padding: 28px 16px !important; }
+
+  /* About values grid */
+  .hub-values-grid  { padding: 16px 12px !important; grid-template-columns: 1fr !important; }
+
+  /* Author strip */
+  .hub-author-strip { margin: 0 12px 32px !important; }
+
+  /* Footer */
+  .hub-footer       { padding: 12px 16px !important; flex-direction: column !important; gap: 6px !important; text-align: center !important; }
+
+  /* Cutting Art gallery grid */
+  .hub-gallery      { padding: 0 12px 40px !important; }
+  .hub-gallery-grid { grid-template-columns: 1fr 1fr !important; }
+  .hub-gallery-head { padding-top: 0 !important; }
+
+  /* Cool Hub category teaser */
+  .hub-ch-teaser    { margin: 12px 12px 0 !important; }
+  .hub-ch-gallery   { padding: 0 !important; }
+}

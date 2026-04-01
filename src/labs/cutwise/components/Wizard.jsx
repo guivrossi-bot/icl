@@ -2,6 +2,16 @@ import { useState, useEffect, useRef } from 'react'
 import { saveLead } from '../../../lib/supabase'
 import t from '../i18n/translations'
 
+function useMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const handler = () => setMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return mobile
+}
+
 const TECH_COLORS = {
   plasma_conv:  '#EF9F27',
   plasma_hidef: '#BA7517',
@@ -128,6 +138,7 @@ function AnimatedBar({ value, color, prevValue }) {
 
 export default function Wizard({ lang = 'en', units, onComplete }) {
   const tr = t[lang]
+  const isMobile = useMobile()
   const [answers, setAnswers] = useState({})
   const [current, setCurrent] = useState(0)
   const [showAdv, setShowAdv] = useState(false)
@@ -203,7 +214,7 @@ export default function Wizard({ lang = 'en', units, onComplete }) {
   }
 
   return (
-    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 52px)' }}>
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', minHeight: 'calc(100vh - 52px)' }}>
 
       {/* LEFT: wizard */}
       <div style={{ borderRight: '1px solid #E8ECF2', display: 'flex', flexDirection: 'column', background: '#fff' }}>
@@ -322,7 +333,7 @@ export default function Wizard({ lang = 'en', units, onComplete }) {
       </div>
 
       {/* RIGHT: live comparison */}
-      <div style={{ background: '#F5F8FC', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+      {!isMobile && <div style={{ background: '#F5F8FC', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         <div style={{ padding: '12px 18px', borderBottom: '1px solid #E8ECF2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#F5F8FC', zIndex: 2 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#1E2A3A' }}>{tr.liveComparison}</div>
           <div style={{
@@ -389,7 +400,7 @@ export default function Wizard({ lang = 'en', units, onComplete }) {
             </p>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   )
 }

@@ -2,8 +2,8 @@ export const t = {
   en: {
     // Nav / landing
     appName: "JetCalc",
-    tagline: "Waterjet cutting parameters, instantly.",
-    subtitle: "Cut speed, cost per meter, and pierce time — powered by Hypertherm's proven abrasive waterjet formula.",
+    tagline: "Waterjet Cutting Calculator.",
+    subtitle: "Cut speed, cost per meter, and pierce time — for abrasive waterjet cutting across 84 materials.",
     startCta: "Calculate Now",
     featSpeed: "Cut Speed",
     featSpeedDesc: "Precise mm/min for any material & thickness",
@@ -122,8 +122,8 @@ export const t = {
   },
   pt: {
     appName: "JetCalc",
-    tagline: "Parâmetros de corte waterjet, instantaneamente.",
-    subtitle: "Velocidade de corte, custo por metro e tempo de pierce — baseado na fórmula comprovada da Hypertherm.",
+    tagline: "Calculadora de Corte Waterjet.",
+    subtitle: "Velocidade de corte, custo por metro e tempo de pierce — para corte waterjet abrasivo em 84 materiais.",
     startCta: "Calcular Agora",
     featSpeed: "Velocidade de Corte",
     featSpeedDesc: "mm/min preciso para qualquer material e espessura",
@@ -225,8 +225,8 @@ export const t = {
   },
   es: {
     appName: "JetCalc",
-    tagline: "Parámetros de corte waterjet, al instante.",
-    subtitle: "Velocidad de corte, costo por metro y tiempo de pierce — basado en la fórmula comprobada de Hypertherm.",
+    tagline: "Calculadora de Corte Waterjet.",
+    subtitle: "Velocidad de corte, costo por metro y tiempo de pierce — para corte waterjet abrasivo en 84 materiales.",
     startCta: "Calcular Ahora",
     featSpeed: "Velocidad de Corte",
     featSpeedDesc: "mm/min precisos para cualquier material y espesor",

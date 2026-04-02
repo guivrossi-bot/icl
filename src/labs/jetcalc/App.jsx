@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import './index.css'
 import { LanguageContext, UnitContext } from './lib/contexts'
 import { runCalculation } from './lib/calculations'
 import LandingPage from './components/LandingPage'

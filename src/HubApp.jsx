@@ -360,7 +360,7 @@ function LabsPage({ t, go }) {
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
-          <button style={s.tcta} onClick={() => window.open('https://jetcalc.vercel.app', '_blank')}>{l.jetcalcCta}</button>
+          <button style={s.tcta} onClick={() => window.open('/labs/jetcalc', '_self')}>{l.jetcalcCta}</button>
         </div>
 
         {/* CUTBOT AI — concept */}

@@ -1,13 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/labs/flare/:path*",
-      "destination": "https://flare-six.vercel.app/labs/flare/:path*"
-    },
-    {
-      "source": "/labs/cutbench/:path*",
-      "destination": "https://cut-bench.vercel.app/labs/cutbench/:path*"
-    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

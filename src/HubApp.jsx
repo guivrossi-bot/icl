@@ -143,6 +143,28 @@ const s = {
   fd: { width: 3, height: 3, borderRadius: '50%', background: C.accent },
 }
 
+const REL_COLORS = { 1: 'rgba(255,255,255,0.22)', 2: '#7986cb', 3: '#d4541a', 4: '#4db6ac', 5: '#639922' }
+
+function ReliabilityBadge({ level, l }) {
+  const color = REL_COLORS[level] || REL_COLORS[1]
+  const label = l[`relL${level}`]
+  const desc = l[`relL${level}Desc`]
+  return (
+    <div style={{ marginTop: 12, paddingTop: 10, borderTop: '0.5px solid rgba(255,255,255,0.07)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+        <span style={{ fontSize: 8, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', fontFamily: "'DM Sans', sans-serif" }}>{l.relLabel}</span>
+        <div style={{ display: 'flex', gap: 3, marginLeft: 'auto' }}>
+          {[1,2,3,4,5].map(i => (
+            <span key={i} style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: i <= level ? color : 'rgba(255,255,255,0.1)' }} />
+          ))}
+          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color, fontFamily: "'DM Sans', sans-serif", marginLeft: 4 }}>{label}</span>
+        </div>
+      </div>
+      <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', fontStyle: 'italic', lineHeight: 1.5, margin: 0, fontWeight: 300 }}>{desc} — {l.relDisclaimer}</p>
+    </div>
+  )
+}
+
 export default function HubApp() {
   const [lang, setLang] = useState(detectLang)
   const [page, setPage] = useState('home')
@@ -315,7 +337,8 @@ function LabsPage({ t, go }) {
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
-          <button style={s.tcta} onClick={() => window.open(IGNITE_URL, '_self')}>{l.igniteCta}</button>
+          <ReliabilityBadge level={4} l={l} />
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open(IGNITE_URL, '_self')}>{l.igniteCta}</button>
         </div>
 
         {/* CUTWISE — live */}
@@ -344,7 +367,8 @@ function LabsPage({ t, go }) {
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
-          <button style={s.tcta} onClick={() => window.open('/labs/cutwise', '_self')}>{l.igniteCta.replace('calculator', 'selector')}</button>
+          <ReliabilityBadge level={2} l={l} />
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/cutwise', '_self')}>{l.igniteCta.replace('calculator', 'selector')}</button>
         </div>
 
         {/* JETCALC — live */}
@@ -360,7 +384,8 @@ function LabsPage({ t, go }) {
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
-          <button style={s.tcta} onClick={() => window.open('/labs/jetcalc', '_self')}>{l.jetcalcCta}</button>
+          <ReliabilityBadge level={5} l={l} />
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/jetcalc', '_self')}>{l.jetcalcCta}</button>
         </div>
 
         {/* CUTBOT AI — concept */}
@@ -373,30 +398,41 @@ function LabsPage({ t, go }) {
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
+          <ReliabilityBadge level={1} l={l} />
         </div>
 
-        {/* PROCESS FINDER — concept */}
-        <div style={{ ...s.tc(false, false), opacity: 0.35 }}>
-          <div style={s.ts}><span style={s.dotPlan} />{l.exploring}</div>
-          <div style={s.tn(false)}>{l.processFindName}</div>
-          <p style={s.tdesc}>{l.processFindDesc}</p>
+        {/* FLARE — live */}
+        <div style={s.tc(false, false)}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #d4541a 0%, rgba(212,84,26,0.35) 60%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
+          <div style={{ position: 'absolute', top: -10, right: -10, width: 110, height: 110, borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,84,26,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 14, right: 16, fontSize: 48, lineHeight: 1, opacity: 0.22, pointerEvents: 'none', userSelect: 'none', filter: 'drop-shadow(0 0 10px rgba(212,84,26,0.5))' }}>🔥</div>
+          <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
+          <div style={s.tn(false)}>{l.flareName}</div>
+          <p style={s.tdesc}>{l.flareDesc}</p>
           <div style={s.tags}>
-            {['Material', 'Thickness', 'Process'].map(tag => (
+            {['Plasma', 'Oil & Gas', 'Refinery', 'EN / ES / PT'].map(tag => (
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
+          <ReliabilityBadge level={3} l={l} />
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/flare/', '_self')}>{l.flareCta}</button>
         </div>
 
-        {/* PART FINDER — concept */}
-        <div style={{ ...s.tc(false, false), opacity: 0.35 }}>
-          <div style={s.ts}><span style={s.dotPlan} />{l.exploring}</div>
-          <div style={s.tn(false)}>{l.partFindName}</div>
-          <p style={s.tdesc}>{l.partFindDesc}</p>
+        {/* CUTBENCH — live */}
+        <div style={s.tc(false, false)}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #4db6ac 0%, rgba(77,182,172,0.35) 60%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
+          <div style={{ position: 'absolute', top: -10, right: -10, width: 110, height: 110, borderRadius: '50%', background: 'radial-gradient(circle, rgba(77,182,172,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 14, right: 16, fontSize: 48, lineHeight: 1, opacity: 0.2, pointerEvents: 'none', userSelect: 'none', filter: 'drop-shadow(0 0 10px rgba(77,182,172,0.4))' }}>⚖️</div>
+          <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
+          <div style={s.tn(false)}>{l.cutbenchName}</div>
+          <p style={s.tdesc}>{l.cutbenchDesc}</p>
           <div style={s.tags}>
-            {['Consumables', 'Part Number', 'Search'].map(tag => (
+            {['Plasma', 'Laser', 'Waterjet', 'Oxyfuel'].map(tag => (
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
+          <ReliabilityBadge level={3} l={l} />
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/cutbench/', '_self')}>{l.cutbenchCta}</button>
         </div>
 
         {/* PLACEHOLDER — more coming */}

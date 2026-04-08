@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/labs/flare/:path*",
+      "destination": "https://flare-six.vercel.app/labs/flare/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

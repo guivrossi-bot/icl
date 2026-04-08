@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/labs/flare/:path*",
-      "destination": "https://flare-six.vercel.app/labs/flare/:path*"
+      "destination": "https://flare-six.vercel.app/:path*"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

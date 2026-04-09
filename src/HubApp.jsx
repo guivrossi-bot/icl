@@ -928,11 +928,11 @@ function TalkPage({ t, s, C }) {
             </div>
             <span style={s.chArr}>→</span>
           </div>
-          <div style={s.channel} onClick={() => window.open(`mailto:gui@industrialcuttinglabs.com`)}>
+          <div style={s.channel} onClick={() => window.open(`mailto:guilherme.rossi@hypertherm.com`)}>
             <div style={s.chDot(C.accent)} />
             <div style={s.chInfo}>
               <div style={s.chLabel}>Email</div>
-              <div style={s.chVal}>gui@industrialcuttinglabs.com</div>
+              <div style={s.chVal}>guilherme.rossi@hypertherm.com</div>
             </div>
             <span style={s.chArr}>→</span>
           </div>

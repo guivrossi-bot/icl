@@ -1,5 +1,10 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/labs/ignite/:path*",   "destination": "https://ignite-beta-ochre.vercel.app/:path*" },
+    { "source": "/labs/flare/:path*",    "destination": "https://flare-six.vercel.app/:path*" },
+    { "source": "/labs/cutbench/:path*", "destination": "https://cut-bench.vercel.app/:path*" },
+    { "source": "/labs/cutwise/:path*",  "destination": "https://cutwise-pearl.vercel.app/:path*" },
+    { "source": "/labs/jetcalc/:path*",  "destination": "https://jetcalc.vercel.app/:path*" },
+    { "source": "/(.*)",                 "destination": "/index.html" }
   ]
 }

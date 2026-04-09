@@ -552,12 +552,17 @@ function MediaPage({ t, s }) {
 function NewsletterPage({ t, s }) {
   const n = t.newsletter
   const issues = [
-    { num: 'Mar 30, 2026', title: 'Plasma 101 — Part 2: Gases', date: '5 min read' },
-    { num: 'Mar 24, 2026', title: 'Plasma 101 — Part 1: What Fast Five Got (Surprisingly) Right', date: '5 min read' },
-    { num: 'Mar 16, 2026', title: 'Shipbuilding Is Not a Cutting Problem.', date: '5 min read' },
-    { num: 'Mar 9, 2026', title: 'What 3D Printing Got Right That Industrial Cutting Still Gets Wrong', date: '5 min read' },
-    { num: 'Mar 9, 2026', title: 'How to Fix Your Cutting Operations in 1 Day', date: '4 min read' },
-    { num: 'Feb 28, 2026', title: 'Simplifying Industrial Networking with Plasma', date: '6 min read' },
+    { num: 'Apr 9, 2026',  title: 'Plasma 101 — Part 3: Consumables', date: '5 min read' },
+    { num: 'Apr 2, 2026',  title: 'Plasma 101 — Part 2: Gases', date: '5 min read' },
+    { num: 'Mar 26, 2026', title: 'Plasma 101 — Part 1: What Fast Five Got (Surprisingly) Right', date: '5 min read' },
+    { num: 'Mar 19, 2026', title: 'Shipbuilding Is Not a Cutting Problem.', date: '5 min read' },
+    { num: 'Mar 12, 2026', title: 'How to Fix Your Cutting Operations in 1 Day', date: '4 min read' },
+    { num: 'Mar 5, 2026',  title: 'What 3D Printing Got Right That Industrial Cutting Still Gets Wrong', date: '5 min read' },
+    { num: 'Feb 26, 2026', title: 'Simplifying Industrial Networking with Plasma', date: '6 min read' },
+    { num: 'Feb 12, 2026', title: 'Why Uptime, Not Innovation, Determines Who Wins in Industrial Cutting', date: '5 min read' },
+    { num: 'Feb 5, 2026',  title: 'Cutting Process Calculators', date: '4 min read' },
+    { num: 'Jan 29, 2026', title: 'Plasma Cutting Exotic Metals: Practical Guidelines When No Cut Charts Exist', date: '6 min read' },
+    { num: 'Jan 22, 2026', title: 'Marking with Plasma', date: '5 min read' },
   ]
   return (
     <div style={s.nlPg} className="hub-2col">

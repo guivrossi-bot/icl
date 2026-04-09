@@ -551,6 +551,7 @@ function MediaPage({ t, s }) {
 
 // Newsletter images — decorative strip (order doesn't matter, just visual color)
 const NL_IMAGES = [
+  '/newsletter/cover_newsletter_ICP.png',
   '/newsletter/01.jpg',
   '/newsletter/02.jpg',
   '/newsletter/03.jpg',

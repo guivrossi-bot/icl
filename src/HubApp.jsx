@@ -54,7 +54,7 @@ const C_LIGHT = {
 function buildStyles(C) {
   return {
     root: { background: C.bg, color: C.text, fontFamily: "'DM Sans', sans-serif", minHeight: '100vh' },
-    accentLine: { height: 2, background: `linear-gradient(90deg, transparent, ${C.accent}, #f5a623, transparent)` },
+    accentLine: { height: 2, background: 'linear-gradient(90deg, transparent 0%, #d4541a 20%, #378ADD 40%, #1e6ab5 60%, #4db6ac 80%, transparent 100%)' },
 
     // NAV
     nav: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 48px', height: 56, borderBottom: `0.5px solid ${C.border}` },

@@ -551,7 +551,6 @@ function MediaPage({ t, s }) {
 
 // Newsletter images — decorative strip (order doesn't matter, just visual color)
 const NL_IMAGES = [
-  '/newsletter/cover_newsletter_ICP.png',
   '/newsletter/01.jpg',
   '/newsletter/02.jpg',
   '/newsletter/03.jpg',
@@ -587,16 +586,36 @@ function NewsletterPage({ t, s }) {
   return (
     <div style={{ paddingBottom: 40 }}>
       {/* Header */}
-      <div style={{ ...s.ph, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }} className="hub-ph hub-nl-header">
+      <div style={{ ...s.ph, display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center' }} className="hub-ph hub-nl-header">
         <div>
           <div style={s.pl}><span style={s.plLine} />{n.label}</div>
-          <h1 style={{ ...s.ph1, marginBottom: 6 }}>{n.title}</h1>
-          <p style={{ ...s.pd, marginBottom: 0 }}>{n.desc}</p>
+          <h1 style={{ ...s.ph1, marginBottom: 10 }}>{n.title}</h1>
+          <p style={{ ...s.pd, marginBottom: 20 }}>{n.desc}</p>
+          <button style={s.liBtn} onClick={() => window.open(NL_URL, '_blank')}>
+            <div style={s.liIcon}><span style={s.liIn}>in</span></div>
+            {n.cta}
+          </button>
         </div>
-        <button style={{ ...s.liBtn, flexShrink: 0 }} onClick={() => window.open(NL_URL, '_blank')}>
-          <div style={s.liIcon}><span style={s.liIn}>in</span></div>
-          {n.cta}
-        </button>
+        {/* Featured cover */}
+        <div
+          onClick={() => window.open(NL_URL, '_blank')}
+          style={{ cursor: 'pointer', flexShrink: 0 }}
+          title="Read on LinkedIn"
+        >
+          <img
+            src="/newsletter/cover_newsletter_ICP.png"
+            alt="Industrial Cutting Processes Newsletter"
+            style={{
+              width: 180, height: 180, objectFit: 'cover', display: 'block',
+              borderRadius: 6,
+              border: `1px solid rgba(212,84,26,0.3)`,
+              boxShadow: '0 8px 32px rgba(212,84,26,0.2), 0 2px 8px rgba(0,0,0,0.4)',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(212,84,26,0.35), 0 4px 12px rgba(0,0,0,0.5)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(212,84,26,0.2), 0 2px 8px rgba(0,0,0,0.4)' }}
+          />
+        </div>
       </div>
 
       {/* Scrolling image strip */}

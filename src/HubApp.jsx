@@ -557,6 +557,7 @@ const NL_IMAGES = [
   '/newsletter/04.jpg',
   '/newsletter/05.jpg',
   '/newsletter/06.jpg',
+  '/newsletter/07.jpg',
   '/newsletter/08.jpg',
   '/newsletter/09.jpg',
   '/newsletter/10.jpg',

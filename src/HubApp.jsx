@@ -549,43 +549,94 @@ function MediaPage({ t, s }) {
   )
 }
 
+// Newsletter images — decorative strip (order doesn't matter, just visual color)
+const NL_IMAGES = [
+  '/newsletter/01.jpg',
+  '/newsletter/02.jpg',
+  '/newsletter/03.jpg',
+  '/newsletter/04.jpg',
+  '/newsletter/05.jpg',
+  '/newsletter/06.jpg',
+  '/newsletter/07.jpg',
+  '/newsletter/08.jpg',
+  '/newsletter/09.jpg',
+  '/newsletter/10.jpg',
+]
+
 function NewsletterPage({ t, s }) {
   const n = t.newsletter
   const issues = [
-    { num: 'Apr 9, 2026',  title: 'Plasma 101 — Part 3: Consumables', date: '5 min read' },
-    { num: 'Apr 2, 2026',  title: 'Plasma 101 — Part 2: Gases', date: '5 min read' },
-    { num: 'Mar 26, 2026', title: 'Plasma 101 — Part 1: What Fast Five Got (Surprisingly) Right', date: '5 min read' },
-    { num: 'Mar 19, 2026', title: 'Shipbuilding Is Not a Cutting Problem.', date: '5 min read' },
-    { num: 'Mar 12, 2026', title: 'How to Fix Your Cutting Operations in 1 Day', date: '4 min read' },
-    { num: 'Mar 5, 2026',  title: 'What 3D Printing Got Right That Industrial Cutting Still Gets Wrong', date: '5 min read' },
-    { num: 'Feb 26, 2026', title: 'Simplifying Industrial Networking with Plasma', date: '6 min read' },
-    { num: 'Feb 12, 2026', title: 'Why Uptime, Not Innovation, Determines Who Wins in Industrial Cutting', date: '5 min read' },
-    { num: 'Feb 5, 2026',  title: 'Cutting Process Calculators', date: '4 min read' },
-    { num: 'Jan 29, 2026', title: 'Plasma Cutting Exotic Metals: Practical Guidelines When No Cut Charts Exist', date: '6 min read' },
-    { num: 'Jan 22, 2026', title: 'Marking with Plasma', date: '5 min read' },
+    { num: 'Apr 9, 2026',  title: 'Plasma 101 — Part 3: Consumables' },
+    { num: 'Apr 2, 2026',  title: 'Plasma 101 — Part 2: Gases' },
+    { num: 'Mar 26, 2026', title: 'Plasma 101 — Part 1: What Fast Five Got (Surprisingly) Right' },
+    { num: 'Mar 19, 2026', title: 'Shipbuilding Is Not a Cutting Problem.' },
+    { num: 'Mar 12, 2026', title: 'How to Fix Your Cutting Operations in 1 Day' },
+    { num: 'Mar 5, 2026',  title: 'What 3D Printing Got Right That Industrial Cutting Still Gets Wrong' },
+    { num: 'Feb 26, 2026', title: 'Simplifying Industrial Networking with Plasma' },
+    { num: 'Feb 12, 2026', title: 'Why Uptime, Not Innovation, Determines Who Wins in Industrial Cutting' },
+    { num: 'Feb 5, 2026',  title: 'Cutting Process Calculators' },
+    { num: 'Jan 29, 2026', title: 'Plasma Cutting Exotic Metals: Practical Guidelines When No Cut Charts Exist' },
+    { num: 'Jan 22, 2026', title: 'Marking with Plasma' },
   ]
+  // duplicate for seamless infinite scroll
+  const strip = [...NL_IMAGES, ...NL_IMAGES]
+
   return (
-    <div style={s.nlPg} className="hub-2col">
-      <div>
-        <div style={s.nlN}>01</div>
-        <div style={s.pl}><span style={s.plLine} />{n.label}</div>
-        <h1 style={s.ph1}>{n.title}</h1>
-        <p style={s.nlDesc}>{n.desc}</p>
-        <button style={s.liBtn} onClick={() => window.open(NL_URL, '_blank')}>
+    <div style={{ paddingBottom: 40 }}>
+      {/* Header */}
+      <div style={{ ...s.ph, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }} className="hub-ph hub-nl-header">
+        <div>
+          <div style={s.pl}><span style={s.plLine} />{n.label}</div>
+          <h1 style={{ ...s.ph1, marginBottom: 6 }}>{n.title}</h1>
+          <p style={{ ...s.pd, marginBottom: 0 }}>{n.desc}</p>
+        </div>
+        <button style={{ ...s.liBtn, flexShrink: 0 }} onClick={() => window.open(NL_URL, '_blank')}>
           <div style={s.liIcon}><span style={s.liIn}>in</span></div>
           {n.cta}
         </button>
       </div>
-      <div>
-        <div style={{ ...s.pl, marginBottom: 8 }}><span style={s.plLine} />{n.recent}</div>
-        <div style={s.nlIssues}>
-          {issues.map((issue, i) => (
-            <div key={i} style={s.nlIssue} onClick={() => window.open(NL_URL, '_blank')}>
-              <div style={s.nlINum}>{issue.num}</div>
-              <div style={s.nlITitle}>{issue.title}</div>
-              <div style={s.nlIMeta}>{issue.date}</div>
+
+      {/* Scrolling image strip */}
+      <div style={{ position: 'relative', overflow: 'hidden', height: 200, margin: '0 0 0' }}>
+        {/* Fade edges */}
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(90deg, ${s.root.background}, transparent)`, zIndex: 2, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(270deg, ${s.root.background}, transparent)`, zIndex: 2, pointerEvents: 'none' }} />
+        {/* Scrolling track */}
+        <div className="hub-nl-strip">
+          {strip.map((src, i) => (
+            <div key={i} style={{ flexShrink: 0, width: 320, height: 200, overflow: 'hidden', borderRadius: 3 }}>
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0.75 }}
+              />
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Editions list + subscribe col */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, padding: '32px 48px 0' }} className="hub-2col">
+        <div>
+          <div style={{ ...s.pl, marginBottom: 10 }}><span style={s.plLine} />{n.recent}</div>
+          <div style={s.nlIssues}>
+            {issues.map((issue, i) => (
+              <div key={i} style={s.nlIssue} onClick={() => window.open(NL_URL, '_blank')}>
+                <div style={s.nlINum}>{issue.num}</div>
+                <div style={s.nlITitle}>{issue.title}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ paddingTop: 32 }}>
+          <div style={s.nlN}>11</div>
+          <p style={s.nlDesc}>{n.desc2 || 'Biweekly deep-dives on plasma, laser, waterjet and oxyfuel — applications, trade-offs, and decision-making for people who actually work with these machines.'}</p>
+          <div style={{ fontSize: 11, color: s.statL.color, letterSpacing: '1px', marginBottom: 16, textTransform: 'uppercase' }}>520 subscribers · biweekly</div>
+          <button style={s.liBtn} onClick={() => window.open(NL_URL, '_blank')}>
+            <div style={s.liIcon}><span style={s.liIn}>in</span></div>
+            {n.cta}
+          </button>
         </div>
       </div>
     </div>

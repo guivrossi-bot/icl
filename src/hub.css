@@ -1,3 +1,18 @@
+/* ── Newsletter image strip ──────────────────────────────────────────── */
+.hub-nl-strip {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  animation: nl-scroll 40s linear infinite;
+}
+.hub-nl-strip:hover {
+  animation-play-state: paused;
+}
+@keyframes nl-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* ── Mobile responsive overrides for HubApp ─────────────────────────── */
 @media (max-width: 767px) {
 

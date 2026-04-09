@@ -5,7 +5,7 @@ import './hub.css'
 
 const NL_URL = 'https://www.linkedin.com/newsletters/7419724116267520000/?displayConfirmation=true'
 const LI_URL = 'https://www.linkedin.com/in/guivrossi/'
-const IGNITE_URL = '/labs/ignite'
+const IGNITE_URL = 'https://ignite.industrialcuttinglabs.com'
 
 const C = {
   bg: '#0a0c0f', bg2: '#0e1015', bg3: '#13161c',
@@ -368,7 +368,7 @@ function LabsPage({ t, go }) {
             ))}
           </div>
           <ReliabilityBadge level={2} l={l} />
-          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/cutwise', '_self')}>{l.igniteCta.replace('calculator', 'selector')}</button>
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('https://cutwise.industrialcuttinglabs.com', '_self')}>{l.igniteCta.replace('calculator', 'selector')}</button>
         </div>
 
         {/* JETCALC — live */}
@@ -385,7 +385,7 @@ function LabsPage({ t, go }) {
             ))}
           </div>
           <ReliabilityBadge level={5} l={l} />
-          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/jetcalc', '_self')}>{l.jetcalcCta}</button>
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('https://jetcalc.industrialcuttinglabs.com', '_self')}>{l.jetcalcCta}</button>
         </div>
 
         {/* CUTBOT AI — concept */}
@@ -415,7 +415,7 @@ function LabsPage({ t, go }) {
             ))}
           </div>
           <ReliabilityBadge level={3} l={l} />
-          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/flare/', '_self')}>{l.flareCta}</button>
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('https://flare.industrialcuttinglabs.com', '_self')}>{l.flareCta}</button>
         </div>
 
         {/* CUTBENCH — live */}
@@ -432,7 +432,7 @@ function LabsPage({ t, go }) {
             ))}
           </div>
           <ReliabilityBadge level={3} l={l} />
-          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/labs/cutbench/', '_self')}>{l.cutbenchCta}</button>
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('https://cutbench.industrialcuttinglabs.com', '_self')}>{l.cutbenchCta}</button>
         </div>
 
         {/* PLACEHOLDER — more coming */}

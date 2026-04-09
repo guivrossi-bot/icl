@@ -350,10 +350,10 @@ function HomePage({ t, go, s, C }) {
       </div>
       <div style={s.stats} className="hub-stats">
         {[
-          { val: '3', label: h.st },
+          { val: '5', label: h.st },
           { val: '12', label: h.sy },
+          { val: '11', label: h.snl },
           { val: '4', label: h.sc },
-          { val: '∞', label: h.sv },
         ].map((st, i) => (
           <div key={i} style={s.stat(i < 3)} className="hub-stat">
             <div style={s.statN}>{st.val}</div>

@@ -1,0 +1,64 @@
+# Industrial Cutting Labs
+> A non-profit, independent knowledge hub for industrial cutting professionals and enthusiasts. Covers plasma, waterjet, and laser cutting — openly explored, freely shared.
+
+**URL:** https://www.industrialcuttinglabs.com
+**Author:** Gui Rossi — Business Development & Cutting Technology Specialist, 12+ years across the Americas
+**Affiliation:** Author works at Hypertherm, but this platform is fully independent and not affiliated with or endorsed by any manufacturer.
+**Languages:** English, Portuguese, Spanish
+**License:** Open access — no paywalls, no subscriptions
+
+---
+
+## What this site is
+
+Industrial Cutting Labs is a personal project that makes industrial cutting knowledge openly accessible. It provides free tools, calculators, and educational content about plasma cutting, waterjet cutting, and laser cutting processes.
+
+---
+
+## Tools & Calculators (Labs)
+
+### Ignite — Plasma Cutting Savings Calculator
+**URL:** https://ignite.industrialcuttinglabs.com
+**Description:** Calculates annual savings from upgrading to modern plasma cutting technology in shipbuilding and heavy fabrication. Covers reduced material waste, labor savings, gas consumption, and rework reduction. Multilingual (EN/PT/ES), metric & imperial, PDF export.
+**Status:** Live
+
+### JetCalc — Waterjet Cutting Calculator
+**URL:** https://jetcalc.industrialcuttinglabs.com
+**Description:** Calculates waterjet cutting speed, cost per meter, and pierce time across 84 materials. Covers metals, composites, stone, and glass. Metric and imperial units.
+**Status:** Live
+
+### Flare — Oil & Gas Plasma Savings Calculator
+**URL:** https://flare.industrialcuttinglabs.com
+**Description:** Plasma cutting savings calculator specifically designed for oil & gas refineries and heavy industry. Multilingual, metric & imperial.
+**Status:** Live
+
+### Cutbench — Process Benchmark Tool
+**URL:** https://cutbench.industrialcuttinglabs.com
+**Description:** Side-by-side process benchmark comparing plasma, laser, waterjet, and oxyfuel cutting on speed, cost per meter, and application fit.
+**Status:** Live
+
+### Cutwise — Cutting Technology Selector
+**URL:** https://cutwise.industrialcuttinglabs.com
+**Description:** Helps engineers and buyers select the right cutting technology (plasma, laser, waterjet) based on material, thickness, tolerance, and budget.
+**Status:** Live
+
+---
+
+## Key topics covered
+
+- Plasma cutting process parameters (amperage, gas selection, cut speed, pierce time)
+- Waterjet cutting speeds and costs by material and thickness
+- Laser vs plasma vs waterjet vs oxyfuel comparison
+- Industrial cutting cost analysis and ROI calculation
+- Cutting technology selection by application
+- Shipbuilding and heavy fabrication cutting processes
+- Oil & gas refinery cutting applications
+- Consumables and process optimization
+
+---
+
+## Contact
+
+**LinkedIn:** https://www.linkedin.com/in/guivrossi/
+**Newsletter:** https://www.linkedin.com/newsletters/industrial-cutting-processes
+**Email:** guilherme.rossi@hypertherm.com

@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# AI crawlers — explicitly allowed
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Grok
+Allow: /
+
+Sitemap: https://www.industrialcuttinglabs.com/sitemap.xml
+Sitemap: https://www.industrialcuttinglabs.com/llms.txt

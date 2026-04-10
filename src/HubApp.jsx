@@ -295,7 +295,7 @@ export default function HubApp() {
       {page === 'labs'       && <LabsPage        t={t} go={go} s={s} C={C} />}
       {page === 'media'      && <MediaPage       t={t} s={s} />}
       {page === 'newsletter' && <NewsletterPage  t={t} s={s} />}
-      {page === 'coolhub'    && <CoolHubPage     t={t} s={s} C={C} />}
+      {page === 'coolhub'    && <CoolHubPage     t={t} s={s} C={C} ch={t.coolhub} />}
       {page === 'about'      && <AboutPage       t={t} s={s} />}
       {page === 'talk'       && <TalkPage        t={t} s={s} C={C} />}
 
@@ -314,7 +314,7 @@ function HomePage({ t, go, s, C }) {
     { id: 'labs', label: h.hsl, title: h.hst, icon: '⚡', feat: true },
     { id: 'media', label: h.hml, title: h.hmt, icon: '▶', soon: true },
     { id: 'newsletter', label: h.hnl, title: h.hnt, icon: '✦' },
-    { id: 'coolhub', label: 'Cool Hub', title: 'Unexpected finds from the field', icon: '◈', soon: true },
+    { id: 'coolhub', label: t.coolhub.homeLabel, title: t.coolhub.homeTitle, icon: '◈', soon: true },
     { id: 'talk', label: h.htl, title: h.htt, icon: '◎' },
   ]
   return (
@@ -713,7 +713,7 @@ const chCategories = [
   },
 ]
 
-function CuttingArtGallery({ onClose, C }) {
+function CuttingArtGallery({ onClose, C, ch }) {
   const [hovered, setHovered] = useState(null)
   return (
     <div style={{ padding: '0 48px 48px' }} className="hub-gallery">
@@ -721,21 +721,20 @@ function CuttingArtGallery({ onClose, C }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, paddingTop: 4 }} className="hub-gallery-head">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, letterSpacing: 3, color: C.hi }}>
-            Cutting Art
+            {ch.galleryTitle}
           </div>
           <div style={{ fontSize: 10, color: C.t25, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
-            10 artists
+            {ch.galleryArtists}
           </div>
         </div>
         <button onClick={onClose} style={{ background: 'none', border: `0.5px solid ${C.border}`, color: C.t40, fontSize: 11, padding: '4px 12px', borderRadius: 3, cursor: 'pointer', letterSpacing: '0.5px' }}>
-          ✕ close
+          {ch.galleryClose}
         </button>
       </div>
 
       {/* Disclaimer */}
       <div style={{ marginBottom: 20, fontSize: 11, color: C.t22, lineHeight: 1.6, maxWidth: 640, borderLeft: `2px solid rgba(212,84,26,0.3)`, paddingLeft: 10 }}>
-        No affiliation, sponsorship, or commercial relationship with any of these artists.
-        I just think what they make is incredible — and figured others in this industry should know their work exists.
+        {ch.galleryDisclaimer}
       </div>
 
       {/* Gallery grid */}
@@ -791,7 +790,7 @@ function CuttingArtGallery({ onClose, C }) {
   )
 }
 
-function CoolHubPage({ s, C }) {
+function CoolHubPage({ s, C, ch }) {
   const [galleryOpen, setGalleryOpen] = useState(false)
 
   const chCard = (accent, clickable) => ({
@@ -821,28 +820,24 @@ function CoolHubPage({ s, C }) {
   return (
     <div>
       <div style={s.ph} className="hub-ph">
-        <div style={s.pl}><span style={s.plLine} />Cool Hub</div>
-        <h1 style={s.ph1}>Unexpected Finds</h1>
-        <p style={{ ...s.pd, maxWidth: 580 }}>
-          Art, oddities, and things you wouldn't expect to find in an industrial cutting context.
-          Things I found in the field, or stumbled upon, that made me stop and think — or just smile.
-          Curated from real experience. No sponsor, no agenda.
-        </p>
+        <div style={s.pl}><span style={s.plLine} />{ch.label}</div>
+        <h1 style={s.ph1}>{ch.title}</h1>
+        <p style={{ ...s.pd, maxWidth: 580 }}>{ch.desc}</p>
       </div>
 
       {/* teaser banner */}
       <div style={{ margin: '20px 48px 4px', padding: '13px 18px', background: 'rgba(212,84,26,0.04)', border: `0.5px solid rgba(212,84,26,0.12)`, borderRadius: 3, display: 'flex', alignItems: 'center', gap: 12 }} className="hub-ch-teaser">
         <span style={{ fontSize: 11, color: C.t22 }}>◈</span>
         <span style={{ fontSize: 12, color: C.t38, fontWeight: 300, lineHeight: 1.6 }}>
-          All categories are being curated. Content drops as finds happen — no editorial schedule, no filler.
+          {ch.teaser}
         </span>
       </div>
 
       {/* categories grid */}
       <div style={{ padding: '16px 48px 4px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }} className="hub-3col">
-        {chCategories.map((cat) => (
+        {chCategories.map((cat, i) => (
           <div
-            key={cat.label}
+            key={cat.icon}
             style={chCard(cat.accent, cat.accent && CUTTING_ARTISTS.length > 0)}
             onClick={cat.accent && CUTTING_ARTISTS.length > 0 ? () => setGalleryOpen(v => !v) : undefined}
           >
@@ -850,10 +845,10 @@ function CoolHubPage({ s, C }) {
             <div style={chIcon(cat.accent)}>{cat.icon}</div>
             <div style={{ fontSize: 8, letterSpacing: '1.5px', textTransform: 'uppercase', color: C.t28, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 4, height: 4, borderRadius: '50%', background: cat.accent ? C.accent : C.t18, display: 'inline-block' }} />
-              {cat.accent && CUTTING_ARTISTS.length > 0 ? (galleryOpen ? 'Click to close' : 'Click to explore') : 'Building'}
+              {cat.accent && CUTTING_ARTISTS.length > 0 ? (galleryOpen ? ch.clickClose : ch.clickExplore) : ch.building}
             </div>
-            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 2, color: C.hi, marginBottom: 8, lineHeight: 1 }}>{cat.label}</div>
-            <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.65, fontWeight: 300, margin: 0 }}>{cat.desc}</p>
+            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 2, color: C.hi, marginBottom: 8, lineHeight: 1 }}>{ch.cats[i].label}</div>
+            <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.65, fontWeight: 300, margin: 0 }}>{ch.cats[i].desc}</p>
           </div>
         ))}
       </div>
@@ -861,7 +856,7 @@ function CoolHubPage({ s, C }) {
       {/* Cutting Art Gallery — opens below the grid */}
       {galleryOpen && (
         <div style={{ margin: '12px 0 0', borderTop: `0.5px solid rgba(212,84,26,0.2)`, paddingTop: 24 }} className="hub-ch-gallery">
-          <CuttingArtGallery onClose={() => setGalleryOpen(false)} C={C} />
+          <CuttingArtGallery onClose={() => setGalleryOpen(false)} C={C} ch={ch} />
         </div>
       )}
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { translations, detectLang } from './i18n/translations'
-import { saveLead, saveMessage } from './lib/supabase'
+import { saveLead } from './lib/supabase'
 import './hub.css'
 
 const NL_URL = 'https://www.linkedin.com/newsletters/7419724116267520000/?displayConfirmation=true'
@@ -899,14 +899,6 @@ function AboutPage({ t, s }) {
 
 function TalkPage({ t, s, C }) {
   const tk = t.talk
-  const [form, setForm] = useState({ name: '', email: '', message: '' })
-  const [done, setDone] = useState(false)
-
-  async function handleSend() {
-    if (!form.email.includes('@') || !form.message.trim()) return
-    await saveMessage({ name: form.name, email: form.email, message: form.message })
-    setDone(true)
-  }
 
   return (
     <div style={s.talkPg} className="hub-2col">
@@ -933,18 +925,16 @@ function TalkPage({ t, s, C }) {
           </div>
         </div>
       </div>
-      {!done ? (
-        <div style={s.talkForm}>
-          <div style={s.ff}><label style={s.fl}>{tk.nameLbl}</label><input style={s.fi} type="text" placeholder={tk.namePh} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-          <div style={s.ff}><label style={s.fl}>{tk.emailLbl}</label><input style={s.fi} type="email" placeholder={tk.emailPh} value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
-          <div style={s.ff}><label style={s.fl}>{tk.msgLbl}</label><textarea style={{ ...s.fi, ...s.fta }} placeholder={tk.msgPh} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} /></div>
-          <button style={s.fsub} onClick={handleSend}>{tk.send}</button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 24 }}>
-          <span style={{ fontSize: 13, color: s.pd.color }}>✓ Message received — I'll get back to you.</span>
-        </div>
-      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'flex-start' }}>
+        <a
+          href="https://www.hypertherm.com/landing-pages/industrial-cutting-process/?utm_campaign=CMP-01483-P6J7&utm_source=linkedIn&utm_medium=social"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={s.fsub}
+        >
+          {tk.send}
+        </a>
+      </div>
     </div>
   )
 }

@@ -911,7 +911,7 @@ function TalkPage({ t, s, C }) {
             <div style={s.chDot('#0077b5')} />
             <div style={s.chInfo}>
               <div style={s.chLabel}>LinkedIn</div>
-              <div style={s.chVal}>Gui Rossi</div>
+              <div style={s.chVal}>Gui Rossi <span style={{ fontSize: 11, opacity: 0.6, fontStyle: 'italic' }}>hey max 👋</span></div>
             </div>
             <span style={s.chArr}>→</span>
           </div>

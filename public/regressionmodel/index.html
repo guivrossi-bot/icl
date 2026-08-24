@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XPR Regression Explorer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e0e0e0;min-height:100vh}
+header{background:#1a1d27;border-bottom:1px solid #2a2d3a;padding:14px 24px;display:flex;align-items:center;gap:12px}
+header h1{font-size:1.15rem;font-weight:700;color:#fff}
+header .badge{font-size:0.72rem;color:#6b7280;background:#2a2d3a;padding:3px 8px;border-radius:4px}
+.layout{display:grid;grid-template-columns:310px 1fr;height:calc(100vh - 53px)}
+.sidebar{background:#1a1d27;border-right:1px solid #2a2d3a;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.section-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#4b5563;margin-bottom:4px;font-weight:600}
+select,input[type=number]{width:100%;background:#0f1117;border:1px solid #2a2d3a;color:#e0e0e0;border-radius:6px;padding:7px 10px;font-size:0.85rem;outline:none}
+select:focus,input:focus{border-color:#3b82f6}
+input[type=range]{width:100%;accent-color:#3b82f6;cursor:pointer;margin:6px 0}
+.thick-display{text-align:center;font-size:2.4rem;font-weight:800;color:#3b82f6;line-height:1}
+.thick-display small{font-size:.9rem;color:#6b7280;font-weight:400}
+.toggle-row{display:flex;gap:6px}
+.tog{flex:1;padding:7px;border:1px solid #2a2d3a;background:#0f1117;color:#9ca3af;border-radius:6px;cursor:pointer;font-size:.8rem;text-align:center;transition:all .12s}
+.tog.on{background:#3b82f6;border-color:#3b82f6;color:#fff;font-weight:600}
+hr.div{border:none;border-top:1px solid #2a2d3a}
+.rc{background:#0f1117;border:1px solid #2a2d3a;border-radius:8px;padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:border-color .12s;border-left:3px solid transparent}
+.rc:hover{border-color:#3b82f6}
+.rc.sel{border-color:#3b82f6;background:#1a2035}
+.rc.interp{border-left-color:#10b981}
+.rc.extrap{border-left-color:#f59e0b}
+.rc-top{display:flex;justify-content:space-between;align-items:center}
+.rc-amp{font-size:1.05rem;font-weight:700;color:#fff}
+.rc-spd{font-size:1.1rem;font-weight:700;color:#3b82f6}
+.rc-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.tag{font-size:.67rem;padding:2px 7px;border-radius:4px;font-weight:500}
+.tg{background:#1e3a5f;color:#93c5fd}
+.tr{background:#1a3a28;color:#6ee7b7}
+.tp{background:#2d1b4e;color:#c4b5fd}
+.te{background:#3b2000;color:#fcd34d}
+.empty{color:#4b5563;font-size:.82rem;padding:18px;text-align:center}
+.main{display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;gap:6px;padding:12px 20px 0;border-bottom:1px solid #2a2d3a}
+.tab{padding:7px 16px;border-radius:6px 6px 0 0;border:1px solid transparent;background:transparent;color:#6b7280;cursor:pointer;font-size:.82rem;transition:all .12s;border-bottom:none}
+.tab.on{background:#1a1d27;color:#fff;border-color:#2a2d3a;border-bottom-color:#1a1d27;margin-bottom:-1px}
+.chart-wrap{flex:1;padding:16px;min-height:0;position:relative}
+.chart-box{background:#1a1d27;border:1px solid #2a2d3a;border-radius:8px;height:100%;padding:14px;position:relative}
+canvas{max-height:100%!important}
+.info-bar{padding:0 16px 12px;display:flex;gap:10px;align-items:stretch;min-height:0}
+.eq-box{flex:1;background:#0f1117;border:1px solid #2a2d3a;border-radius:6px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.8rem;color:#a5f3fc;line-height:1.6}
+.stat-box{background:#0f1117;border:1px solid #2a2d3a;border-radius:6px;padding:8px 16px;text-align:center;min-width:90px}
+.stat-v{font-size:1.2rem;font-weight:700;color:#3b82f6}
+.stat-l{font-size:.67rem;color:#6b7280;margin-top:2px}
+</style>
+</head>
+<body>
+<header>
+  <h1>XPR Regression Explorer</h1>
+  <span class="badge">Hypertherm XPR R8 (62) + Powermax 65/85/105 SYNC (30) — 92 processos — power-law fit</span>
+</header>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <div class="section-label">Material</div>
+      <select id="matSel" onchange="update()">
+        <option value="Mild Steel">Mild Steel (Aço Carbono)</option>
+        <option value="Stainless Steel">Stainless Steel (Inox)</option>
+        <option value="Aluminum">Aluminum (Alumínio)</option>
+      </select>
+    </div>
+
+    <div>
+      <div class="section-label">Ambiente</div>
+      <div class="toggle-row">
+        <div class="tog on" id="bAW" onclick="setEnv('AW')">Above Water</div>
+        <div class="tog" id="bUW" onclick="setEnv('UW')">Underwater</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Máquina</div>
+      <div class="toggle-row">
+        <div class="tog on" id="bXPR"   onclick="setMachine('XPR')">XPR</div>
+        <div class="tog"    id="bPM"    onclick="setMachine('Powermax')">Powermax</div>
+        <div class="tog"    id="bAll"   onclick="setMachine('All')">Tudo</div>
+      </div>
+    </div>
+
+    <div id="qualDiv">
+      <div class="section-label">Qualidade (Powermax)</div>
+      <div class="toggle-row">
+        <div class="tog on" id="bBQ" onclick="setQual('BQ')">Best Quality</div>
+        <div class="tog"    id="bHP" onclick="setQual('HP')">High Prod.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Espessura</div>
+      <div class="thick-display" id="thkDisp">11.0 <small>mm</small></div>
+      <input type="range" id="thkSlider" min="0.5" max="100" step="0.5" value="11" oninput="syncT(this.value)">
+      <input type="number" id="thkNum" min="0.1" max="200" step="0.5" value="11" oninput="syncT(this.value)" placeholder="espessura em mm">
+    </div>
+
+    <hr class="div">
+
+    <div style="flex:1">
+      <div class="section-label" style="margin-bottom:8px">Processos disponíveis &nbsp;<span id="countBadge" style="color:#3b82f6"></span></div>
+      <div id="rcList"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tabs">
+      <button class="tab on" id="tCurves" onclick="setTab('curves')">Curvas de Regressão</button>
+      <button class="tab" id="tBar" onclick="setTab('bar')">Comparação — Espessura Atual</button>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-box"><canvas id="chart"></canvas></div>
+    </div>
+    <div class="info-bar" id="infoBar"></div>
+  </div>
+</div>
+
+<script>
+const M = {"Mild Steel|30|O|O|AW":{"material":"Mild Steel","amperage":30,"plasma_gas":"O","shield_gas":"O","environment":"AW","a":3181.7807,"b":-0.836808,"r2":0.9733,"thickness_range_mm":[0.5,5.0],"data_points":[[0.5,5348.0],[0.8,4217.0],[1.0,3604.0],[1.2,2847.0],[1.5,2198.0],[2.0,1490.0],[2.5,1325.0],[3.0,1153.0],[4.0,908.0],[5.0,726.0]],"flow_rates":{"N2":{"pre":"20 / 43","pierce":"–","cut":"–"},"O2":{"pre":"19 / 40","pierce":"38 / 80","cut":"27 / 58"}},"machine":"XPR","quality":"Cut"},"Mild Steel|50|O|Air|AW":{"material":"Mild Steel","amperage":50,"plasma_gas":"O","shield_gas":"Air","environment":"AW","a":9891.8009,"b":-0.887907,"r2":0.9695,"thickness_range_mm":[2.4,8.0],"data_points":[[2.4,4354.0],[2.5,4262.0],[3.0,3820.0],[3.5,3616.0],[4.0,3144.0],[5.0,2322.0],[6.0,1919.0],[7.0,1622.0],[8.0,1369.0]],"flow_rates":{"N2":{"pre":"20 / 42","pierce":"20 / 42","cut":"–"},"O2":{"pre":"–","pierce":"–","cut":"14 / 30"},"Air":{"pre":"35 / 74","pierce":"35 / 74","cut":"32 / 68"}},"machine":"XPR","quality":"Cut"},"Mild Steel|80|O|Air|AW":{"material":"Mild Steel","amperage":80,"plasma_gas":"O","shield_gas":"Air","environment":"AW","a":15328.2345,"b":-0.90751,"r2":0.9919,"thickness_range_mm":[3.0,12.0],"data_points":[[3.0,5582.0],[4.0,4303.0],[5.0,3774.0],[6.0,3048.0],[7.0,2648.0],[8.0,2417.0],[9.0,2081.0],[10.0,1807.0],[12.0,1405.0]],"flow_rates":{"N2":{"pre":"38 / 80","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"38 / 80","cut":"24 / 52"},"Air":{"pre":"49 / 105","pierce":"49 / 105","cut":"46 / 98"}},"machine":"XPR","quality":"Cut"},"Mild Steel|130|O|Air|AW":{"material":"Mild Steel","amperage":130,"plasma_gas":"O","shield_gas":"Air","environment":"AW","a":18730.063,"b":-0.892644,"r2":0.9689,"thickness_range_mm":[3.0,38.0],"data_points":[[3.0,6502.0],[4.0,5557.0],[5.0,4681.0],[6.0,4036.0],[7.0,3602.0],[8.0,3282.0],[10.0,2680.0],[12.0,2200.0],[15.0,1665.0],[20.0,1044.0],[25.0,546.0],[30.0,434.0],[32.0,398.0],[38.0,256.0]],"flow_rates":{"N2":{"pre":"33 / 69","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"31 / 65","cut":"31 / 65"},"Air":{"pre":"85 / 180","pierce":"82 / 173","cut":"92 / 195"}},"machine":"XPR","quality":"Cut"},"Mild Steel|170|170 A O|Air|AW":{"material":"Mild Steel","amperage":170,"plasma_gas":"170 A O","shield_gas":"Air","environment":"AW","a":40295.7848,"b":-1.103421,"r2":0.9768,"thickness_range_mm":[6.0,60.0],"data_points":[[6.0,5080.0],[7.0,4768.0],[8.0,4288.0],[10.0,3461.0],[12.0,3061.0],[15.0,2277.0],[20.0,1575.0],[25.0,1175.0],[30.0,867.0],[32.0,752.0],[34.0,672.0],[36.0,592.0],[38.0,512.0],[40.0,462.0],[44.0,366.0],[50.0,267.0],[60.0,152.0]],"flow_rates":{"N2":{"pre":"23 / 49","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"33 / 69","cut":"32 / 69"},"Air":{"pre":"78 / 165","pierce":"96 / 202","cut":"51 / 108"},"Ar":{"pre":"–","pierce":"67 / 140†","cut":"–"}},"machine":"XPR","quality":"Cut"},"Mild Steel|220|O|Air|AW":{"material":"Mild Steel","amperage":220,"plasma_gas":"O","shield_gas":"Air","environment":"AW","a":39215.2154,"b":-1.00968,"r2":0.9801,"thickness_range_mm":[6.0,60.0],"data_points":[[6.0,6096.0],[7.0,5628.0],[8.0,4908.0],[10.0,3715.0],[12.0,3315.0],[15.0,2899.0],[16.0,2769.0],[20.0,2064.0],[25.0,1564.0],[30.0,1156.0],[38.0,766.0],[40.0,686.0],[50.0,330.0],[60.0,158.0]],"flow_rates":{"N2":{"pre":"22 / 46","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"49 / 103","cut":"103 / 103"},"Air":{"pre":"71 / 150","pierce":"71 / 150","cut":"64 / 136"}},"machine":"XPR","quality":"Cut"},"Mild Steel|300|O|Air|AW":{"material":"Mild Steel","amperage":300,"plasma_gas":"O","shield_gas":"Air","environment":"AW","a":60971.2916,"b":-1.096489,"r2":0.9667,"thickness_range_mm":[10.0,80.0],"data_points":[[10.0,4500.0],[12.0,3940.0],[15.0,3440.0],[16.0,3280.0],[20.0,2550.0],[25.0,1950.0],[30.0,1530.0],[40.0,940.0],[50.0,560.0],[60.0,385.0],[70.0,250.0],[80.0,165.0]],"flow_rates":{"N2":{"pre":"21 / 45","pierce":"–","cut":"57 / 120*"},"O2":{"pre":"–","pierce":"45 / 95","cut":"45 / 95"},"Air":{"pre":"57 / 122","pierce":"57 / 122","cut":"73 / 154"},"Ar":{"pre":"–","pierce":"75 / 155†","cut":"–"}},"machine":"XPR","quality":"Cut"},"Mild Steel|460|O|Air|AW":{"material":"Mild Steel","amperage":460,"plasma_gas":"O","shield_gas":"Air","environment":"AW","a":120757.6013,"b":-1.242223,"r2":0.9737,"thickness_range_mm":[12.0,100.0],"data_points":[[12.0,4940.0],[15.0,4420.0],[16.0,4220.0],[20.0,3140.0],[25.0,2460.0],[30.0,2000.0],[35.0,1600.0],[40.0,1300.0],[45.0,1110.0],[50.0,850.0],[55.0,750.0],[58.0,690.0],[60.0,640.0],[64.0,540.0],[65.0,530.0],[70.0,400.0],[75.0,280.0],[80.0,240.0],[90.0,170.0],[100.0,100.0]],"flow_rates":{"N2":{"pre":"36 / 76","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"58 / 122","cut":"58 / 122"},"Air":{"pre":"71 / 150","pierce":"123 / 260","cut":"97 / 205"},"Ar":{"pre":"–","pierce":"109 / 230","cut":"74 / 157"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|40|N|N|AW":{"material":"Stainless Steel","amperage":40,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":5723.0864,"b":-0.724138,"r2":0.933,"thickness_range_mm":[0.8,6.0],"data_points":[[0.8,6100.0],[1.0,5715.0],[1.2,5345.0],[1.5,4818.0],[2.0,4014.0],[2.5,3302.0],[3.0,2683.0],[4.0,1724.0],[5.0,1136.0],[6.0,918.0]],"flow_rates":{"N2":{"pre":"49 / 103","pierce":"57 / 120","cut":"71 / 152"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|60|N|N|AW":{"material":"Stainless Steel","amperage":60,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":5963.2007,"b":-0.705811,"r2":0.9984,"thickness_range_mm":[2.5,6.0],"data_points":[[2.5,3105.0],[3.0,2776.0],[4.0,2245.0],[5.0,1886.0],[6.0,1697.0]],"flow_rates":{"N2":{"pre":"48 / 102","pierce":"63 / 134","cut":"72 / 154"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|60|N|H O|AW":{"material":"Stainless Steel","amperage":60,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":13931.538,"b":-1.378179,"r2":1.0,"thickness_range_mm":[3.0,6.0],"data_points":[[3.0,3065.0],[4.0,2062.0],[5.0,1516.0],[6.0,1179.0]],"flow_rates":{"N2":{"pre":"27 / 57","pierce":"34 / 72","cut":"20 / 42"},"HO2":{"pre":"0.21 / 3*","pierce":"0.21 / 3*","cut":"0.4 / 7*"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|60|F5|N|AW":{"material":"Stainless Steel","amperage":60,"plasma_gas":"F5","shield_gas":"N","environment":"AW","a":7372.2603,"b":-0.893315,"r2":0.9843,"thickness_range_mm":[2.5,10.0],"data_points":[[2.5,3177.0],[3.0,2763.0],[4.0,2217.0],[5.0,1869.0],[6.0,1626.0],[7.0,1204.0],[8.0,1048.0],[10.0,832.0]],"flow_rates":{"F5":{"pre":"–","pierce":"40 / 84","cut":"29 / 62"},"N2":{"pre":"55 / 117","pierce":"53 / 114","cut":"88 / 188"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|80|N|N|AW":{"material":"Stainless Steel","amperage":80,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":11069.8104,"b":-0.925896,"r2":0.9734,"thickness_range_mm":[3.0,10.0],"data_points":[[3.0,3820.0],[4.0,3220.0],[5.0,2692.0],[6.0,2237.0],[7.0,1853.0],[8.0,1543.0],[9.0,1304.0],[10.0,1138.0]],"flow_rates":{"N2":{"pre":"51 / 108","pierce":"67 / 143","cut":"68 / 144"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|80|N|H O|AW":{"material":"Stainless Steel","amperage":80,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":12332.1336,"b":-1.0107,"r2":0.9594,"thickness_range_mm":[3.0,12.0],"data_points":[[3.0,3820.0],[4.0,3216.0],[5.0,2677.0],[6.0,2203.0],[7.0,1794.0],[8.0,1450.0],[10.0,956.0],[12.0,722.0]],"flow_rates":{"N2":{"pre":"30 / 64","pierce":"37 / 79","cut":"24 / 51"},"HO2":{"pre":"0.2 / 3*","pierce":"0.2 / 3*","cut":"0.4 / 6*"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|80|F5|N|AW":{"material":"Stainless Steel","amperage":80,"plasma_gas":"F5","shield_gas":"N","environment":"AW","a":15010.2316,"b":-1.148997,"r2":1.0,"thickness_range_mm":[3.0,12.0],"data_points":[[3.0,4248.0],[4.0,3052.0],[5.0,2362.0],[6.0,1916.0],[8.0,1376.0],[10.0,1065.0],[12.0,864.0]],"flow_rates":{"F5":{"pre":"–","pierce":"44 / 93","cut":"38 / 81"},"N2":{"pre":"52 / 110","pierce":"23 / 49","cut":"39 / 82"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|130|N|N|AW":{"material":"Stainless Steel","amperage":130,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":14524.736,"b":-0.969979,"r2":0.9585,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2413.0],[7.0,2257.0],[8.0,2017.0],[10.0,1613.0],[12.0,1453.0],[15.0,1029.0],[20.0,559.0]],"flow_rates":{"N2":{"pre":"92 / 195","pierce":"150 / 320","cut":"135 / 287"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|130|N|H O|AW":{"material":"Stainless Steel","amperage":130,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":16409.7389,"b":-1.032865,"r2":0.9431,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2413.0],[7.0,2257.0],[8.0,2017.0],[10.0,1613.0],[12.0,1453.0],[15.0,937.0],[20.0,457.0]],"flow_rates":{"N2":{"pre":"38 / 80","pierce":"97 / 205","cut":"34 / 73"},"HO2":{"pre":"0.42 / 6.5*","pierce":"0.5 / 8*","cut":"0.5 / 8*"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|130|Mixed-fuel gas|N|AW":{"material":"Stainless Steel","amperage":130,"plasma_gas":"Mixed-fuel gas","shield_gas":"N","environment":"AW","a":10479.2807,"b":-0.831645,"r2":0.9692,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2413.0],[7.0,1954.0],[8.0,1834.0],[10.0,1613.0],[12.0,1453.0],[15.0,1121.0],[20.0,737.0]],"flow_rates":{"H2":{"pre":"–","pierce":"8 / 17","cut":"8 / 17"},"Ar":{"pre":"–","pierce":"12 / 25","cut":"12 / 25"},"N2":{"pre":"103 / 220","pierce":"150 / 320","cut":"136 / 288"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|170|N|N|AW":{"material":"Stainless Steel","amperage":170,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":78855.0734,"b":-1.56415,"r2":0.9621,"thickness_range_mm":[10.0,30.0],"data_points":[[10.0,1994.0],[12.0,1834.0],[15.0,1226.0],[20.0,705.0],[25.0,405.0],[30.0,289.0]],"flow_rates":{"N2":{"pre":"99 / 210","pierce":"168 / 355","cut":"151 / 322"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|170|N|H O|AW":{"material":"Stainless Steel","amperage":170,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":23502.5012,"b":-1.061911,"r2":0.9941,"thickness_range_mm":[10.0,38.0],"data_points":[[10.0,1975.0],[12.0,1735.0],[15.0,1375.0],[20.0,978.0],[25.0,778.0],[30.0,633.0],[32.0,578.0],[38.0,434.0]],"flow_rates":{"N2":{"pre":"19 / 40","pierce":"47 / 100","cut":"33 / 71"},"HO2":{"pre":"0.4 / 6*","pierce":"0.5 / 8*","cut":"0.4 / 7"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|170|Mixed-fuel gas|N|AW":{"material":"Stainless Steel","amperage":170,"plasma_gas":"Mixed-fuel gas","shield_gas":"N","environment":"AW","a":47143.6194,"b":-1.349828,"r2":0.9716,"thickness_range_mm":[10.0,38.0],"data_points":[[10.0,1975.0],[12.0,1735.0],[15.0,1375.0],[20.0,940.0],[25.0,540.0],[30.0,398.0],[32.0,352.0],[38.0,256.0]],"flow_rates":{"H2":{"pre":"–","pierce":"8 / 17","cut":"8 / 17"},"Ar":{"pre":"–","pierce":"12 / 25","cut":"12 / 25"},"N2":{"pre":"101 / 215","pierce":"162 / 345","cut":"154 / 327"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|300|N|N|AW":{"material":"Stainless Steel","amperage":300,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":88809.5683,"b":-1.331009,"r2":0.9529,"thickness_range_mm":[12.0,50.0],"data_points":[[12.0,2997.0],[15.0,2666.0],[20.0,1829.0],[25.0,1429.0],[30.0,1084.0],[32.0,947.0],[38.0,515.0],[40.0,455.0],[44.0,343.0],[50.0,264.0]],"flow_rates":{"N2":{"pre":"106 / 225","pierce":"181 / 385","cut":"178 / 370"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|300|N|H O|AW":{"material":"Stainless Steel","amperage":300,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":27521.976,"b":-0.989333,"r2":0.94,"thickness_range_mm":[12.0,50.0],"data_points":[[12.0,2159.0],[15.0,1975.0],[20.0,1702.0],[25.0,1302.0],[30.0,994.0],[32.0,879.0],[38.0,639.0],[40.0,612.0],[44.0,564.0],[50.0,403.0]],"flow_rates":{"N2":{"pre":"31 / 65","pierce":"75 / 160","cut":"59 / 126"},"HO2":{"pre":"0.42 / 6.5*","pierce":"0.5 / 8*","cut":"0.5 / 8"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|300|Mixed-fuel gas|N|AW":{"material":"Stainless Steel","amperage":300,"plasma_gas":"Mixed-fuel gas","shield_gas":"N","environment":"AW","a":29803.5064,"b":-1.053689,"r2":0.9764,"thickness_range_mm":[12.0,70.0],"data_points":[[12.0,2032.0],[15.0,1848.0],[20.0,1340.0],[25.0,1040.0],[30.0,924.0],[38.0,639.0],[40.0,597.0],[50.0,441.0],[60.0,289.0],[70.0,202.0]],"flow_rates":{"H2":{"pre":"–","pierce":"24 / 51","cut":"23 / 50"},"Ar":{"pre":"–","pierce":"48 / 102","cut":"47 / 101"},"N2":{"pre":"118 / 250","pierce":"150 / 320","cut":"134 / 288"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|460|N|N|AW":{"material":"Stainless Steel","amperage":460,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":123023.9591,"b":-1.357821,"r2":0.966,"thickness_range_mm":[16.0,65.0],"data_points":[[16.0,2652.0],[20.0,2225.0],[25.0,1816.0],[30.0,1410.0],[35.0,1010.0],[40.0,716.0],[45.0,626.0],[50.0,527.0],[55.0,441.0],[60.0,361.0],[65.0,281.0]],"flow_rates":{"N2":{"pre":"126/ 267","pierce":"186/ 395","cut":"179/ 379"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|460|N|H O|AW":{"material":"Stainless Steel","amperage":460,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":73646.665,"b":-1.166842,"r2":0.9929,"thickness_range_mm":[16.0,75.0],"data_points":[[16.0,2896.0],[20.0,2187.0],[25.0,1689.0],[30.0,1430.0],[35.0,1268.0],[40.0,1092.0],[45.0,922.0],[50.0,781.0],[55.0,661.0],[60.0,564.0],[65.0,496.0],[70.0,455.0],[75.0,395.0]],"flow_rates":{"N2":{"pre":"45 / 95","pierce":"72 / 152","cut":"64 / 135"},"H02":{"pre":"0.38 / 6*","pierce":"0.40 / 6.25*","cut":"0.35 / 5.5*"}},"machine":"XPR","quality":"Cut"},"Aluminum|40|Air|Air|AW":{"material":"Aluminum","amperage":40,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","a":7882.7716,"b":-1.084215,"r2":0.9673,"thickness_range_mm":[1.5,6.0],"data_points":[[1.5,4799.0],[2.0,3964.0],[2.5,3230.0],[3.0,2596.0],[4.0,1632.0],[5.0,1070.0],[6.0,911.0]],"flow_rates":{"N2":{"pre":"17 / 35","pierce":"–","cut":"–"},"Air":{"pre":"32 / 67","pierce":"54 / 115","cut":"66 / 141"}},"machine":"XPR","quality":"Cut"},"Aluminum|40|N|N|AW":{"material":"Aluminum","amperage":40,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":7438.2257,"b":-1.090038,"r2":1.0,"thickness_range_mm":[1.5,6.0],"data_points":[[1.5,4781.0],[2.0,3494.0],[2.5,2740.0],[3.0,2246.0],[4.0,1641.0],[5.0,1287.0],[6.0,1055.0]],"flow_rates":{"N2":{"pre":"49 / 103","pierce":"57 / 120","cut":"71 / 152"}},"machine":"XPR","quality":"Cut"},"Aluminum|60|Air|Air|AW":{"material":"Aluminum","amperage":60,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","a":5490.616,"b":-0.650193,"r2":1.0,"thickness_range_mm":[3.0,6.0],"data_points":[[3.0,2688.0],[4.0,2229.0],[5.0,1928.0],[6.0,1713.0]],"flow_rates":{"N2":{"pre":"24 / 51","pierce":"–","cut":"–"},"Air":{"pre":"24 / 50","pierce":"91 / 193","cut":"56 / 120"}},"machine":"XPR","quality":"Cut"},"Aluminum|60|N|N|AW":{"material":"Aluminum","amperage":60,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":6153.4449,"b":-0.726478,"r2":0.9982,"thickness_range_mm":[3.0,6.0],"data_points":[[3.0,2776.0],[4.0,2245.0],[5.0,1886.0],[6.0,1697.0]],"flow_rates":{"N2":{"pre":"48 / 102","pierce":"63 / 134","cut":"72 / 154"}},"machine":"XPR","quality":"Cut"},"Aluminum|60|N|H O|AW":{"material":"Aluminum","amperage":60,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":5754.1621,"b":-0.65504,"r2":0.9717,"thickness_range_mm":[3.0,6.0],"data_points":[[3.0,2754.0],[4.0,2402.0],[5.0,2050.0],[6.0,1698.0]],"flow_rates":{"N2":{"pre":"27 / 57","pierce":"34 / 72","cut":"20 / 42"},"HO2":{"pre":"0.2 / 3*","pierce":"0.2 / 3*","cut":"0.4 / 7*"}},"machine":"XPR","quality":"Cut"},"Aluminum|80|Air|Air|AW":{"material":"Aluminum","amperage":80,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","a":12596.9374,"b":-1.039824,"r2":0.9807,"thickness_range_mm":[3.0,10.0],"data_points":[[3.0,3874.0],[4.0,3143.0],[5.0,2520.0],[6.0,2005.0],[8.0,1297.0],[10.0,1019.0]],"flow_rates":{"N2":{"pre":"51 / 107","pierce":"23 / 48","cut":"–"},"Air":{"pre":"–","pierce":"43 / 91","cut":"69 / 147"}},"machine":"XPR","quality":"Cut"},"Aluminum|80|N|N|AW":{"material":"Aluminum","amperage":80,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":10719.2238,"b":-0.900745,"r2":0.9718,"thickness_range_mm":[3.0,10.0],"data_points":[[3.0,3820.0],[4.0,3220.0],[5.0,2692.0],[6.0,2237.0],[8.0,1543.0],[10.0,1138.0]],"flow_rates":{"N2":{"pre":"51 / 108","pierce":"67 / 143","cut":"68 / 144"}},"machine":"XPR","quality":"Cut"},"Aluminum|80|N|H O|AW":{"material":"Aluminum","amperage":80,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":11553.3826,"b":-0.961353,"r2":0.9602,"thickness_range_mm":[3.0,10.0],"data_points":[[3.0,3820.0],[4.0,3216.0],[5.0,2677.0],[6.0,2203.0],[7.0,1794.0],[8.0,1450.0],[10.0,956.0]],"flow_rates":{"N2":{"pre":"30 / 64","pierce":"37 / 79","cut":"24 / 51"},"HO2":{"pre":"0.2 / 3*","pierce":"0.2 / 3*","cut":"0.4 / 6*"}},"machine":"XPR","quality":"Cut"},"Aluminum|130|N|N|AW":{"material":"Aluminum","amperage":130,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":13899.2163,"b":-0.939761,"r2":0.9608,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2413.0],[7.0,2358.0],[8.0,2078.0],[10.0,1594.0],[12.0,1354.0],[15.0,1178.0],[20.0,635.0]],"flow_rates":{"N2":{"pre":"92 / 195","pierce":"150 / 320","cut":"135 / 287"}},"machine":"XPR","quality":"Cut"},"Aluminum|130|N|H O|AW":{"material":"Aluminum","amperage":130,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":11568.8945,"b":-0.852342,"r2":0.973,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2413.0],[8.0,2083.0],[10.0,1702.0],[12.0,1382.0],[15.0,1178.0],[20.0,762.0]],"flow_rates":{},"machine":"XPR","quality":"Cut"},"Aluminum|130|Mixed-fuel gas|N|AW":{"material":"Aluminum","amperage":130,"plasma_gas":"Mixed-fuel gas","shield_gas":"N","environment":"AW","a":15281.9899,"b":-1.01962,"r2":0.9772,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2413.0],[7.0,2205.0],[8.0,1885.0],[10.0,1340.0],[12.0,1100.0],[15.0,1016.0],[20.0,813.0]],"flow_rates":{"H2":{"pre":"–","pierce":"8 / 17","cut":"8 / 17"},"Ar":{"pre":"–","pierce":"12 / 25","cut":"12 / 25"},"N2":{"pre":"103 / 220","pierce":"150 / 320","cut":"139 / 299"}},"machine":"XPR","quality":"Cut"},"Aluminum|170|Air|Air|AW":{"material":"Aluminum","amperage":170,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","a":45937.6389,"b":-1.198458,"r2":0.9634,"thickness_range_mm":[6.0,38.0],"data_points":[[6.0,4826.0],[7.0,4566.0],[8.0,4166.0],[10.0,3385.0],[12.0,2665.0],[15.0,1769.0],[20.0,1086.0],[25.0,786.0],[30.0,486.0],[32.0,376.0],[38.0,256.0]],"flow_rates":{"N2":{"pre":"25 / 52","pierce":"–","cut":"–"},"Air":{"pre":"78 / 166","pierce":"99 / 210","cut":"99 / 210"}},"machine":"XPR","quality":"Cut"},"Aluminum|170|N|N|AW":{"material":"Aluminum","amperage":170,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":53040.0582,"b":-1.156124,"r2":0.9235,"thickness_range_mm":[6.0,25.0],"data_points":[[6.0,5969.0],[7.0,5735.0],[8.0,5375.0],[10.0,4560.0],[15.0,2220.0],[20.0,1156.0],[25.0,556.0]],"flow_rates":{"N2":{"pre":"99 / 210","pierce":"168 / 355","cut":"151 / 322"}},"machine":"XPR","quality":"Cut"},"Aluminum|170|N|H O|AW":{"material":"Aluminum","amperage":170,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":24699.0769,"b":-1.068008,"r2":0.9812,"thickness_range_mm":[10.0,38.0],"data_points":[[10.0,1994.0],[12.0,1834.0],[15.0,1502.0],[20.0,978.0],[25.0,778.0],[30.0,642.0],[32.0,590.0],[38.0,434.0]],"flow_rates":{"N2":{"pre":"19 / 40","pierce":"47 / 100","cut":"33 / 71"},"HO2":{"pre":"0.4 / 6*","pierce":"0.5 / 8*","cut":"0.4 / 7*"}},"machine":"XPR","quality":"Cut"},"Aluminum|170|Mixed-fuel gas|N|AW":{"material":"Aluminum","amperage":170,"plasma_gas":"Mixed-fuel gas","shield_gas":"N","environment":"AW","a":103128.4819,"b":-1.464419,"r2":0.9824,"thickness_range_mm":[10.0,38.0],"data_points":[[10.0,3334.0],[12.0,2934.0],[15.0,2150.0],[20.0,1213.0],[25.0,913.0],[30.0,650.0],[32.0,552.0],[38.0,384.0]],"flow_rates":{"H2":{"pre":"–","pierce":"8 / 17","cut":"8 / 17"},"Ar":{"pre":"–","pierce":"12 / 25","cut":"12 / 25"},"N2":{"pre":"101 / 215","pierce":"162 / 345","cut":"160 / 340"}},"machine":"XPR","quality":"Cut"},"Aluminum|300|N|N|AW":{"material":"Aluminum","amperage":300,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":147443.1569,"b":-1.424053,"r2":0.9771,"thickness_range_mm":[10.0,50.0],"data_points":[[10.0,5182.0],[12.0,4542.0],[15.0,3582.0],[20.0,2064.0],[25.0,1564.0],[30.0,1248.0],[38.0,643.0],[40.0,559.0],[44.0,399.0],[50.0,270.0]],"flow_rates":{"N2":{"pre":"106 / 225","pierce":"181 / 385","cut":"178 / 370"}},"machine":"XPR","quality":"Cut"},"Aluminum|300|N|H O|AW":{"material":"Aluminum","amperage":300,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":24071.6444,"b":-0.925183,"r2":0.9708,"thickness_range_mm":[12.0,50.0],"data_points":[[12.0,2286.0],[15.0,2010.0],[20.0,1702.0],[25.0,1302.0],[30.0,1086.0],[32.0,1006.0],[38.0,766.0],[40.0,724.0],[44.0,644.0],[50.0,524.0]],"flow_rates":{"N2":{"pre":"31 / 65","pierce":"75 / 160","cut":"59 / 126"},"HO2":{"pre":"0.42 / 6.5*","pierce":"0.5 / 8*","cut":"0.5 / 8*"}},"machine":"XPR","quality":"Cut"},"Aluminum|300|Mixed-fuel gas|N|AW":{"material":"Aluminum","amperage":300,"plasma_gas":"Mixed-fuel gas","shield_gas":"N","environment":"AW","a":100186.2886,"b":-1.280643,"r2":0.9385,"thickness_range_mm":[12.0,50.0],"data_points":[[12.0,3810.0],[15.0,3442.0],[20.0,2356.0],[25.0,2056.0],[30.0,1480.0],[32.0,1245.0],[38.0,645.0],[40.0,582.0],[44.0,470.0],[50.0,391.0]],"flow_rates":{"H2":{"pre":"–","pierce":"24 / 51","cut":"23 / 50"},"Ar":{"pre":"–","pierce":"48 / 102","cut":"47 / 101"},"N2":{"pre":"118 / 250","pierce":"150 / 320","cut":"152 / 326"}},"machine":"XPR","quality":"Cut"},"Aluminum|460|N|N|AW":{"material":"Aluminum","amperage":460,"plasma_gas":"N","shield_gas":"N","environment":"AW","a":193383.8751,"b":-1.393188,"r2":0.9825,"thickness_range_mm":[16.0,65.0],"data_points":[[16.0,3907.0],[20.0,3046.0],[25.0,2344.0],[30.0,1847.0],[35.0,1519.0],[40.0,1189.0],[45.0,943.0],[50.0,743.0],[55.0,585.0],[60.0,465.0],[65.0,320.0]],"flow_rates":{"N2":{"pre":"126/ 267","pierce":"186/ 395","cut":"179/ 379"}},"machine":"XPR","quality":"Cut"},"Aluminum|460|N|H O|AW":{"material":"Aluminum","amperage":460,"plasma_gas":"N","shield_gas":"H O","environment":"AW","a":61200.849,"b":-1.011441,"r2":0.984,"thickness_range_mm":[16.0,75.0],"data_points":[[16.0,3536.0],[20.0,2972.0],[25.0,2572.0],[30.0,2087.0],[35.0,1749.0],[40.0,1539.0],[45.0,1375.0],[50.0,1175.0],[55.0,983.0],[60.0,869.0],[65.0,789.0],[70.0,709.0],[75.0,649.0]],"flow_rates":{"N2":{"pre":"45 / 95","pierce":"72 / 152","cut":"64 / 135"},"H02":{"pre":"0.38 / 6*","pierce":"0.40 / 6.25*","cut":"0.35 / 5.5*"}},"machine":"XPR","quality":"Cut"},"Aluminum|460|Mixed-fuel gas|N|AW":{"material":"Aluminum","amperage":460,"plasma_gas":"Mixed-fuel gas","shield_gas":"N","environment":"AW","a":89112.1727,"b":-1.034978,"r2":0.965,"thickness_range_mm":[16.0,90.0],"data_points":[[16.0,5046.0],[20.0,3958.0],[25.0,2909.0],[30.0,2642.0],[35.0,2422.0],[38.0,2290.0],[40.0,2210.0],[50.0,1810.0],[55.0,1610.0],[60.0,1410.0],[65.0,1210.0],[70.0,1010.0],[75.0,810.0],[80.0,625.0],[90.0,300.0]],"flow_rates":{"H2":{"pre":"–","pierce":"31 / 66","cut":"31 / 66"},"Ar":{"pre":"–","pierce":"179 / 380","cut":"162 / 343"},"N2":{"pre":"151 / 320","pierce":"160 / 339","cut":"160 / 339"}},"machine":"XPR","quality":"Cut"},"Mild Steel|130|O|Air|UW":{"material":"Mild Steel","amperage":130,"plasma_gas":"O","shield_gas":"Air","environment":"UW","a":16053.4773,"b":-0.872138,"r2":0.9798,"thickness_range_mm":[3.0,25.0],"data_points":[[3.0,5842.0],[4.0,5002.0],[5.0,4158.0],[6.0,3336.0],[7.0,3017.0],[8.0,2943.0],[10.0,2144.0],[12.0,1760.0],[15.0,1499.0],[20.0,973.0],[25.0,502.0]],"flow_rates":{"N2":{"pre":"33 / 69","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"31 / 65","cut":"31 / 65"},"Air":{"pre":"85 / 180","pierce":"82 / 173","cut":"92 / 195"}},"machine":"XPR","quality":"Cut"},"Mild Steel|170|170 A O|Air|UW":{"material":"Mild Steel","amperage":170,"plasma_gas":"170 A O","shield_gas":"Air","environment":"UW","a":22770.8381,"b":-0.881825,"r2":0.981,"thickness_range_mm":[5.0,25.0],"data_points":[[5.0,5258.0],[6.0,4623.0],[7.0,4335.0],[8.0,3898.0],[10.0,3146.0],[15.0,2070.0],[20.0,1432.0],[25.0,1068.0]],"flow_rates":{"N2":{"pre":"23 / 49","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"33 / 69","cut":"32 / 69"},"Air":{"pre":"78 / 165","pierce":"96 / 202","cut":"51 / 108"}},"machine":"XPR","quality":"Cut"},"Mild Steel|220|220 A O|Air|UW":{"material":"Mild Steel","amperage":220,"plasma_gas":"220 A O","shield_gas":"Air","environment":"UW","a":30400.4452,"b":-0.940539,"r2":0.9904,"thickness_range_mm":[6.0,30.0],"data_points":[[6.0,5461.0],[7.0,5045.0],[8.0,4405.0],[10.0,3334.0],[15.0,2610.0],[20.0,1829.0],[25.0,1429.0],[30.0,1029.0]],"flow_rates":{"N2":{"pre":"22/ 46","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"49 / 103","cut":"49 / 103"},"Air":{"pre":"71 / 150","pierce":"71 / 150","cut":"99 /210"}},"machine":"XPR","quality":"Cut"},"Mild Steel|300|O|Air|UW":{"material":"Mild Steel","amperage":300,"plasma_gas":"O","shield_gas":"Air","environment":"UW","a":90507.6975,"b":-1.238271,"r2":0.9915,"thickness_range_mm":[15.0,40.0],"data_points":[[15.0,3100.0],[20.0,2300.0],[25.0,1760.0],[30.0,1380.0],[32.0,1240.0],[38.0,920.0],[40.0,850.0]],"flow_rates":{"N2":{"pre":"21 / 45","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"45 / 95","cut":"45 / 95"},"Air":{"pre":"57 / 122","pierce":"57 / 122","cut":"57 / 122"}},"machine":"XPR","quality":"Cut"},"Mild Steel|460|O|Air|UW":{"material":"Mild Steel","amperage":460,"plasma_gas":"O","shield_gas":"Air","environment":"UW","a":68001.7349,"b":-1.076683,"r2":0.9836,"thickness_range_mm":[12.0,45.0],"data_points":[[12.0,4440.0],[15.0,3970.0],[20.0,2820.0],[25.0,2210.0],[30.0,1800.0],[32.0,1640.0],[35.0,1440.0],[38.0,1230.0],[40.0,1170.0],[45.0,990.0]],"flow_rates":{"N2":{"pre":"36 / 76","pierce":"–","cut":"–"},"O2":{"pre":"–","pierce":"58 / 122","cut":"58 / 122"},"Air":{"pre":"71 / 150","pierce":"123 / 260","cut":"97 / 205"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|80|N|N|UW":{"material":"Stainless Steel","amperage":80,"plasma_gas":"N","shield_gas":"N","environment":"UW","a":9530.5972,"b":-0.900974,"r2":0.9754,"thickness_range_mm":[3.0,10.0],"data_points":[[3.0,3400.0],[4.0,2861.0],[5.0,2388.0],[6.0,1983.0],[7.0,1644.0],[8.0,1371.0],[10.0,1027.0]],"flow_rates":{"N2":{"pre":"51 / 108","pierce":"67 / 134","cut":"68 / 144"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|80|N|H O|UW":{"material":"Stainless Steel","amperage":80,"plasma_gas":"N","shield_gas":"H O","environment":"UW","a":10705.0833,"b":-0.990025,"r2":0.9645,"thickness_range_mm":[3.0,12.0],"data_points":[[3.0,3404.0],[4.0,2866.0],[5.0,2387.0],[6.0,1969.0],[7.0,1609.0],[8.0,1310.0],[10.0,889.0],[12.0,706.0]],"flow_rates":{"N2":{"pre":"30 / 64","pierce":"37 / 79","cut":"24 / 51"},"HO2":{"pre":"0.2 / 3*","pierce":"0.2 / 3*","cut":"0.4 / 6*"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|130|N|N|UW":{"material":"Stainless Steel","amperage":130,"plasma_gas":"N","shield_gas":"N","environment":"UW","a":12858.2178,"b":-0.957323,"r2":0.9609,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2184.0],[7.0,2052.0],[8.0,1834.0],[10.0,1466.0],[12.0,1321.0],[15.0,935.0],[20.0,533.0]],"flow_rates":{"N2":{"pre":"92 / 195","pierce":"150 / 320","cut":"135 / 287"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|130|N|H O|UW":{"material":"Stainless Steel","amperage":130,"plasma_gas":"N","shield_gas":"H O","environment":"UW","a":14802.0295,"b":-1.028068,"r2":0.9371,"thickness_range_mm":[6.0,20.0],"data_points":[[6.0,2184.0],[7.0,2057.0],[8.0,1846.0],[10.0,1486.0],[12.0,1326.0],[15.0,852.0],[20.0,406.0]],"flow_rates":{"N2":{"pre":"38","pierce":"97","cut":"34 / 73"},"HO2":{"pre":"0.42 / 6.5*","pierce":"0.5 / 8*","cut":"0.5 / 8*"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|170|N|H O|UW":{"material":"Stainless Steel","amperage":170,"plasma_gas":"N","shield_gas":"H O","environment":"UW","a":24408.0009,"b":-1.115877,"r2":0.9776,"thickness_range_mm":[10.0,25.0],"data_points":[[10.0,1799.0],[12.0,1595.0],[15.0,1256.0],[20.0,869.0],[25.0,582.0]],"flow_rates":{"N2":{"pre":"19 / 40","pierce":"47 / 100","cut":"33 /71"},"HO2":{"pre":"0.4 / 6*","pierce":"0.5 / 8*","cut":"0.4 / 7*"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|170|N|N|UW":{"material":"Stainless Steel","amperage":170,"plasma_gas":"N","shield_gas":"N","environment":"UW","a":61760.8869,"b":-1.502337,"r2":0.9535,"thickness_range_mm":[10.0,25.0],"data_points":[[10.0,1813.0],[12.0,1667.0],[15.0,1115.0],[20.0,641.0],[25.0,368.0]],"flow_rates":{"N2":{"pre":"99 / 210","pierce":"168 / 355","cut":"151 / 322"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|300|N|N|UW":{"material":"Stainless Steel","amperage":300,"plasma_gas":"N","shield_gas":"N","environment":"UW","a":59866.5298,"b":-1.19764,"r2":0.9955,"thickness_range_mm":[12.0,32.0],"data_points":[[12.0,2997.0],[15.0,2424.0],[20.0,1663.0],[25.0,1299.0],[30.0,986.0],[32.0,889.0]],"flow_rates":{"N2":{"pre":"106 / 225","pierce":"181 / 385","cut":"164 / 351"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|300|N|H O|UW":{"material":"Stainless Steel","amperage":300,"plasma_gas":"N","shield_gas":"H O","environment":"UW","a":15243.3509,"b":-0.804944,"r2":0.935,"thickness_range_mm":[12.0,32.0],"data_points":[[12.0,1956.0],[15.0,1795.0],[20.0,1547.0],[25.0,1184.0],[30.0,904.0],[32.0,813.0]],"flow_rates":{"N2":{"pre":"31 / 65","pierce":"75 / 160","cut":"59 / 126"},"HO2":{"pre":"0.42 / 6.5*","pierce":"0.5 / 8*","cut":"0.5 / 8*"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|460|N|N|UW":{"material":"Stainless Steel","amperage":460,"plasma_gas":"N","shield_gas":"N","environment":"UW","a":48583.9794,"b":-1.073236,"r2":0.9465,"thickness_range_mm":[16.0,35.0],"data_points":[[16.0,2399.0],[20.0,2003.0],[25.0,1735.0],[30.0,1231.0],[35.0,909.0]],"flow_rates":{"N2":{"pre":"126/ 267","pierce":"186/ 395","cut":"179/ 379"}},"machine":"XPR","quality":"Cut"},"Stainless Steel|460|N|H O|UW":{"material":"Stainless Steel","amperage":460,"plasma_gas":"N","shield_gas":"H O","environment":"UW","a":16822.7074,"b":-0.746558,"r2":0.9466,"thickness_range_mm":[16.0,40.0],"data_points":[[16.0,2027.0],[20.0,1867.0],[25.0,1667.0],[30.0,1345.0],[35.0,1115.0],[40.0,992.0]],"flow_rates":{"N2":{"pre":"45 / 95","pierce":"72 / 152","cut":"64 / 135"},"HO2":{"pre":"0.38 / 6*","pierce":"0.40 / 6.25*","cut":"0.35 / 5.5*"}},"machine":"XPR","quality":"Cut"},"PM|Mild Steel|105|Air|Air|AW|BQ":{"machine":"Powermax","material":"Mild Steel","amperage":105,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":73338.1689,"b":-1.525342,"r2":0.9979,"thickness_range_mm":[6,40],"data_points":[[6,3960],[8,3020],[10,2240],[12,1700],[16,1090],[20,790],[25,530],[30,380],[32,330],[35,280],[40,200]],"flow_rates":{}},"PM|Mild Steel|105|Air|Air|AW|HP":{"machine":"Powermax","material":"Mild Steel","amperage":105,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":101524.4914,"b":-1.579139,"r2":0.9971,"thickness_range_mm":[6,40],"data_points":[[6,4880],[8,3730],[10,2740],[12,2080],[16,1320],[20,940],[25,580],[30,410],[32,360],[35,300],[40,250]],"flow_rates":{}},"PM|Stainless Steel|105|Air|Air|AW|BQ":{"machine":"Powermax","material":"Stainless Steel","amperage":105,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":125762.5419,"b":-1.760252,"r2":0.9996,"thickness_range_mm":[6,32],"data_points":[[6,4700],[8,3250],[10,2180],[12,1550],[16,940],[20,660],[25,460],[30,330],[32,300]],"flow_rates":{}},"PM|Stainless Steel|105|Air|Air|AW|HP":{"machine":"Powermax","material":"Stainless Steel","amperage":105,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":147751.4239,"b":-1.748087,"r2":0.9992,"thickness_range_mm":[6,30],"data_points":[[6,5690],[8,3890],[10,2620],[12,1990],[16,1120],[20,790],[25,530],[30,360]],"flow_rates":{}},"PM|Aluminum|105|Air|Air|AW|BQ":{"machine":"Powermax","material":"Aluminum","amperage":105,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":92455.9273,"b":-1.544503,"r2":0.997,"thickness_range_mm":[6,32],"data_points":[[6,5660],[8,3760],[10,2590],[12,1930],[16,1320],[20,1020],[25,660],[30,430],[32,380]],"flow_rates":{}},"PM|Aluminum|105|Air|Air|AW|HP":{"machine":"Powermax","material":"Aluminum","amperage":105,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":120322.6373,"b":-1.55884,"r2":0.9987,"thickness_range_mm":[6,32],"data_points":[[6,6730],[8,4750],[10,3230],[12,2490],[16,1650],[20,1190],[25,810],[30,560],[32,510]],"flow_rates":{}},"PM|Mild Steel|85|Air|Air|AW|BQ":{"machine":"Powermax","material":"Mild Steel","amperage":85,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":36623.8178,"b":-1.342814,"r2":0.9936,"thickness_range_mm":[3,30],"data_points":[[3,6930],[4,5560],[6,3560],[8,2360],[10,1630],[12,1240],[16,840],[20,580],[25,360],[30,200]],"flow_rates":{}},"PM|Mild Steel|85|Air|Air|AW|HP":{"machine":"Powermax","material":"Mild Steel","amperage":85,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":57675.384,"b":-1.462277,"r2":0.9994,"thickness_range_mm":[3,25],"data_points":[[3,9580],[4,7570],[6,4220],[8,2820],[10,2030],[12,1520],[16,970],[20,640],[25,430]],"flow_rates":{}},"PM|Stainless Steel|85|Air|Air|AW|BQ":{"machine":"Powermax","material":"Stainless Steel","amperage":85,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":52638.3179,"b":-1.529707,"r2":0.9963,"thickness_range_mm":[3,25],"data_points":[[3,8100],[4,6220],[6,3630],[8,2260],[10,1500],[12,1040],[16,690],[20,480],[25,300]],"flow_rates":{}},"PM|Stainless Steel|85|Air|Air|AW|HP":{"machine":"Powermax","material":"Stainless Steel","amperage":85,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":62927.2107,"b":-1.515388,"r2":0.9956,"thickness_range_mm":[3,25],"data_points":[[3,9860],[4,7570],[6,4470],[8,2790],[10,1880],[12,1350],[16,780],[20,530],[25,380]],"flow_rates":{}},"PM|Aluminum|85|Air|Air|AW|BQ":{"machine":"Powermax","material":"Aluminum","amperage":85,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":36705.9413,"b":-1.296685,"r2":0.993,"thickness_range_mm":[3,25],"data_points":[[3,7980],[4,6050],[6,3630],[8,2440],[12,1780],[16,940],[20,580],[25,380]],"flow_rates":{}},"PM|Aluminum|85|Air|Air|AW|HP":{"machine":"Powermax","material":"Aluminum","amperage":85,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":40588.8139,"b":-1.212291,"r2":0.9896,"thickness_range_mm":[3,25],"data_points":[[3,9520],[4,7470],[6,4750],[8,3250],[12,2440],[16,1190],[20,890],[25,530]],"flow_rates":{}},"PM|Mild Steel|65|Air|Air|AW|BQ":{"machine":"Powermax","material":"Mild Steel","amperage":65,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":31600.1164,"b":-1.423664,"r2":0.9756,"thickness_range_mm":[3,25],"data_points":[[3,5330],[4,4220],[6,2970],[8,1550],[10,1040],[12,840],[16,560],[20,380],[25,200]],"flow_rates":{}},"PM|Mild Steel|65|Air|Air|AW|HP":{"machine":"Powermax","material":"Mild Steel","amperage":65,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":28571.4278,"b":-1.248704,"r2":0.9934,"thickness_range_mm":[3,12],"data_points":[[3,6250],[4,5000],[6,3200],[8,2130],[10,1660],[12,1100]],"flow_rates":{}},"PM|Stainless Steel|65|Air|Air|AW|BQ":{"machine":"Powermax","material":"Stainless Steel","amperage":65,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":223265.2925,"b":-2.442547,"r2":0.9843,"thickness_range_mm":[2,20],"data_points":[[2,8760],[4,7650],[6,2440],[8,1350],[12,940],[16,740],[20,330]],"flow_rates":{}},"PM|Stainless Steel|65|Air|Air|AW|HP":{"machine":"Powermax","material":"Stainless Steel","amperage":65,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":479272.6431,"b":-2.816044,"r2":0.9873,"thickness_range_mm":[2,20],"data_points":[[2,10820],[4,9730],[6,2720],[8,1610],[16,890],[20,360]],"flow_rates":{}},"PM|Aluminum|65|Air|Air|AW|BQ":{"machine":"Powermax","material":"Aluminum","amperage":65,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":57708.3358,"b":-1.436181,"r2":0.9664,"thickness_range_mm":[2,20],"data_points":[[2,9270],[4,7540],[6,5380],[8,2900],[10,1780],[12,1260],[16,940],[20,610]],"flow_rates":{}},"PM|Aluminum|65|Air|Air|AW|HP":{"machine":"Powermax","material":"Aluminum","amperage":65,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":56303.6232,"b":-1.287392,"r2":0.9545,"thickness_range_mm":[2,20],"data_points":[[2,10800],[4,8920],[6,6880],[8,4110],[10,2590],[12,1750],[16,1320],[20,810]],"flow_rates":{}},"PM|Mild Steel|45|Air|Air|AW|BQ":{"machine":"Powermax","material":"Mild Steel","amperage":45,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":18339.8952,"b":-1.474447,"r2":1.0,"thickness_range_mm":[0.5,3],"data_points":[[0.5,8890],[1,8890],[1.5,8890],[2,6600],[3,3630]],"flow_rates":{}},"PM|Mild Steel|45|Air|Air|AW|HP":{"machine":"Powermax","material":"Mild Steel","amperage":45,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":11378.2335,"b":-0.619359,"r2":0.8521,"thickness_range_mm":[0.5,3],"data_points":[[0.5,12500],[1,10670],[1.5,10190],[2,7620],[3,4830]],"flow_rates":{}},"PM|Stainless Steel|45|Air|Air|AW|BQ":{"machine":"Powermax","material":"Stainless Steel","amperage":45,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":14147.4573,"b":-1.226063,"r2":0.9602,"thickness_range_mm":[0.5,6],"data_points":[[0.5,8890],[1,8890],[1.5,8890],[2,6220],[3,3230],[6,1960]],"flow_rates":{}},"PM|Stainless Steel|45|Air|Air|AW|HP":{"machine":"Powermax","material":"Stainless Steel","amperage":45,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":10537.3502,"b":-0.52479,"r2":0.7238,"thickness_range_mm":[0.5,3],"data_points":[[0.5,12700],[1,10110],[2,8990],[3,4620]],"flow_rates":{}},"PM|Aluminum|45|Air|Air|AW|BQ":{"machine":"Powermax","material":"Aluminum","amperage":45,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"BQ","a":16093.8727,"b":-1.430348,"r2":1.0,"thickness_range_mm":[1,4],"data_points":[[1,8260],[2,5970],[3,3350],[4,2210]],"flow_rates":{}},"PM|Aluminum|45|Air|Air|AW|HP":{"machine":"Powermax","material":"Aluminum","amperage":45,"plasma_gas":"Air","shield_gas":"Air","environment":"AW","quality":"HP","a":17432.7603,"b":-0.938998,"r2":0.9942,"thickness_range_mm":[1,4],"data_points":[[1,11400],[2,9040],[3,6400],[4,4600]],"flow_rates":{}},"PM|Stainless Steel|105|F5|F5|AW|BQ":{"machine":"Powermax","material":"Stainless Steel","amperage":105,"plasma_gas":"F5","shield_gas":"F5","environment":"AW","quality":"BQ","a":76089.3258,"b":-1.690972,"r2":0.9958,"thickness_range_mm":[6,25],"data_points":[[6,2800],[8,2300],[10,1500],[12,1100],[16,700],[20,500],[25,400]],"flow_rates":{}},"PM|Stainless Steel|105|F5|F5|AW|HP":{"machine":"Powermax","material":"Stainless Steel","amperage":105,"plasma_gas":"F5","shield_gas":"F5","environment":"AW","quality":"HP","a":73385.72,"b":-1.541711,"r2":0.9845,"thickness_range_mm":[6,20],"data_points":[[6,3600],[8,2900],[10,2300],[12,1500],[16,1000],[20,700]],"flow_rates":{}},"PM|Stainless Steel|85|F5|F5|AW|BQ":{"machine":"Powermax","material":"Stainless Steel","amperage":85,"plasma_gas":"F5","shield_gas":"F5","environment":"AW","quality":"BQ","a":13358.5122,"b":-1.072248,"r2":0.912,"thickness_range_mm":[4,20],"data_points":[[4,4100],[6,1800],[8,1600],[10,1300],[12,1000],[16,600],[20,300]],"flow_rates":{}},"PM|Stainless Steel|85|F5|F5|AW|HP":{"machine":"Powermax","material":"Stainless Steel","amperage":85,"plasma_gas":"F5","shield_gas":"F5","environment":"AW","quality":"HP","a":8630.8037,"b":-0.738225,"r2":0.8033,"thickness_range_mm":[4,16],"data_points":[[4,5400],[6,2100],[8,2100],[10,1700],[12,1500],[16,800]],"flow_rates":{}},"PM|Stainless Steel|65|F5|F5|AW|BQ":{"machine":"Powermax","material":"Stainless Steel","amperage":65,"plasma_gas":"F5","shield_gas":"F5","environment":"AW","quality":"BQ","a":49389.8358,"b":-1.848444,"r2":1.0,"thickness_range_mm":[4,12],"data_points":[[4,3200],[6,1800],[10,700],[12,500]],"flow_rates":{}},"PM|Stainless Steel|65|F5|F5|AW|HP":{"machine":"Powermax","material":"Stainless Steel","amperage":65,"plasma_gas":"F5","shield_gas":"F5","environment":"AW","quality":"HP","a":65613.2546,"b":-1.847185,"r2":0.9987,"thickness_range_mm":[4,12],"data_points":[[4,4200],[6,2400],[10,900],[12,700]],"flow_rates":{}}};
+
+const PAL=['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16','#f97316','#a78bfa','#fb923c','#34d399'];
+let env='AW', tab='curves', selKey=null, ch=null, machine='XPR', qual='BQ';
+
+const pl=(x,a,b)=>a*Math.pow(x,b);
+const fmt=n=>Math.round(n).toLocaleString('pt-BR');
+
+function models(mat,e){
+  return Object.entries(M).filter(([,v])=>{
+    if(v.material!==mat) return false;
+    if(machine==='XPR' && v.machine!=='XPR') return false;
+    if(machine==='Powermax' && v.machine!=='Powermax') return false;
+    if(v.machine==='XPR' && v.environment!==e) return false;
+    if(v.machine==='Powermax' && v.quality!==qual) return false;
+    return true;
+  }).sort((a,b)=>a[1].amperage-b[1].amperage);
+}
+
+function t(){return parseFloat(document.getElementById('thkNum').value)||11;}
+function mat(){return document.getElementById('matSel').value;}
+
+function syncT(v){
+  v=parseFloat(v)||0.5;
+  document.getElementById('thkSlider').value=Math.min(v,80);
+  document.getElementById('thkNum').value=v;
+  document.getElementById('thkDisp').innerHTML=v.toFixed(1)+' <small>mm</small>';
+  document.getElementById('qualDiv').style.display='none';
+update();
+}
+
+function setEnv(e){
+  env=e;
+  document.getElementById('bAW').classList.toggle('on',e==='AW');
+  document.getElementById('bUW').classList.toggle('on',e==='UW');
+  selKey=null; update();
+}
+
+function setMachine(m){
+  machine=m;
+  document.getElementById('bXPR').classList.toggle('on',m==='XPR');
+  document.getElementById('bPM').classList.toggle('on',m==='Powermax');
+  document.getElementById('bAll').classList.toggle('on',m==='All');
+  // Show UW toggle only for XPR
+  const uw=document.getElementById('bUW');
+  uw.style.display=(m==='Powermax')?'none':'';
+  if(m==='Powermax'&&env==='UW'){env='AW';setEnv('AW');return;}
+  // Show quality only for Powermax
+  document.getElementById('qualDiv').style.display=(m==='XPR')?'none':'';
+  selKey=null; update();
+}
+
+function setQual(q){
+  qual=q;
+  document.getElementById('bBQ').classList.toggle('on',q==='BQ');
+  document.getElementById('bHP').classList.toggle('on',q==='HP');
+  selKey=null; update();
+}
+
+function setTab(tb){
+  tab=tb;
+  document.getElementById('tCurves').classList.toggle('on',tb==='curves');
+  document.getElementById('tBar').classList.toggle('on',tb==='bar');
+  renderChart();
+}
+
+function update(){renderResults();renderChart();}
+
+function pick(k){
+  selKey=selKey===k?null:k;
+  document.querySelectorAll('.rc').forEach(c=>c.classList.toggle('sel',c.dataset.k===selKey));
+  renderInfo();
+  if(tab==='curves')renderChart();
+}
+
+function getResults(){
+  const T=t(), ms=models(mat(),env), out=[];
+  for(const [k,m] of ms){
+    const[mn,mx]=m.thickness_range_mm, mg=1.2;
+    if(!(mn/mg<=T&&T<=mx*mg))continue;
+    const spd=Math.round(pl(T,m.a,m.b));
+    out.push({k,m,spd,inRange:mn<=T&&T<=mx,mn,mx});
+  }
+  return out;
+}
+
+function renderResults(){
+  const res=getResults(), list=document.getElementById('rcList');
+  document.getElementById('countBadge').textContent=res.length?res.length+'':'';
+  if(!res.length){list.innerHTML='<div class="empty">Nenhum processo nessa faixa</div>';return;}
+  list.innerHTML=res.map(r=>`
+    <div class="rc ${r.inRange?'interp':'extrap'} ${r.k===selKey?'sel':''}" data-k="${r.k}" onclick="pick('${r.k}')">
+      <div class="rc-top"><span class="rc-amp">${r.m.amperage}A</span><span class="rc-spd">${fmt(r.spd)} mm/min</span></div>
+      <div class="rc-tags">
+        <span class="tag tg">${r.m.plasma_gas}/${r.m.shield_gas}</span>
+        <span class="tag tr">${r.mn}–${r.mx} mm</span>
+        <span class="tag tp">R²=${r.m.r2.toFixed(3)}</span>
+        ${r.m.machine==='Powermax'?`<span class="tag" style="background:#1c3344;color:#67e8f9">${r.m.quality}</span>`:''}
+        ${!r.inRange?'<span class="tag te">extrapol.</span>':''}
+      </div>
+    </div>`).join('');
+  renderInfo();
+}
+
+function renderInfo(){
+  const bar=document.getElementById('infoBar');
+  if(!selKey||!M[selKey]){bar.innerHTML='';return;}
+  const m=M[selKey],T=t(),spd=Math.round(pl(T,m.a,m.b));
+  bar.innerHTML=`
+    <div class="eq-box" style="flex:1">
+      <b>${m.amperage}A &nbsp;|&nbsp; ${m.plasma_gas} / ${m.shield_gas} &nbsp;|&nbsp; ${m.environment}</b><br>
+      speed = ${m.a.toFixed(1)} &times; thickness<sup>${m.b.toFixed(4)}</sup><br>
+      &rarr; speed(${T}mm) = <b>${fmt(spd)} mm/min</b>
+    </div>
+    <div class="stat-box"><div class="stat-v">${m.amperage}A</div><div class="stat-l">Corrente</div></div>
+    <div class="stat-box"><div class="stat-v">${fmt(spd)}</div><div class="stat-l">mm/min @ ${T}mm</div></div>
+    <div class="stat-box"><div class="stat-v">${m.r2.toFixed(3)}</div><div class="stat-l">R²</div></div>
+    <div class="stat-box"><div class="stat-v">${m.thickness_range_mm[0]}–${m.thickness_range_mm[1]}</div><div class="stat-l">Faixa (mm)</div></div>`;
+}
+
+function renderChart(){
+  if(ch){ch.destroy();ch=null;}
+  const ctx=document.getElementById('chart').getContext('2d');
+  tab==='curves'?drawCurves(ctx):drawBar(ctx);
+}
+
+function drawCurves(ctx){
+  const ms=models(mat(),env), T=t(), ds=[];
+  let ci=0;
+  for(const [k,m] of ms){
+    const c=PAL[ci%PAL.length]; ci++;
+    const [mn,mx]=m.thickness_range_mm;
+    const xs=[]; for(let x=mn*.9;x<=mx*1.1;x+=(mx-mn)/100)xs.push(x);
+    const hl=k===selKey;
+    ds.push({label:`${m.amperage}A (${m.plasma_gas}/${m.shield_gas}) R²=${m.r2.toFixed(3)}`,
+      data:xs.map(x=>({x,y:Math.round(pl(x,m.a,m.b))})),
+      borderColor:c,backgroundColor:'transparent',borderWidth:hl?3:1.5,pointRadius:0,tension:.3,type:'line'});
+    ds.push({label:`_${k}`,data:m.data_points.map(([px,py])=>({x:px,y:py})),
+      borderColor:c,backgroundColor:c+'aa',pointRadius:hl?6:3,showLine:false,type:'scatter'});
+  }
+  ds.push({label:`← ${T}mm`,data:[{x:T,y:0},{x:T,y:20000}],
+    borderColor:'#ffffff33',borderWidth:1,borderDash:[5,4],pointRadius:0,type:'line'});
+  ch=new Chart(ctx,{type:'scatter',data:{datasets:ds},options:{
+    responsive:true,maintainAspectRatio:false,animation:false,
+    plugins:{legend:{labels:{color:'#9ca3af',font:{size:10},filter:i=>!i.text.startsWith('_')}}},
+    scales:{
+      x:{type:'linear',title:{display:true,text:'Espessura (mm)',color:'#9ca3af'},grid:{color:'#2a2d3a'},ticks:{color:'#9ca3af'}},
+      y:{title:{display:true,text:'Velocidade (mm/min)',color:'#9ca3af'},grid:{color:'#2a2d3a'},ticks:{color:'#9ca3af'}}
+    }
+  }});
+}
+
+function drawBar(ctx){
+  const res=getResults();
+  if(!res.length)return;
+  ch=new Chart(ctx,{type:'bar',data:{
+    labels:res.map(r=>`${r.m.amperage}A\n${r.m.plasma_gas}`),
+    datasets:[{
+      label:'Velocidade prevista (mm/min)',
+      data:res.map(r=>r.spd),
+      backgroundColor:res.map(r=>r.inRange?'#10b98199':'#f59e0b99'),
+      borderColor:res.map(r=>r.inRange?'#10b981':'#f59e0b'),
+      borderWidth:1,borderRadius:5
+    }]
+  },options:{
+    responsive:true,maintainAspectRatio:false,animation:false,
+    plugins:{legend:{labels:{color:'#9ca3af'}},
+      tooltip:{callbacks:{label:c=>`${fmt(c.parsed.y)} mm/min  R²=${res[c.dataIndex].m.r2.toFixed(3)}`}}},
+    scales:{
+      x:{ticks:{color:'#9ca3af'},grid:{color:'#2a2d3a'}},
+      y:{title:{display:true,text:'Velocidade (mm/min)',color:'#9ca3af'},ticks:{color:'#9ca3af'},grid:{color:'#2a2d3a'}}
+    }
+  }});
+}
+
+update();
+</script>
+</body>
+</html>

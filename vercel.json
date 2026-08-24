@@ -1,5 +1,8 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/regressionmodel", "destination": "/regressionmodel/index.html" },
+    { "source": "/regressionmodel/(.*)", "destination": "/regressionmodel/$1" },
+    { "source": "/((?!regressionmodel).*)", "destination": "/index.html" }
   ]
 }

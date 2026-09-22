@@ -445,17 +445,28 @@ function LabsPage({ t, go, s, C }) {
           <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('https://jetcalc.industrialcuttinglabs.com', '_self')}>{l.jetcalcCta}</button>
         </div>
 
-        {/* CUTBOT AI — concept */}
-        <div style={{ ...s.tc(false, false), opacity: 0.35 }}>
-          <div style={s.ts}><span style={s.dotPlan} />{l.exploring}</div>
-          <div style={s.tn(false)}>{l.cutbotName}</div>
-          <p style={s.tdesc}>{l.cutbotDesc}</p>
+        {/* PLASMA X OXY — live */}
+        <div style={s.tc(false, false)}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, #72D4FF 0%, #FF8A2A 55%, transparent 100%)', borderRadius: '4px 4px 0 0' }} />
+          <div style={{ position: 'absolute', top: -10, right: -10, width: 110, height: 110, borderRadius: '50%', background: 'radial-gradient(circle, rgba(114,212,255,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 14, right: 16, opacity: 0.25, pointerEvents: 'none', filter: 'drop-shadow(0 0 8px rgba(114,212,255,0.45))' }}>
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 2v7M16 2v7" stroke="#72D4FF"/>
+              <path d="M8 9l-1 5 2-1-1 5" stroke="#72D4FF"/>
+              <path d="M16 9c-2 2-2 4 0 6 2-2 2-4 0-6z" stroke="#FF8A2A"/>
+              <path d="M3 20h18" stroke="#9aa3ad"/>
+            </svg>
+          </div>
+          <div style={s.ts}><span style={s.dotLive} />{l.live}</div>
+          <div style={s.tn(false)}>{l.plasmaoxyName}</div>
+          <p style={s.tdesc}>{l.plasmaoxyDesc}</p>
           <div style={s.tags}>
-            {['AI', 'Plasma', 'Waterjet', 'Laser'].map(tag => (
+            {['Plasma', 'Oxyfuel', 'PDF Export', 'EN / ES / PT'].map(tag => (
               <span key={tag} style={s.tag}>{tag}</span>
             ))}
           </div>
-          <ReliabilityBadge level={1} l={l} />
+          <ReliabilityBadge level={5} l={l} />
+          <button style={{ ...s.tcta, marginTop: 12 }} onClick={() => window.open('/plasmavsoxy', '_self')}>{l.plasmaoxyCta}</button>
         </div>
 
         {/* FLARE — live */}

@@ -149,6 +149,58 @@
   .lead-done b{font-family:var(--display);font-size:24px;text-transform:uppercase;letter-spacing:.04em;color:var(--good)}
   @media (max-width:760px){.lead{grid-template-columns:1fr;padding:18px}}
 
+  /* end-of-simulation nudge */
+  .after{margin:6px 20px 14px;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--good);border-radius:4px;background:var(--panel2);display:grid;gap:10px;animation:coneDrop .45s ease-out both}
+  .after b{color:var(--good);font-weight:600}
+  .after-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .after .btn.rt{background:var(--text);color:#101316;border-color:var(--text)}
+  .after .btn.rt:hover{background:#fff}
+  .after-note{margin:0;font-size:13px;color:var(--muted);max-width:70ch}
+  @media (max-width:600px){.after{margin:6px 14px 12px}}
+
+  /* comedy break (real-time mode only) */
+  .panel,header{position:relative}
+  .tape{position:fixed;left:0;right:0;top:0;z-index:60;padding:calc(env(safe-area-inset-top,0px) + 7px) 16px 7px;background:repeating-linear-gradient(-45deg,#F2C14E 0 16px,#16181b 16px 32px);transform:translateY(-110%);transition:transform .5s cubic-bezier(.2,.9,.3,1.25);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+  .tape.on{transform:none}
+  .tape-inner{max-width:1100px;margin:0 auto;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;background:#16181b;color:#F2C14E;padding:8px 12px;border-radius:3px;font:700 14px/1.2 var(--display);letter-spacing:.08em;text-transform:uppercase}
+  .tape-inner .grow{flex:1 1 260px}
+  .tape-prog{height:6px;background:#3a3a3a;border-radius:3px;overflow:hidden;flex:1 1 120px}
+  .tape-prog i{display:block;height:100%;width:0;background:#F2C14E}
+  .tape-pct{font-family:var(--mono);font-size:12px;letter-spacing:0;min-width:9ch}
+  .tape button{font:700 12px/1 var(--display);letter-spacing:.1em;text-transform:uppercase;color:#16181b;background:#F2C14E;border:0;border-radius:3px;padding:8px 10px;cursor:pointer}
+  .btn.more{background:var(--plasma);color:#0c1a22;border-color:var(--plasma);font-weight:700;animation:nudge 1.6s ease-in-out infinite}
+  .pill.count{color:var(--plasma);border-color:rgba(114,212,255,.5)}
+  @keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-2px)}}
+  .cone{position:absolute;z-index:6;width:30px;height:38px;padding:0;border:0;background:none;cursor:pointer;animation:coneDrop .55s cubic-bezier(.3,1.6,.5,1) both;transition:transform .45s,opacity .45s}
+  .cone::before{content:"";position:absolute;left:5px;right:5px;top:0;bottom:5px;clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);background:repeating-linear-gradient(to bottom,#ff6a13 0 9px,#f4f4f4 9px 14px)}
+  .cone::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;border-radius:2px;background:#d9530a}
+  .cone.down{transform:rotate(100deg) translate(6px,-30px);opacity:0}
+  @keyframes coneDrop{from{transform:translateY(-80px) rotate(-20deg);opacity:0}}
+  h1.nailme{cursor:pointer;transform-origin:8% 100%;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+  .hint{position:absolute;left:0;top:-22px;font:600 11px/1 var(--mono);color:#16181b;background:#F2C14E;padding:4px 7px;border-radius:3px;animation:nudge 1.2s ease-in-out infinite;pointer-events:none;white-space:nowrap}
+  .pop{position:fixed;z-index:70;pointer-events:none;font:800 22px/1 var(--display);color:#F2C14E;text-shadow:0 2px 0 #16181b;animation:pop .8s ease-out forwards}
+  @keyframes pop{from{transform:translate(-50%,-50%) scale(.6);opacity:1}to{transform:translate(-50%,-160%) scale(1.15);opacity:0}}
+  .picker{position:absolute;z-index:6;right:14px;top:-18px;display:flex;align-items:center;gap:8px;background:#16181b;border:1px solid #F2C14E;border-radius:4px;padding:6px 9px;font:600 12px/1 var(--mono);color:#F2C14E;animation:coneDrop .5s ease-out both}
+  .picker button{width:22px;height:22px;border-radius:50%;border:2px solid #16181b;outline:1px solid #555;cursor:pointer;padding:0}
+  .roller{position:absolute;z-index:5;top:6px;bottom:6px;width:14px;margin-left:-7px;border-radius:6px;background:repeating-linear-gradient(to bottom,var(--wall) 0 6px,rgba(255,255,255,.35) 6px 8px);box-shadow:0 0 0 2px #16181b;pointer-events:none}
+  .roller::after{content:"";position:absolute;left:50%;top:50%;width:26px;height:3px;background:#9aa3ad;transform:translate(0,-50%)}
+  .scaffold{position:absolute;z-index:4;right:-6px;top:0;bottom:0;width:34px;pointer-events:none;transform-origin:bottom;animation:rise 1.4s ease-out both;
+    background:linear-gradient(90deg,#c0c6cc 0 3px,transparent 3px calc(100% - 3px),#c0c6cc calc(100% - 3px)),repeating-linear-gradient(0deg,transparent 0 44px,#c0c6cc 44px 47px),repeating-linear-gradient(45deg,transparent 0 30px,rgba(192,198,204,.5) 30px 32px)}
+  @keyframes rise{from{transform:scaleY(0)}}
+  .sign{position:absolute;z-index:6;right:4px;top:-8px;background:#F2C14E;color:#16181b;font:800 13px/1 var(--display);letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;border-radius:2px;box-shadow:0 4px 0 #b58a1c;transform-origin:50% -30px;animation:swing 2.6s ease-in-out infinite}
+  .sign::before,.sign::after{content:"";position:absolute;top:-30px;width:1.5px;height:30px;background:#9aa3ad}
+  .sign::before{left:12px}.sign::after{right:12px}
+  @keyframes swing{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  .modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px;background:rgba(8,10,12,.72);backdrop-filter:blur(3px)}
+  .modal-card{width:min(460px,100%);background:var(--panel);border:1px solid var(--line);border-top:4px solid #F2C14E;border-radius:6px;padding:22px;display:grid;gap:12px;animation:coneDrop .5s cubic-bezier(.3,1.4,.5,1) both}
+  .modal-card h3{margin:0;font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+  .shift-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:10px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .shift-row b{font-family:var(--mono);font-size:26px}
+  .shift-row.pl b{color:var(--plasma)} .shift-row.oxy b{color:var(--oxy)}
+  .modal-card p{margin:0;color:var(--muted);font-size:13.5px}
+  .modal-card .play{text-decoration:none}
+  @media (prefers-reduced-motion: reduce){.tape,.cone,.sign,.btn.more,.hint,.scaffold,.picker,.modal-card{animation:none;transition:none}}
+
   .notes{font-size:12.5px;color:var(--muted);display:grid;gap:6px;padding:0 4px}
   .notes p{margin:0;max-width:95ch}
   .notes b{color:var(--text);font-weight:500}
@@ -169,6 +221,25 @@
   }
 </style>
 
+<div class="tape" id="tape" aria-live="polite">
+  <div class="tape-inner">
+    <span class="grow" id="tapeTxt"></span>
+    <span class="tape-prog"><i id="tapeBar"></i></span>
+    <span class="tape-pct" id="tapePct"></span>
+    <button id="tapeSkip" type="button"></button>
+  </div>
+</div>
+<div class="modal" id="shift" hidden role="dialog" aria-modal="true" aria-labelledby="shiftH">
+  <div class="modal-card">
+    <span class="label" id="shiftEyebrow"></span>
+    <h3 id="shiftH"></h3>
+    <div class="shift-row pl"><span id="shiftPl"></span><b id="shiftPlN"></b></div>
+    <div class="shift-row oxy"><span id="shiftOxy"></span><b>1</b></div>
+    <p id="shiftMax"></p>
+    <button class="play" id="shiftCta" type="button"></button>
+    <button class="btn" id="shiftUndo" type="button"></button>
+  </div>
+</div>
 <div class="wrap">
   <div class="topbar">
     <div class="seg lang" id="lang" role="group" aria-label="Language / Idioma">
@@ -229,10 +300,18 @@
     <div class="lane pl">
       <div class="lane-head">
         <div class="lane-name"><h2 id="plName">Plasma 65 A</h2><span class="meta" id="plMeta">–</span></div>
-        <div class="clock"><span class="pill" id="plPhase">Pronto</span><span class="timer" id="plTimer">0:00.0</span></div>
+        <div class="clock"><button class="btn more" id="plMore" type="button" hidden></button><span class="pill count" id="plCount" hidden></span><span class="pill" id="plPhase">Pronto</span><span class="timer" id="plTimer">0:00.0</span></div>
       </div>
       <canvas id="cvPl" aria-label="Animação do plasma"></canvas>
       <div class="bar"><i id="plBar"></i></div>
+    </div>
+    <div class="after" id="after" hidden aria-live="polite">
+      <div><b id="afterH"></b> <span id="afterP"></span></div>
+      <div class="after-btns">
+        <button class="btn" id="afterPdf" type="button"></button>
+        <button class="btn rt" id="afterRt" type="button"></button>
+      </div>
+      <p class="after-note" id="afterNote"></p>
     </div>
   </section>
 
@@ -336,6 +415,17 @@
       pdfSub:l=>`Tempo para cortar ${l} de aço carbono`, pdfScenario:'Seu cenário', pdfLen:'comprimento', pdfBars:t=>`Todas as correntes em ${t}`,
       pdfTable:l=>`Tempo total (min:s) para cortar ${l}, por espessura`, pdfThick:'Espessura', pdfRec:'recomendado', pdfSep:'separação (acabamento ruim)', pdfNo:'não corta',
       pdfFor:n=>`Preparado para ${n}`, pdfFile:'plasma-vs-oxicorte',
+      k:{ tape:'Em reforma · o operador do plasma ficou sem nada para fazer', skip:'Pular a obra', pct:p=>`Reforma ${p}%`,
+        more:'Cortar outra peça', count:n=>`${n} ${n===1?'peça':'peças'}`,
+        bubbles:['Terminei.','…e agora?','Vou pegar um café.','Alguém aceita café?','Oxi, tá tudo bem aí?','Já que sobrou tempo…','Vou dar um tapa no site.','Cuidado com o cone!'],
+        oxyBubble:'Só mais um pouquinho…', hint:'clique para pregar o letreiro', pop:'TOC!', nailed:'Pregado!', thanks:'Valeu!',
+        paintQ:'Cor nova da parede:', painted:'Pintado!', sign:'Inauguração em breve',
+        shiftEyebrow:'Fim do turno', shiftH:'Resumo do dia', shiftPl:'Plasma (+ café + reforma do site)', shiftOxy:'Oxicorte',
+        shiftMax:(m,d)=>`Em ${d}, o plasma dá conta de até ${m} peças. O oxicorte, de 1.`,
+        cta:'Leve a tabela completa em PDF →', undo:'Desfazer a reforma' },
+      a:{ h:'Simulação concluída.', p:'Dá para baixar o relatório completo em PDF logo abaixo.', pdf:'Baixar relatório ↓', rt:'Ver em tempo real ▶',
+        note:(o,p)=>`Que tal rodar em tempo real para sentir a diferença de verdade? São ${o} de oxicorte contra ${p} de plasma.`,
+        noteNo:o=>`Que tal rodar em tempo real para sentir de verdade? São ${o} de oxicorte.` },
       note1:'<b>De onde vêm os números.</b> Aço carbono, corte reto começando pela borda. Oxicorte com oxiacetileno: velocidades médias de tabelas de bico (≈ 24 pol/min em chapa fina até ≈ 10 pol/min em 2″) e pré-aquecimento de ≈ 12 s + 25 s por polegada de espessura. Plasma a ar: curvas típicas de equipamentos de 30 a 125 A, onde a espessura “recomendada” de cada corrente corta a ≈ 20 pol/min (500 mm/min); acima dela é corte de separação, mais lento e com acabamento ruim.',
       note2:'<b>Use como ordem de grandeza.</b> Os números reais mudam com o gás (propano pré-aquece mais devagar), o bico, a pressão, o consumível e se o corte é manual ou em mesa CNC. Confira sempre a tabela de corte do fabricante do seu equipamento.'
     },
@@ -368,6 +458,17 @@
       pdfSub:l=>`Tiempo para cortar ${l} de acero al carbono`, pdfScenario:'Tu escenario', pdfLen:'largo', pdfBars:t=>`Todos los amperajes en ${t}`,
       pdfTable:l=>`Tiempo total (min:s) para cortar ${l}, por espesor`, pdfThick:'Espesor', pdfRec:'recomendado', pdfSep:'separación (mal acabado)', pdfNo:'no corta',
       pdfFor:n=>`Preparado para ${n}`, pdfFile:'plasma-vs-oxicorte',
+      k:{ tape:'En remodelación · el operador del plasma se quedó sin nada que hacer', skip:'Saltar la obra', pct:p=>`Remodelación ${p}%`,
+        more:'Cortar otra pieza', count:n=>`${n} ${n===1?'pieza':'piezas'}`,
+        bubbles:['Terminé.','…¿y ahora?','Voy por un café.','¿Alguien quiere café?','Oxi, ¿todo bien por allá?','Ya que sobra tiempo…','Le doy una manita al sitio.','¡Cuidado con el cono!'],
+        oxyBubble:'Ya casi…', hint:'haz clic para clavar el letrero', pop:'¡TOC!', nailed:'¡Clavado!', thanks:'¡Gracias!',
+        paintQ:'Color nuevo de la pared:', painted:'¡Pintado!', sign:'Gran reapertura pronto',
+        shiftEyebrow:'Fin del turno', shiftH:'Resumen del día', shiftPl:'Plasma (+ café + remodelación del sitio)', shiftOxy:'Oxicorte',
+        shiftMax:(m,d)=>`En ${d}, el plasma corta hasta ${m} piezas. El oxicorte, 1.`,
+        cta:'Llévate la tabla completa en PDF →', undo:'Deshacer la remodelación' },
+      a:{ h:'Simulación terminada.', p:'Puedes descargar el informe completo en PDF justo abajo.', pdf:'Descargar informe ↓', rt:'Ver en tiempo real ▶',
+        note:(o,p)=>`¿Por qué no correrla en tiempo real para sentir de verdad la diferencia? Son ${o} de oxicorte contra ${p} de plasma.`,
+        noteNo:o=>`¿Por qué no correrla en tiempo real para sentirlo de verdad? Son ${o} de oxicorte.` },
       note1:'<b>De dónde salen los números.</b> Acero al carbono, corte recto empezando por el borde. Oxicorte con oxiacetileno: velocidades promedio de tablas de boquilla (≈ 24 pulg/min en placa delgada hasta ≈ 10 pulg/min en 2″) y precalentamiento de ≈ 12 s + 25 s por pulgada de espesor. Plasma con aire: curvas típicas de equipos de 30 a 125 A, donde el espesor “recomendado” de cada amperaje corta a ≈ 20 pulg/min (500 mm/min); por encima es corte de separación, más lento y con mal acabado.',
       note2:'<b>Úsalo como orden de magnitud.</b> Los números reales cambian con el gas (el propano precalienta más lento), la boquilla, la presión, los consumibles y si el corte es manual o en mesa CNC. Revisa siempre la tabla de corte del fabricante de tu equipo.'
     },
@@ -400,6 +501,17 @@
       pdfSub:l=>`Time to cut ${l} of mild steel`, pdfScenario:'Your scenario', pdfLen:'length', pdfBars:t=>`Every amperage at ${t}`,
       pdfTable:l=>`Total time (min:s) to cut ${l}, by thickness`, pdfThick:'Thickness', pdfRec:'recommended', pdfSep:'severance (rough edge)', pdfNo:'no cut',
       pdfFor:n=>`Prepared for ${n}`, pdfFile:'plasma-vs-oxyfuel',
+      k:{ tape:'Under renovation · the plasma operator ran out of things to do', skip:'Skip the renovation', pct:p=>`Renovation ${p}%`,
+        more:'Cut another part', count:n=>`${n} ${n===1?'part':'parts'}`,
+        bubbles:['Done.','…now what?','Grabbing a coffee.','Anyone want coffee?','You OK over there, oxy?','Since I have time…','Might as well fix up the site.','Watch the cone!'],
+        oxyBubble:'Almost there…', hint:'click to nail the sign back', pop:'BONK!', nailed:'Nailed it!', thanks:'Thanks!',
+        paintQ:'New wall color:', painted:'Painted!', sign:'Grand reopening soon',
+        shiftEyebrow:'End of shift', shiftH:'Daily report', shiftPl:'Plasma (+ coffee + site makeover)', shiftOxy:'Oxyfuel',
+        shiftMax:(m,d)=>`In ${d}, plasma can cut up to ${m} parts. Oxyfuel, 1.`,
+        cta:'Take the full chart as a PDF →', undo:'Undo the renovation' },
+      a:{ h:'Simulation complete.', p:'You can download the full PDF report just below.', pdf:'Get the report ↓', rt:'Watch in real time ▶',
+        note:(o,p)=>`Why not run it in real time to really feel the difference? That's ${o} of oxyfuel vs ${p} of plasma.`,
+        noteNo:o=>`Why not run it in real time to really feel it? That's ${o} of oxyfuel.` },
       note1:'<b>Where the numbers come from.</b> Mild steel, straight cut starting from the edge. Oxy-acetylene: average speeds from tip charts (≈ 24 in/min on thin plate down to ≈ 10 in/min at 2″) and a preheat of ≈ 12 s + 25 s per inch of thickness. Air plasma: typical curves for 30–125 A machines, where each amperage’s “recommended” thickness cuts at ≈ 20 in/min (500 mm/min); beyond that it’s a severance cut, slower and with a rough edge.',
       note2:'<b>Treat these as ballpark figures.</b> Real numbers change with the fuel gas (propane preheats slower), tip, pressure, consumables, and whether the cut is by hand or on a CNC table. Always check your machine manufacturer’s cut chart.'
     }
@@ -491,10 +603,10 @@
   function togglePlay(){
     const c=calc();
     if(S.simT>=maxTotal(c)) resetSim();
-    S.running=!S.running; S.last=performance.now();
+    S.running=!S.running; S.last=performance.now(); if(S.running) $('after').hidden=true;
     updatePlayBtn();
   }
-  function resetSim(){ S.simT=0; S.running=false; parts.oxy.length=0; parts.pl.length=0; updatePlayBtn(); }
+  function resetSim(){ $('after').hidden=true; endComedy(); K.done=false; K.pieces=1; S.simT=0; S.running=false; parts.oxy.length=0; parts.pl.length=0; updatePlayBtn(); }
   function updatePlayBtn(){
     const c=calc(), fin=S.simT>=maxTotal(c)&&S.simT>0;
     const L=tr();
@@ -575,6 +687,8 @@
       el.innerHTML=`<span class="nm">${r.name}<small class="${subCls}">${r.sub}</small></span><span class="track">${bar}</span><span class="val">${r.ok?fmtDur(r.total):'—'}<small>${r.ok?speedTxt(r.ipm):'&nbsp;'}</small></span>`;
       box.appendChild(el);
     });
+    if(K.active||!$('shift').hidden) comedyText();
+    if(!$('after').hidden) fillAfter();
     updatePlayBtn();
   }
 
@@ -733,10 +847,11 @@
     }
     const p=c.pl;
     if(!p.ok) return {ph:'no',frac:0,clock:0};
-    if(s<=0) return {ph:'idle',frac:0,clock:0};
-    if(s<p.start) return {ph:'pre',frac:0,clock:s};
-    if(s<p.total) return {ph:'cut',frac:(s-p.start)/p.cut,clock:s};
-    return {ph:'done',frac:1,clock:p.total};
+    const ls=K.plExtra!=null?s-K.plExtra:s;
+    if(ls<=0) return {ph:K.plExtra!=null?'pre':'idle',frac:0,clock:0,local:0};
+    if(ls<p.start) return {ph:'pre',frac:0,clock:ls,local:ls};
+    if(ls<p.total) return {ph:'cut',frac:(ls-p.start)/p.cut,clock:ls,local:ls};
+    return {ph:'done',frac:1,clock:p.total,local:ls};
   }
 
   const PH_TXT={oxy:{idle:['idle',''],pre:['pre','hot'],cut:['cut','hot'],done:['done','done']},
@@ -782,7 +897,7 @@
       } else {
         drawTorch(ctx,tx,tip,'pl');
         if(st.ph==='pre'){
-          const pr=S.simT/c.pl.start;
+          const pr=st.local/c.pl.start;
           if(pr<.45){ // pilot arc flicker inside nozzle
             ctx.save();ctx.globalCompositeOperation='lighter';glow(ctx,tx,tip,8+Math.random()*5,'rgba(190,150,255,.9)','rgba(120,80,255,0)');ctx.restore();
           } else {
@@ -794,6 +909,7 @@
       }
     }
     stepParts(ctx,arr,kind,dt,g.yb+10);
+    drawComedy(kind,ctx,g,st,tx,now);
 
     // HUD
     const [key,cls]=PH_TXT[kind][st.ph], txt=tr().ph[key];
@@ -810,13 +926,162 @@
     if(S.running){
       S.simT+=dt*factor(c);
       const mt=maxTotal(c);
-      if(S.simT>=mt){S.simT=mt;S.running=false;updatePlayBtn();}
+      if(S.simT>=mt){S.simT=mt;S.running=false;updatePlayBtn();if(!K.active&&!K.done)showAfter();}
     }
+    if(!K.active&&!K.done&&comedyOk(c)&&S.simT>=c.pl.total&&S.simT<c.oxy.total) startComedy();
+    comedyTick(c,dt);
     drawLane('oxy',c,phaseOf('oxy',c),dt,now);
     drawLane('pl',c,phaseOf('pl',c),dt,now);
     requestAnimationFrame(loop);
   }
 
+
+  // ---------- comedy break: real-time mode, plasma finished, oxyfuel still cutting ----------
+  const K={active:false,done:false,pieces:1,plExtra:null,stage:0,tilt:0,wall:null,paintP:0,pickerAt:0,coneAt:0,roller:null,els:[]};
+  const comedyOk=c=>S.realtime&&c.pl.ok&&(c.oxy.total-c.pl.total)>=20;
+  const KT=()=>tr().k;
+  const q=sel=>document.querySelector(sel);
+
+  function popAt(x,y,txt){const p=document.createElement('div');p.className='pop';p.textContent=txt;p.style.left=x+'px';p.style.top=y+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),850);}
+  function addEl(parent,cls,html){const e=document.createElement('div');e.className=cls;if(html)e.innerHTML=html;parent.appendChild(e);K.els.push(e);return e;}
+
+  function startComedy(){
+    Object.assign(K,{active:true,done:false,pieces:1,plExtra:null,stage:0,tilt:0,wall:null,paintP:0,coneAt:0,roller:null});
+    $('tape').classList.add('on');
+    comedyText();
+  }
+  function comedyText(){
+    const k=KT();
+    $('tapeTxt').textContent=k.tape; $('tapeSkip').textContent=k.skip;
+    $('plMore').textContent=k.more; $('plCount').textContent=k.count(K.pieces);
+    const h=q('.hint'); if(h) h.textContent=k.hint;
+    const pk=q('.picker span'); if(pk) pk.textContent=K.paintP>=100?k.painted:k.paintQ;
+    const sg=q('.sign'); if(sg) sg.textContent=k.sign;
+    if(!$('shift').hidden) fillShift();
+  }
+  function spawnCone(){
+    const hosts=[q('.summary'),q('.stage'),q('.controls'),q('.compare')];
+    const host=hosts[Math.floor(Math.random()*hosts.length)];
+    const b=document.createElement('button');b.type='button';b.className='cone';b.setAttribute('aria-label','cone');
+    b.style.left=(6+Math.random()*82)+'%'; b.style.top='-24px';
+    b.addEventListener('click',e=>{popAt(e.clientX,e.clientY,KT().thanks);b.classList.add('down');setTimeout(()=>b.remove(),450);});
+    host.appendChild(b);K.els.push(b);
+  }
+  function stageUp(n){
+    const k=KT(); K.stage=n;
+    if(n===1){ for(let i=0;i<3;i++) setTimeout(()=>{ if(K.active) spawnCone(); },i*350); K.coneAt=performance.now(); }
+    if(n===2){ const h1=q('h1'); h1.classList.add('nailme'); K.tilt=5; h1.addEventListener('click',nail);
+      const hint=document.createElement('span');hint.className='hint';hint.textContent=k.hint;q('header').appendChild(hint);K.els.push(hint); }
+    if(n===3){ const pk=addEl(q('.compare'),'picker',`<span>${k.paintQ}</span>`);
+      ['#72D4FF','#FF8A2A','#7BD88F'].forEach(col=>{const b=document.createElement('button');b.type='button';b.style.background=col;b.setAttribute('aria-label',col);b.addEventListener('click',()=>paint(col));pk.appendChild(b);});
+      K.pickerAt=performance.now(); }
+    if(n===4){ addEl(q('.stage'),'scaffold'); }
+    if(n===5){ addEl(q('header'),'sign',k.sign); }
+  }
+  function nail(e){
+    if(!K.active||K.tilt<=0) return;
+    K.tilt=Math.max(0,K.tilt-2.2);
+    popAt(e.clientX,e.clientY,K.tilt===0?KT().nailed:KT().pop);
+  }
+  function paint(col){
+    if(K.wall) return;
+    K.wall=col; const host=q('.compare');
+    host.style.setProperty('--wall',col);
+    K.roller=addEl(host,'roller');
+  }
+  function comedyTick(c,dt){
+    if(!K.active) return;
+    if(!S.realtime){ endComedy(); return; }
+    const k=KT(), bt=S.simT-c.pl.total, dur=c.oxy.total-c.pl.total, f=Math.min(1,Math.max(0,bt/dur)), now=performance.now();
+    $('tapeBar').style.width=(f*100).toFixed(1)+'%';
+    $('tapePct').textContent=k.pct(Math.round(f*100));
+    if(K.plExtra!=null && S.simT-K.plExtra>=c.pl.total){ K.pieces++; K.plExtra=null; $('plCount').textContent=k.count(K.pieces); }
+    $('plMore').hidden = K.plExtra!=null; $('plCount').hidden=false;
+    const TH=[0,.08,.24,.4,.58,.76];
+    for(let n=K.stage+1;n<TH.length&&f>=TH[n];n++) stageUp(n);
+    if(K.stage>=1 && now-K.coneAt>9000){ K.coneAt=now; if(document.querySelectorAll('.cone:not(.down)').length<6) spawnCone(); }
+    if(K.stage>=2){ K.tilt=Math.min(10,K.tilt+dt*.7); q('h1').style.transform=`rotate(${(-K.tilt).toFixed(2)}deg)`; }
+    if(K.stage>=3){
+      if(!K.wall && now-K.pickerAt>8000) paint('#72D4FF');
+      if(K.wall && K.paintP<100){
+        K.paintP=Math.min(100,K.paintP+dt*(reduce?100:22));
+        q('.compare').style.backgroundImage=`linear-gradient(90deg, ${K.wall}26 ${K.paintP}%, transparent ${K.paintP}%)`;
+        if(K.roller) K.roller.style.left=K.paintP+'%';
+        if(K.paintP>=100){ if(K.roller){K.roller.remove();K.roller=null;} const sp=q('.picker span'); if(sp) sp.textContent=k.painted; }
+      }
+    }
+    if(S.simT>=c.oxy.total){ K.active=false; K.done=true; K.plExtra=null; $('plMore').hidden=true; showShift(); }
+  }
+  function fillShift(){
+    const k=KT(), c=calc(), m=Math.max(K.pieces,Math.floor(c.oxy.total/c.pl.total));
+    $('shiftEyebrow').textContent=k.shiftEyebrow; $('shiftH').textContent=k.shiftH;
+    $('shiftPl').textContent=k.shiftPl; $('shiftPlN').textContent=K.pieces;
+    $('shiftOxy').textContent=k.shiftOxy;
+    $('shiftMax').textContent=k.shiftMax(m,fmtDur(c.oxy.total));
+    $('shiftCta').textContent=k.cta; $('shiftUndo').textContent=k.undo;
+  }
+  function showShift(){ fillShift(); $('shift').hidden=false; $('shiftCta').focus({preventScroll:true}); }
+  function endComedy(){
+    K.active=false; K.plExtra=null;
+    $('tape').classList.remove('on'); $('shift').hidden=true; $('plMore').hidden=true; $('plCount').hidden=true;
+    K.els.forEach(e=>e.remove()); K.els=[]; document.querySelectorAll('.cone').forEach(e=>e.remove());
+    const h1=q('h1'); h1.classList.remove('nailme'); h1.style.transform=''; h1.removeEventListener('click',nail);
+    q('.compare').style.backgroundImage=''; K.roller=null;
+  }
+
+  $('plMore').addEventListener('click',()=>{ if(!K.active||K.plExtra!=null) return; K.plExtra=S.simT; parts.pl.length=0; $('plMore').hidden=true; });
+  $('tapeSkip').addEventListener('click',()=>{ const c=calc(); S.simT=maxTotal(c); S.running=false; updatePlayBtn(); comedyTick(c,0); });
+  $('shiftUndo').addEventListener('click',endComedy);
+  $('shiftCta').addEventListener('click',()=>{ endComedy(); $('lead').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); const n=$('leadName'); if(!n.closest('[hidden]')) setTimeout(()=>n.focus({preventScroll:true}),500); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('shift').hidden) endComedy(); });
+
+  function bubble(ctx,x,y,text,W){
+    ctx.font="600 12px 'IBM Plex Sans',sans-serif";
+    const w=ctx.measureText(text).width+16,h=24,bx=Math.min(Math.max(4,x-w/2),W-w-4),by=y-h;
+    ctx.fillStyle='#E8E6E1';ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(bx,by,w,h,6); else ctx.rect(bx,by,w,h);
+    ctx.moveTo(x-5,by+h);ctx.lineTo(x,by+h+7);ctx.lineTo(x+5,by+h);ctx.fill();
+    ctx.fillStyle='#16181b';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(text,bx+8,by+h/2+.5);
+  }
+  function drawOperator(ctx,g,now){
+    const x=g.W*.66, feet=g.yb+10, bob=Math.sin(now/600)*1.2, sip=(now%6000)<1400;
+    ctx.save();ctx.strokeStyle='#C9CDD2';ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';
+    const hy=feet-52+bob;
+    ctx.beginPath();ctx.moveTo(x,hy+8);ctx.lineTo(x,feet-22);ctx.moveTo(x,feet-22);ctx.lineTo(x-6,feet);ctx.moveTo(x,feet-22);ctx.lineTo(x+6,feet);
+    ctx.moveTo(x,hy+14);ctx.lineTo(x-9,hy+26);
+    const hx=x+(sip?5:11), hyy=hy+(sip?6:20);
+    ctx.moveTo(x,hy+14);ctx.lineTo(x+9,hy+22);ctx.lineTo(hx,hyy);ctx.stroke();
+    ctx.fillStyle='#C9CDD2';ctx.beginPath();ctx.arc(x,hy,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#F2C14E';ctx.beginPath();ctx.arc(x,hy-1,7.6,Math.PI,0);ctx.fill();ctx.fillRect(x-9.5,hy-1.5,19,2.4);
+    ctx.fillStyle='#FF8A2A';ctx.fillRect(hx-1,hyy-9,8,9);ctx.strokeStyle='#FF8A2A';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(hx+8,hyy-4.5,2.6,-Math.PI/2,Math.PI/2);ctx.stroke();
+    ctx.strokeStyle='rgba(232,230,225,.45)';ctx.lineWidth=1.2;
+    for(let i=0;i<2;i++){const sx=hx+1.5+i*3.5, ph=now/400+i*2;ctx.beginPath();ctx.moveTo(sx,hyy-11);ctx.quadraticCurveTo(sx+Math.sin(ph)*3,hyy-15,sx,hyy-19);ctx.stroke();}
+    ctx.restore();
+    const lines=KT().bubbles;
+    bubble(ctx,x,hy-12,lines[Math.floor(now/3200)%lines.length],g.W);
+  }
+  function drawComedy(kind,ctx,g,st,tx,now){
+    if(!K.active) return;
+    if(kind==='pl' && st.ph==='done' && K.plExtra==null) drawOperator(ctx,g,now);
+    if(kind==='oxy' && st.ph==='cut' && st.frac>.72) bubble(ctx,Math.max(70,tx-70),g.yk-16,KT().oxyBubble,g.W);
+  }
+
+  // ---------- end-of-run nudge: PDF below + try real time ----------
+  function fillAfter(){
+    const a=tr().a, c=calc();
+    $('afterH').textContent=a.h; $('afterP').textContent=a.p; $('afterPdf').textContent=a.pdf; $('afterRt').textContent=a.rt;
+    $('afterNote').textContent=c.pl.ok?a.note(fmtDur(c.oxy.total),fmtDur(c.pl.total)):a.noteNo(fmtDur(c.oxy.total));
+    $('afterRt').hidden=S.realtime; $('afterNote').hidden=S.realtime;
+  }
+  function showAfter(){ fillAfter(); $('after').hidden=false; }
+  $('afterPdf').addEventListener('click',()=>{
+    $('lead').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+    const n=$('leadName'); if(!n.closest('[hidden]')) setTimeout(()=>n.focus({preventScroll:true}),500);
+  });
+  $('afterRt').addEventListener('click',()=>{
+    S.realtime=true; resetSim(); render(); togglePlay();
+    q('.stage').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  });
 
   // ---------- lead capture + PDF ----------
   const SB_URL='https://cdgwyfriwerksrthwgun.supabase.co';

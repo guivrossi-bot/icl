@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="pt">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Rev 2 do simulador Plasma × Oxicorte: além do tempo de corte, um estudo de custos opcional (R$) para aço carbono. Página de revisão.">
+<meta name="robots" content="noindex">
+<title>Plasma × Oxicorte — Rev 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#0F1215;
+    --panel:#161A1F;
+    --panel2:#1C2127;
+    --line:#29303A;
+    --text:#E8E6E1;
+    --muted:#8A929B;
+    --dim:#5E666F;
+    --oxy:#FF8A2A;
+    --oxy-soft:rgba(255,138,42,.14);
+    --plasma:#72D4FF;
+    --plasma-soft:rgba(114,212,255,.13);
+    --good:#7BD88F;
+    --warn:#F2C14E;
+    --bad:#FF6B6B;
+    --display:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+    --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:28px 56px}
+  .wrap{max-width:1100px;margin:0 auto;display:grid;gap:18px}
+
+  header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+  .topbar{display:flex;justify-content:flex-end}
+  .seg.lang button{font-size:12px;padding:7px 10px;letter-spacing:.06em}
+  .seg.lang button[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:#101316}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(36px,6vw,58px);line-height:.92;letter-spacing:.01em;text-transform:uppercase;margin:0}
+  h1 .p{color:var(--plasma)} h1 .o{color:var(--oxy)} h1 .x{color:var(--dim);font-weight:600}
+  header p{margin:0;color:var(--muted);max-width:46ch;font-size:14px}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
+  .label{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  /* controls */
+  .controls{display:grid;grid-template-columns:minmax(260px,1.6fr) minmax(260px,1.4fr) auto;gap:18px 26px;padding:18px 20px;align-items:start}
+  .ctl{display:grid;gap:8px;min-width:0}
+  .thick-read{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .thick-read b{font-family:var(--mono);font-size:28px;font-weight:700;line-height:1}
+  .thick-read span{font-family:var(--mono);color:var(--muted);font-size:13px}
+  input[type=range]{width:100%;accent-color:var(--plasma);height:26px;margin:0}
+  .range-ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .seg button,.btn{font:600 14px/1 var(--mono);color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:9px 11px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+  .seg button:hover,.btn:hover{border-color:#3d4652}
+  .seg button[aria-pressed="true"]{background:var(--plasma-soft);border-color:var(--plasma);color:var(--plasma)}
+  .seg.sys button[aria-pressed="true"]{background:#262c34;border-color:#56606c;color:var(--text)}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--plasma);outline-offset:2px}
+  .amps-note{font-size:12.5px;color:var(--muted);min-height:1.5em}
+  .amps-note b{font-weight:600}
+  .ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+
+  .run{display:grid;gap:8px;justify-items:stretch;min-width:170px}
+  .play{font:700 20px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;background:var(--text);color:#101316;border:0;border-radius:4px;padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+  .play:hover{background:#fff}
+  .play svg{width:14px;height:14px;fill:currentColor}
+  .run-row{display:flex;gap:6px}
+  .run-row .btn{flex:1;font-size:12px;padding:8px}
+  .speed{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center}
+  .speed b{color:var(--warn);font-weight:700}
+
+  /* summary */
+  .summary{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:0}
+  .sum{padding:16px 20px;display:grid;gap:4px;border-right:1px solid var(--line)}
+  .sum:last-child{border-right:0}
+  .sum .big{font-family:var(--mono);font-weight:700;font-size:clamp(24px,3.4vw,34px);line-height:1.05;font-variant-numeric:tabular-nums}
+  .sum .sub{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+  .sum.oxy .big{color:var(--oxy)} .sum.pl .big{color:var(--plasma)}
+  .verdict .big{color:var(--text)}
+  .verdict .big em{font-style:normal;color:var(--good)}
+
+  /* stage */
+  .stage{padding:6px 0}
+  .lane{padding:14px 20px 12px;display:grid;gap:8px}
+  .lane + .lane{border-top:1px dashed var(--line)}
+  .lane-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .lane-name{display:grid;gap:2px}
+  .lane-name h2{margin:0;font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.06em;text-transform:uppercase;line-height:1;display:flex;align-items:center;gap:10px}
+  .lane.oxy h2{color:var(--oxy)} .lane.pl h2{color:var(--plasma)}
+  .lane-name .meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .clock{display:flex;align-items:center;gap:12px}
+  .timer{font-family:var(--mono);font-weight:700;font-size:clamp(28px,4.4vw,40px);font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em}
+  .pill{font:600 11.5px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;padding:6px 9px;border-radius:3px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+  .pill.hot{color:var(--oxy);border-color:rgba(255,138,42,.5);background:var(--oxy-soft)}
+  .pill.arc{color:var(--plasma);border-color:rgba(114,212,255,.5);background:var(--plasma-soft)}
+  .pill.done{color:var(--good);border-color:rgba(123,216,143,.5);background:rgba(123,216,143,.1)}
+  .pill.bad{color:var(--bad);border-color:rgba(255,107,107,.5);background:rgba(255,107,107,.1)}
+  canvas{display:block;width:100%;height:190px}
+  .bar{height:4px;background:var(--panel2);border-radius:2px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0}
+  .lane.oxy .bar i{background:var(--oxy)} .lane.pl .bar i{background:var(--plasma)}
+
+  /* comparison */
+  .compare{padding:18px 20px;display:grid;gap:12px}
+  .compare-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+  .compare-head h3{margin:0;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.05em;text-transform:uppercase}
+  .compare-head span{font-size:12.5px;color:var(--muted)}
+  .rows{display:grid;gap:6px}
+  .row{display:grid;grid-template-columns:92px 1fr 112px;align-items:center;gap:12px;background:none;border:1px solid transparent;border-radius:4px;padding:5px 8px;color:var(--text);font:inherit;text-align:left;cursor:pointer}
+  .row:hover{background:var(--panel2)}
+  .row[aria-pressed="true"]{border-color:var(--plasma);background:var(--plasma-soft)}
+  .row.oxyrow{cursor:default}
+  .row.oxyrow:hover{background:none}
+  .row .nm{font-family:var(--mono);font-weight:700;font-size:14px}
+  .row .nm small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+  .track{height:16px;background:var(--panel2);border-radius:2px;position:relative;overflow:hidden}
+  .track i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}
+  .track .pre{background:rgba(255,138,42,.4)}
+  .track .fill{background:var(--plasma)}
+  .row.oxyrow .track .fill{background:var(--oxy)}
+  .track .no{inset:0;width:100%;background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,107,107,.18) 6px 8px)}
+  .row .val{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+  .row .val small{display:block;color:var(--muted);font-size:11px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+  /* lead */
+  .lead{display:grid;grid-template-columns:1.1fr 1fr;gap:24px 36px;padding:24px;background:linear-gradient(135deg,#171c22 0%,#161A1F 60%,#1a1712 100%)}
+  .lead h3{margin:6px 0 8px;font-family:var(--display);font-weight:800;font-size:clamp(26px,3.6vw,36px);line-height:1;text-transform:uppercase;letter-spacing:.02em;text-wrap:balance}
+  .lead p{margin:0;color:var(--muted);max-width:52ch}
+  .lead-list{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:7px;font-size:14px}
+  .lead-list li{display:flex;gap:10px;align-items:baseline}
+  .lead-list li::before{content:"";flex:none;width:8px;height:8px;border-radius:1px;background:var(--plasma);transform:translateY(-1px)}
+  .lead-list li:nth-child(2)::before{background:var(--oxy)}
+  .lead-list li:nth-child(3)::before{background:var(--text)}
+  .lead-side{display:grid;align-content:center}
+  #leadForm{display:grid;gap:10px}
+  .field{display:grid;gap:4px}
+  .field label{font:600 12px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .field input{font:500 16px/1.2 var(--body);color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:11px 12px;width:100%}
+  .field input:focus{outline:none;border-color:var(--plasma);box-shadow:0 0 0 3px var(--plasma-soft)}
+  .lead .play{margin-top:4px;text-decoration:none}
+  .lead .play[disabled]{opacity:.6;cursor:wait}
+  .lead-err{color:var(--bad);font-size:13px;min-height:1.2em;margin:0}
+  .lead-fine{font-size:12px;color:var(--dim)}
+  .lead-done{display:grid;gap:10px;justify-items:start}
+  .lead-done b{font-family:var(--display);font-size:24px;text-transform:uppercase;letter-spacing:.04em;color:var(--good)}
+  @media (max-width:760px){.lead{grid-template-columns:1fr;padding:18px}}
+
+  /* end-of-simulation nudge */
+  .after{margin:6px 20px 14px;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--good);border-radius:4px;background:var(--panel2);display:grid;gap:10px;animation:coneDrop .45s ease-out both}
+  .after b{color:var(--good);font-weight:600}
+  .after-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .after .btn.rt{background:var(--text);color:#101316;border-color:var(--text)}
+  .after .btn.rt:hover{background:#fff}
+  .after-note{margin:0;font-size:13px;color:var(--muted);max-width:70ch}
+  @media (max-width:600px){.after{margin:6px 14px 12px}}
+
+  /* comedy break (real-time mode only) */
+  .panel,header{position:relative}
+  .tape{position:fixed;left:0;right:0;top:0;z-index:60;padding:calc(env(safe-area-inset-top,0px) + 7px) 16px 7px;background:repeating-linear-gradient(-45deg,#F2C14E 0 16px,#16181b 16px 32px);transform:translateY(-110%);transition:transform .5s cubic-bezier(.2,.9,.3,1.25);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+  .tape.on{transform:none}
+  .tape-inner{max-width:1100px;margin:0 auto;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;background:#16181b;color:#F2C14E;padding:8px 12px;border-radius:3px;font:700 14px/1.2 var(--display);letter-spacing:.08em;text-transform:uppercase}
+  .tape-inner .grow{flex:1 1 260px}
+  .tape-prog{height:6px;background:#3a3a3a;border-radius:3px;overflow:hidden;flex:1 1 120px}
+  .tape-prog i{display:block;height:100%;width:0;background:#F2C14E}
+  .tape-pct{font-family:var(--mono);font-size:12px;letter-spacing:0;min-width:9ch}
+  .tape button{font:700 12px/1 var(--display);letter-spacing:.1em;text-transform:uppercase;color:#16181b;background:#F2C14E;border:0;border-radius:3px;padding:8px 10px;cursor:pointer}
+  .btn.more{background:var(--plasma);color:#0c1a22;border-color:var(--plasma);font-weight:700;animation:nudge 1.6s ease-in-out infinite}
+  .pill.count{color:var(--plasma);border-color:rgba(114,212,255,.5)}
+  @keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-2px)}}
+  .cone{position:absolute;z-index:6;width:30px;height:38px;padding:0;border:0;background:none;cursor:pointer;animation:coneDrop .55s cubic-bezier(.3,1.6,.5,1) both;transition:transform .45s,opacity .45s}
+  .cone::before{content:"";position:absolute;left:5px;right:5px;top:0;bottom:5px;clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);background:repeating-linear-gradient(to bottom,#ff6a13 0 9px,#f4f4f4 9px 14px)}
+  .cone::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;border-radius:2px;background:#d9530a}
+  .cone.down{transform:rotate(100deg) translate(6px,-30px);opacity:0}
+  @keyframes coneDrop{from{transform:translateY(-80px) rotate(-20deg);opacity:0}}
+  h1.nailme{cursor:pointer;transform-origin:8% 100%;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+  .hint{position:absolute;left:0;top:-22px;font:600 11px/1 var(--mono);color:#16181b;background:#F2C14E;padding:4px 7px;border-radius:3px;animation:nudge 1.2s ease-in-out infinite;pointer-events:none;white-space:nowrap}
+  .pop{position:fixed;z-index:70;pointer-events:none;font:800 22px/1 var(--display);color:#F2C14E;text-shadow:0 2px 0 #16181b;animation:pop .8s ease-out forwards}
+  @keyframes pop{from{transform:translate(-50%,-50%) scale(.6);opacity:1}to{transform:translate(-50%,-160%) scale(1.15);opacity:0}}
+  .picker{position:absolute;z-index:6;right:14px;top:-18px;display:flex;align-items:center;gap:8px;background:#16181b;border:1px solid #F2C14E;border-radius:4px;padding:6px 9px;font:600 12px/1 var(--mono);color:#F2C14E;animation:coneDrop .5s ease-out both}
+  .picker button{width:22px;height:22px;border-radius:50%;border:2px solid #16181b;outline:1px solid #555;cursor:pointer;padding:0}
+  .roller{position:absolute;z-index:5;top:6px;bottom:6px;width:14px;margin-left:-7px;border-radius:6px;background:repeating-linear-gradient(to bottom,var(--wall) 0 6px,rgba(255,255,255,.35) 6px 8px);box-shadow:0 0 0 2px #16181b;pointer-events:none}
+  .roller::after{content:"";position:absolute;left:50%;top:50%;width:26px;height:3px;background:#9aa3ad;transform:translate(0,-50%)}
+  .scaffold{position:absolute;z-index:4;right:-6px;top:0;bottom:0;width:34px;pointer-events:none;transform-origin:bottom;animation:rise 1.4s ease-out both;
+    background:linear-gradient(90deg,#c0c6cc 0 3px,transparent 3px calc(100% - 3px),#c0c6cc calc(100% - 3px)),repeating-linear-gradient(0deg,transparent 0 44px,#c0c6cc 44px 47px),repeating-linear-gradient(45deg,transparent 0 30px,rgba(192,198,204,.5) 30px 32px)}
+  @keyframes rise{from{transform:scaleY(0)}}
+  .sign{position:absolute;z-index:6;right:4px;top:-8px;background:#F2C14E;color:#16181b;font:800 13px/1 var(--display);letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;border-radius:2px;box-shadow:0 4px 0 #b58a1c;transform-origin:50% -30px;animation:swing 2.6s ease-in-out infinite}
+  .sign::before,.sign::after{content:"";position:absolute;top:-30px;width:1.5px;height:30px;background:#9aa3ad}
+  .sign::before{left:12px}.sign::after{right:12px}
+  @keyframes swing{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  .modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px;background:rgba(8,10,12,.72);backdrop-filter:blur(3px)}
+  .modal-card{width:min(460px,100%);background:var(--panel);border:1px solid var(--line);border-top:4px solid #F2C14E;border-radius:6px;padding:22px;display:grid;gap:12px;animation:coneDrop .5s cubic-bezier(.3,1.4,.5,1) both}
+  .modal-card h3{margin:0;font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+  .shift-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:10px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .shift-row b{font-family:var(--mono);font-size:26px}
+  .shift-row.pl b{color:var(--plasma)} .shift-row.oxy b{color:var(--oxy)}
+  .modal-card p{margin:0;color:var(--muted);font-size:13.5px}
+  .modal-card .play{text-decoration:none}
+  @media (prefers-reduced-motion: reduce){.tape,.cone,.sign,.btn.more,.hint,.scaffold,.picker,.modal-card{animation:none;transition:none}}
+
+  /* cost study (rev 2, optional) */
+  .cost{overflow:hidden}
+  .cost-toggle{width:100%;display:flex;align-items:center;gap:14px;background:none;border:0;color:var(--text);text-align:left;padding:16px 20px;cursor:pointer;font:inherit}
+  .cost-toggle:hover{background:var(--panel2)}
+  .cost-titles{display:grid;gap:3px;flex:1;min-width:0}
+  .cost-eyebrow{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--good)}
+  .cost-h{font-family:var(--display);font-weight:700;font-size:clamp(19px,2.6vw,25px);letter-spacing:.02em;text-transform:uppercase;line-height:1.05}
+  .cost-chev{flex:none;width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:2;transition:transform .2s}
+  .cost-toggle[aria-expanded="true"] .cost-chev{transform:rotate(180deg)}
+  .cost-body{border-top:1px solid var(--line);padding:18px 20px 20px;display:grid;gap:18px}
+  .cost-intro{margin:0;color:var(--muted);font-size:13.5px;max-width:90ch}
+  .cost-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px 30px;align-items:start}
+  .cost-block{display:grid;gap:11px;min-width:0;align-content:start}
+  table.cost-rates{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.cost-rates th,table.cost-rates td{padding:6px 5px;text-align:right;vertical-align:middle}
+  table.cost-rates th:first-child,table.cost-rates td:first-child{text-align:left;color:var(--muted);font-weight:400;font-size:12.5px}
+  table.cost-rates thead th{font-family:var(--display);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  table.cost-rates th.oxy{color:var(--oxy)} table.cost-rates th.pl{color:var(--plasma)}
+  table.cost-rates tr.tot td{border-top:1px solid var(--line);font-family:var(--mono);font-weight:700;padding-top:9px}
+  table.cost-rates tr.tot td:first-child{font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+  table.cost-rates tr.tot td.oxy{color:var(--oxy)} table.cost-rates tr.tot td.pl{color:var(--plasma)}
+  .cost-in{width:78px;font:600 14px/1 var(--mono);color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 9px;text-align:right}
+  .cost-in:focus{outline:none;border-color:var(--plasma);box-shadow:0 0 0 3px var(--plasma-soft)}
+  .cost-field{display:grid;gap:5px}
+  .cost-field span{font-family:var(--display);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-size:11.5px}
+  .cost-field .cost-in{width:100%}
+  .cost-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cost-results{border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .cost-results .sum{padding:15px 18px}
+  .cost-save .big{color:var(--good)}
+  .cost-save.neg .big{color:var(--bad)}
+  .cost-warn{margin:0;font-size:13px;color:var(--warn)}
+  .cost-warn b{font-weight:600}
+  .cost-foot{margin:0;font-size:12px;color:var(--dim);max-width:96ch}
+  #costReset{justify-self:start;font-size:12px;padding:8px 11px}
+  @media (max-width:720px){ .cost-grid{grid-template-columns:1fr} }
+
+  .notes{font-size:12.5px;color:var(--muted);display:grid;gap:6px;padding:0 4px}
+  .notes p{margin:0;max-width:95ch}
+  .notes b{color:var(--text);font-weight:500}
+
+  @media (max-width:860px){
+    .controls{grid-template-columns:1fr 1fr}
+    .run{grid-column:1 / -1;grid-template-columns:1fr 1fr;align-items:center}
+    .run .speed{grid-column:1 / -1}
+  }
+  @media (max-width:600px){
+    .controls{grid-template-columns:1fr}
+    .summary{grid-template-columns:1fr 1fr}
+    .sum.verdict{grid-column:1 / -1;border-top:1px solid var(--line)}
+    .sum.pl{border-right:0}
+    .lane{padding:12px 14px}
+    .row{grid-template-columns:70px 1fr 92px;gap:8px}
+    canvas{height:170px}
+  }
+</style>
+
+<div class="tape" id="tape" aria-live="polite">
+  <div class="tape-inner">
+    <span class="grow" id="tapeTxt"></span>
+    <span class="tape-prog"><i id="tapeBar"></i></span>
+    <span class="tape-pct" id="tapePct"></span>
+    <button id="tapeSkip" type="button"></button>
+  </div>
+</div>
+<div class="modal" id="shift" hidden role="dialog" aria-modal="true" aria-labelledby="shiftH">
+  <div class="modal-card">
+    <span class="label" id="shiftEyebrow"></span>
+    <h3 id="shiftH"></h3>
+    <div class="shift-row pl"><span id="shiftPl"></span><b id="shiftPlN"></b></div>
+    <div class="shift-row oxy"><span id="shiftOxy"></span><b>1</b></div>
+    <p id="shiftMax"></p>
+    <button class="play" id="shiftCta" type="button"></button>
+    <button class="btn" id="shiftUndo" type="button"></button>
+  </div>
+</div>
+<div class="wrap">
+  <div class="topbar">
+    <div class="seg lang" id="lang" role="group" aria-label="Language / Idioma">
+      <button id="langEn" type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button id="langEs" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button id="langPt" type="button" data-lang="pt" aria-pressed="true">PT</button>
+    </div>
+  </div>
+  <header>
+    <h1><span class="p">Plasma</span> <span class="x">×</span> <span class="o" data-i="oxy">Oxicorte</span></h1>
+    <p data-i="intro">Escolha a espessura da chapa e a corrente do plasma, dê play e veja os dois cortando o mesmo comprimento de aço carbono lado a lado.</p>
+  </header>
+
+  <section class="panel controls" aria-label="Parâmetros">
+    <div class="ctl">
+      <div class="label" data-i="thick">Espessura da chapa</div>
+      <div class="thick-read"><b id="thickMain">1/2″</b><span id="thickAlt">12,7 mm</span></div>
+      <input id="thick" type="range" min="0" max="13" step="1" value="5" aria-label="Espessura da chapa">
+      <div class="range-ends"><span id="thickMin">1/8″</span><span id="thickMax">2″</span></div>
+    </div>
+
+    <div class="ctl">
+      <div class="label" data-i="amps">Corrente do plasma</div>
+      <div class="seg" id="amps" role="group" aria-label="Plasma A"></div>
+      <div class="amps-note" id="ampsNote"></div>
+      <div class="label" style="margin-top:4px" data-i="sys">Sistema · comprimento do corte</div>
+      <div class="seg sys" id="sys" role="group" aria-label="Units">
+        <button id="sysImp" type="button" data-sys="imp" aria-pressed="true" data-i="sysImp">Pol · 3 ft</button>
+        <button id="sysMet" type="button" data-sys="met" aria-pressed="false">mm · 1 m</button>
+      </div>
+    </div>
+
+    <div class="run">
+      <button class="play" id="play" type="button"><svg viewBox="0 0 14 14" id="playIcon"><path d="M2 1l11 6-11 6z"/></svg><span id="playTxt">Cortar</span></button>
+      <div class="run-row">
+        <button class="btn" id="reset" type="button" data-i="reset">Zerar</button>
+        <button class="btn" id="rt" type="button" aria-pressed="false" data-i="rt">Tempo real</button>
+      </div>
+      <div class="speed" id="speed">Simulação acelerada <b>×12</b></div>
+    </div>
+  </section>
+
+  <section class="panel summary" aria-label="Resultado previsto">
+    <div class="sum oxy"><span class="label" data-i="oxyTotal">Oxicorte · total</span><span class="big" id="sumOxy">–</span><span class="sub" id="sumOxySub">–</span></div>
+    <div class="sum pl"><span class="label" id="sumPlLabel">Plasma 65 A · total</span><span class="big" id="sumPl">–</span><span class="sub" id="sumPlSub">–</span></div>
+    <div class="sum verdict"><span class="label" data-i="result">Resultado</span><span class="big" id="verdict">–</span><span class="sub" id="verdictSub">–</span></div>
+  </section>
+
+  <section class="panel stage" aria-label="Simulação">
+    <div class="lane oxy">
+      <div class="lane-head">
+        <div class="lane-name"><h2 data-i="oxy">Oxicorte</h2><span class="meta" id="oxyMeta">–</span></div>
+        <div class="clock"><span class="pill" id="oxyPhase">Pronto</span><span class="timer" id="oxyTimer">0:00.0</span></div>
+      </div>
+      <canvas id="cvOxy" aria-label="Animação do oxicorte"></canvas>
+      <div class="bar"><i id="oxyBar"></i></div>
+    </div>
+    <div class="lane pl">
+      <div class="lane-head">
+        <div class="lane-name"><h2 id="plName">Plasma 65 A</h2><span class="meta" id="plMeta">–</span></div>
+        <div class="clock"><button class="btn more" id="plMore" type="button" hidden></button><span class="pill count" id="plCount" hidden></span><span class="pill" id="plPhase">Pronto</span><span class="timer" id="plTimer">0:00.0</span></div>
+      </div>
+      <canvas id="cvPl" aria-label="Animação do plasma"></canvas>
+      <div class="bar"><i id="plBar"></i></div>
+    </div>
+    <div class="after" id="after" hidden aria-live="polite">
+      <div><b id="afterH"></b> <span id="afterP"></span></div>
+      <div class="after-btns">
+        <button class="btn" id="afterPdf" type="button"></button>
+        <button class="btn rt" id="afterRt" type="button"></button>
+      </div>
+      <p class="after-note" id="afterNote"></p>
+    </div>
+  </section>
+
+  <section class="panel compare" aria-label="Comparação por corrente">
+    <div class="compare-head">
+      <h3 data-i="compareH">Todas as correntes nesta espessura</h3>
+      <span id="compareSub">Tempo total para cortar 3 ft · clique numa corrente para simular</span>
+    </div>
+    <div class="rows" id="rows"></div>
+    <div class="legend">
+      <span><i style="background:rgba(255,138,42,.4)"></i><span data-i="leg0">Pré-aquecimento / perfuração</span></span>
+      <span><i style="background:var(--oxy)"></i><span data-i="leg1">Corte oxicorte</span></span>
+      <span><i style="background:var(--plasma)"></i><span data-i="leg2">Corte plasma</span></span>
+      <span><i style="background:repeating-linear-gradient(135deg,transparent 0 3px,rgba(255,107,107,.5) 3px 5px)"></i><span data-i="leg3">Acima da capacidade</span></span>
+    </div>
+  </section>
+
+  <section class="panel cost" id="cost" aria-label="Estudo de custos (opcional)">
+    <button class="cost-toggle" id="costToggle" type="button" aria-expanded="false" aria-controls="costBody">
+      <span class="cost-titles">
+        <span class="cost-eyebrow" id="costEyebrow"></span>
+        <span class="cost-h" id="costH"></span>
+      </span>
+      <svg class="cost-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="cost-body" id="costBody" hidden>
+      <p class="cost-intro" id="costIntro"></p>
+      <div class="cost-grid">
+        <div class="cost-block">
+          <div class="label" id="costRatesH"></div>
+          <table class="cost-rates">
+            <thead><tr><th></th><th class="oxy" id="costColOxy"></th><th class="pl" id="costColPl">Plasma</th></tr></thead>
+            <tbody>
+              <tr><td id="costLaborL"></td><td><input class="cost-in" id="rOxyLabor" type="number" min="0" step="1" inputmode="decimal" aria-label="Oxicorte R$/h"></td><td><input class="cost-in" id="rPlLabor" type="number" min="0" step="1" inputmode="decimal" aria-label="Plasma R$/h"></td></tr>
+              <tr><td id="costConsL"></td><td><input class="cost-in" id="rOxyCons" type="number" min="0" step="1" inputmode="decimal" aria-label="Oxicorte R$/h"></td><td><input class="cost-in" id="rPlCons" type="number" min="0" step="1" inputmode="decimal" aria-label="Plasma R$/h"></td></tr>
+              <tr><td id="costEquipL"></td><td><input class="cost-in" id="rOxyEquip" type="number" min="0" step="1" inputmode="decimal" aria-label="Oxicorte R$/h"></td><td><input class="cost-in" id="rPlEquip" type="number" min="0" step="1" inputmode="decimal" aria-label="Plasma R$/h"></td></tr>
+              <tr class="tot"><td id="costTotalL"></td><td class="oxy" id="costTotOxy">–</td><td class="pl" id="costTotPl">–</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cost-block">
+          <div class="label" id="costBasisH"></div>
+          <div class="seg cost-basis" id="costBasis" role="group" aria-label="Base de tempo">
+            <button type="button" data-basis="cycle" id="costBasisCycle" aria-pressed="true"></button>
+            <button type="button" data-basis="sim" id="costBasisSim" aria-pressed="false"></button>
+          </div>
+          <div class="cost-two" id="costCycleFields">
+            <label class="cost-field"><span id="costCycleOxyL"></span><input class="cost-in" id="costCycleOxy" type="number" min="0" step="0.5" inputmode="decimal"></label>
+            <label class="cost-field"><span id="costCyclePlL"></span><input class="cost-in" id="costCyclePl" type="number" min="0" step="0.5" inputmode="decimal"></label>
+          </div>
+          <p class="cost-intro" id="costSimNote" hidden></p>
+          <label class="cost-field"><span id="costQtyL"></span><input class="cost-in" id="costQty" type="number" min="1" step="1" inputmode="numeric"></label>
+          <button class="btn" id="costReset" type="button"></button>
+        </div>
+      </div>
+      <div class="cost-results summary">
+        <div class="sum oxy"><span class="label" id="costCOxyL"></span><span class="big" id="costCOxy">–</span><span class="sub" id="costCOxySub">–</span></div>
+        <div class="sum pl"><span class="label" id="costCPlL"></span><span class="big" id="costCPl">–</span><span class="sub" id="costCPlSub">–</span></div>
+        <div class="sum verdict cost-save" id="costSaveCard"><span class="label" id="costSaveL"></span><span class="big" id="costSave">–</span><span class="sub" id="costSaveSub">–</span></div>
+      </div>
+      <p class="cost-warn" id="costWarn" hidden></p>
+      <p class="cost-foot" id="costFoot"></p>
+    </div>
+  </section>
+
+  <section class="panel lead" id="lead" aria-labelledby="leadH">
+    <div>
+      <span class="label" data-i="leadEyebrow">Tabela para a oficina</span>
+      <h3 id="leadH" data-i="leadH">Leve a comparação completa em PDF</h3>
+      <p data-i="leadP">Uma folha pronta para imprimir e pendurar ao lado da mesa de corte.</p>
+      <ul class="lead-list">
+        <li data-i="leadL1">Seu cenário simulado, com os dois tempos</li>
+        <li data-i="leadL2">Tempos de 14 espessuras × 6 correntes × oxicorte</li>
+        <li data-i="leadL3">Formato A4 ou Carta, no idioma escolhido</li>
+      </ul>
+    </div>
+    <div class="lead-side">
+      <form id="leadForm" novalidate>
+        <div class="field"><label for="leadName" data-i="fName">Nome</label><input id="leadName" name="name" type="text" autocomplete="name" required></div>
+        <div class="field"><label for="leadEmail" data-i="fEmail">E-mail</label><input id="leadEmail" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="leadCompany" data-i="fCompany">Empresa (opcional)</label><input id="leadCompany" name="company" type="text" autocomplete="organization"></div>
+        <p class="lead-err" id="leadErr" role="alert"></p>
+        <button class="play" id="leadBtn" type="submit"><svg viewBox="0 0 14 14" width="14" height="14" fill="currentColor"><path d="M6 1h2v7l2.5-2.5 1.4 1.4L7 11.8 2.1 6.9l1.4-1.4L6 8zM1 12h12v2H1z"/></svg><span id="leadBtnTxt" data-i="fBtn">Baixar PDF</span></button>
+        <span class="lead-fine" data-i="fine">Sem spam. Seus dados são usados apenas para enviar o material.</span>
+      </form>
+      <div class="lead-done" id="leadDone" hidden>
+        <b data-i="doneH">PDF baixado</b>
+        <p data-i="doneP">Mudou a espessura ou a corrente? Gere de novo com o cenário atual.</p>
+        <button class="btn" id="againBtn" type="button" data-i="again2">Baixar PDF de novo</button>
+      </div>
+      <div class="lead-done" id="leadExt" hidden>
+        <p data-i="extP">O download do PDF funciona na versão publicada da calculadora.</p>
+        <a class="play" href="https://www.industrialcuttinglabs.com/plasmavsoxy" target="_blank" rel="noopener"><span data-i="extBtn">Abrir versão completa</span></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="notes">
+    <p data-ih="note1"><b>De onde vêm os números.</b> Aço carbono, corte reto começando pela borda. Oxicorte com oxiacetileno: velocidades médias de tabelas de bico (≈ 24 pol/min em chapa fina até ≈ 10 pol/min em 2″) e pré-aquecimento de ≈ 12 s + 25 s por polegada de espessura. Plasma a ar: curvas típicas de equipamentos de 30 a 125 A, onde a espessura “recomendada” de cada corrente corta a ≈ 20 pol/min (500 mm/min); acima dela é corte de separação, mais lento e com acabamento ruim.</p>
+    <p data-ih="note2"><b>Use como ordem de grandeza.</b> Os números reais mudam com o gás (propano pré-aquece mais devagar), o bico, a pressão, o consumível e se o corte é manual ou em mesa CNC. Confira sempre a tabela de corte do fabricante do seu equipamento.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- data ----------
+  const TH_IMP = [
+    [0.125,'1/8″'],[0.1875,'3/16″'],[0.25,'1/4″'],[0.3125,'5/16″'],[0.375,'3/8″'],[0.5,'1/2″'],
+    [0.625,'5/8″'],[0.75,'3/4″'],[0.875,'7/8″'],[1,'1″'],[1.25,'1-1/4″'],[1.5,'1-1/2″'],[1.75,'1-3/4″'],[2,'2″']
+  ].map(([v,l])=>({v,l}));
+  const TH_MET = [3,4,5,6,8,10,12,16,20,25,32,38,45,50].map(mm=>({v:mm/25.4,l:mm+' mm'}));
+
+  // oxyfuel (acetylene) cutting speed, in/min vs thickness in
+  const OXY = [[0.125,24],[0.25,22],[0.375,20],[0.5,18],[0.75,16],[1,14],[1.25,13],[1.5,12],[2,10]];
+  // plasma: recommended thickness (≈20 ipm) and max severance, inches
+  const PL = {30:{ref:.375,max:.625},45:{ref:.625,max:1.125},65:{ref:.75,max:1.25},85:{ref:1,max:1.5},105:{ref:1.25,max:2},125:{ref:1.5,max:2.25}};
+  // speed multiplier relative to 20 ipm, as a function of t/ref
+  const REL = [[0.08,12],[0.15,9],[0.2,7.5],[0.3,5.4],[0.5,2.95],[0.6,2.3],[0.8,1.45],[1,1],[1.25,.58],[1.6,.25],[2,.15]];
+  const AMPS = [30,45,65,85,105,125];
+
+  // ---------- i18n ----------
+  const I18N = {
+    pt:{
+      locale:'pt-BR', title:'Plasma × Oxicorte',
+      cost:{
+        eyebrow:'Opcional · estudo de custos',
+        h:'Adicional de custos — quanto você economiza',
+        intro:'Transforma a mesma comparação de tempo em reais. Os valores padrão vêm da pesquisa realizada na refinaria — ajuste qualquer campo para o seu cenário.',
+        ratesH:'Custo por hora (R$/h)', labor:'Mão de obra (H/H)', cons:'Consumíveis / gases / energia', equip:'Locação de equipamento', totalH:'Total (R$/h)',
+        basisH:'Base de tempo por peça', basisCycle:'Ciclo por peça', basisSim:l=>`Tempo simulado (corte de ${l})`,
+        cycleOxy:'Oxicorte (min/peça)', cyclePl:'Plasma (min/peça)', qty:'Quantidade de peças',
+        simNote:'Usa o tempo de corte da espessura e da corrente escolhidas acima; marcação e rebarbação não entram na conta.',
+        cOxy:'Custo Oxicorte', cPl:'Custo Plasma', save:'Economia com plasma', loss:'Plasma mais caro', tie:'Custo equivalente',
+        perPiece:v=>`${v} / peça`, saveSub:(p,h)=>`${p} menor · ${h} h a menos`, lossSub:(p,h)=>`${p} mais caro · ${h} h a mais`, tieSub:'diferença desprezível',
+        noCut:'Não corta', noCutWarn:a=>`Nesta espessura o plasma ${a} A não corta — escolha outra corrente acima ou use o modo “Ciclo por peça”.`,
+        reset:'Restaurar padrões do estudo',
+        foot:'Padrões da pesquisa (refinaria): H/H R$ 80/h · Oxicorte R$ 140/h · Plasma R$ 130/h · ciclo de 20 → 10 min por peça · 20 peças ≈ R$ 500 de economia. Ordem de grandeza — ajuste ao seu caso.'
+      },
+      oxy:'Oxicorte', intro:'Escolha a espessura da chapa e a corrente do plasma, dê play e veja os dois cortando o mesmo comprimento de aço carbono lado a lado.',
+      thick:'Espessura da chapa', amps:'Corrente do plasma', sys:'Sistema · comprimento do corte', sysImp:'Pol · 3 ft',
+      reset:'Zerar', rt:'Tempo real', play:'Cortar', pause:'Pausar', again:'De novo', resume:'Continuar',
+      speedRt:'Tempo real', speedAcc:'Simulação acelerada',
+      oxyTotal:'Oxicorte · total', plTotal:a=>`Plasma ${a} A · total`, result:'Resultado',
+      ipm:'pol/min', pre:'pré-aq.', start:'partida',
+      faster:(w,x)=>`${w} <em>${x}×</em> mais rápido`, saves:(d,l)=>`economiza ${d} a cada ${l} de corte`, loses:(d,l)=>`plasma perde ${d} por ${l} nesta espessura`,
+      tie:'Empate técnico', tieSub:'diferença menor que 5%', noCut:'Não corta', maxAt:(m,a)=>`máx. ${m} em ${a} A`,
+      oxyWins:'Oxicorte vence', useAlt:a=>`para plasma, use ${a} A ou mais`, noneAlt:'nenhuma corrente listada corta isso',
+      oxyMeta:(s,p)=>`Oxiacetileno · ${s} · pré-aquecimento ${p} s`, plMeta:(s,st)=>`Ar comprimido · ${s} · arco + perfuração ${st} s`, plMetaNo:m=>`Ar comprimido · acima da capacidade (máx. ${m})`,
+      noteBad:(t,a,m)=>`<b class="bad">Não corta ${t}.</b> ${a} A separa no máximo ${m}.`,
+      noteWarn:r=>`<b class="warn">Corte de separação.</b> Recomendado até ${r}; acabamento ruim acima disso.`,
+      noteOk:(r,m)=>`<b class="ok">Dentro do recomendado</b> (até ${r}; separa até ${m}).`,
+      compareH:'Todas as correntes nesta espessura', compareSub:(l,t)=>`Tempo total para cortar ${l} de ${t} · clique numa corrente para simular`,
+      oxyShort:'Oxi', acet:'acetileno', rec:'recomendado', sep:'separação', nocut:'não corta',
+      leg0:'Pré-aquecimento / perfuração', leg1:'Corte oxicorte', leg2:'Corte plasma', leg3:'Acima da capacidade',
+      ph:{idle:'Pronto',pre:'Pré-aquecendo',cut:'Cortando',done:'Concluído',arc:'Abrindo arco',no:'Não corta'},
+      cvNo:(a,t)=>`${a} A NÃO CORTA ${t}`, cvAlt:a=>`Suba para ${a} A ou mais`, cvNone:'Fora da faixa destes equipamentos',
+      leadEyebrow:'Tabela para a oficina', leadH:'Leve a comparação completa em PDF', leadP:'Uma folha pronta para imprimir e pendurar ao lado da mesa de corte.',
+      leadL1:'Seu cenário simulado, com os dois tempos', leadL2:'Tempos de 14 espessuras × 6 correntes × oxicorte', leadL3:'Formato A4 ou Carta, no idioma escolhido',
+      fName:'Nome', fEmail:'E-mail', fCompany:'Empresa (opcional)', fBtn:'Baixar PDF', fBusy:'Gerando PDF…', fine:'Sem spam. Seus dados são usados apenas para enviar o material.',
+      errName:'Preencha seu nome.', errEmail:'Confira o e-mail: parece incompleto.', errPdf:'Não foi possível gerar o PDF. Verifique a conexão e tente de novo.',
+      doneH:'PDF baixado', doneP:'Mudou a espessura ou a corrente? Gere de novo com o cenário atual.', again2:'Baixar PDF de novo',
+      extP:'O download do PDF funciona na versão publicada da calculadora.', extBtn:'Abrir versão completa',
+      pdfSub:l=>`Tempo para cortar ${l} de aço carbono`, pdfScenario:'Seu cenário', pdfLen:'comprimento', pdfBars:t=>`Todas as correntes em ${t}`,
+      pdfTable:l=>`Tempo total (min:s) para cortar ${l}, por espessura`, pdfThick:'Espessura', pdfRec:'recomendado', pdfSep:'separação (acabamento ruim)', pdfNo:'não corta',
+      pdfFor:n=>`Preparado para ${n}`, pdfFile:'plasma-vs-oxicorte',
+      k:{ tape:'Em reforma · o operador do plasma ficou sem nada para fazer', skip:'Pular a obra', pct:p=>`Reforma ${p}%`,
+        more:'Cortar outra peça', count:n=>`${n} ${n===1?'peça':'peças'}`,
+        bubbles:['Terminei.','…e agora?','Vou pegar um café.','Alguém aceita café?','Oxi, tá tudo bem aí?','Já que sobrou tempo…','Vou dar um tapa no site.','Cuidado com o cone!'],
+        oxyBubble:'Só mais um pouquinho…', hint:'clique para pregar o letreiro', pop:'TOC!', nailed:'Pregado!', thanks:'Valeu!',
+        paintQ:'Cor nova da parede:', painted:'Pintado!', sign:'Inauguração em breve',
+        shiftEyebrow:'Fim do turno', shiftH:'Resumo do dia', shiftPl:'Plasma (+ café + reforma do site)', shiftOxy:'Oxicorte',
+        shiftMax:(m,d)=>`Em ${d}, o plasma dá conta de até ${m} peças. O oxicorte, de 1.`,
+        cta:'Leve a tabela completa em PDF →', undo:'Desfazer a reforma' },
+      a:{ h:'Simulação concluída.', p:'Dá para baixar o relatório completo em PDF logo abaixo.', pdf:'Baixar relatório ↓', rt:'Ver em tempo real ▶',
+        note:(o,p)=>`Que tal rodar em tempo real para sentir a diferença de verdade? São ${o} de oxicorte contra ${p} de plasma.`,
+        noteNo:o=>`Que tal rodar em tempo real para sentir de verdade? São ${o} de oxicorte.` },
+      note1:'<b>De onde vêm os números.</b> Aço carbono, corte reto começando pela borda. Oxicorte com oxiacetileno: velocidades médias de tabelas de bico (≈ 24 pol/min em chapa fina até ≈ 10 pol/min em 2″) e pré-aquecimento de ≈ 12 s + 25 s por polegada de espessura. Plasma a ar: curvas típicas de equipamentos de 30 a 125 A, onde a espessura “recomendada” de cada corrente corta a ≈ 20 pol/min (500 mm/min); acima dela é corte de separação, mais lento e com acabamento ruim.',
+      note2:'<b>Use como ordem de grandeza.</b> Os números reais mudam com o gás (propano pré-aquece mais devagar), o bico, a pressão, o consumível e se o corte é manual ou em mesa CNC. Confira sempre a tabela de corte do fabricante do seu equipamento.'
+    },
+    es:{
+      locale:'es-MX', title:'Plasma × Oxicorte',
+      cost:{
+        eyebrow:'Opcional · estudio de costos',
+        h:'Adicional de costos — cuánto ahorras',
+        intro:'Convierte la misma comparación de tiempo en dinero. Los valores por defecto vienen de la encuesta hecha en la refinería — ajusta cualquier campo a tu escenario.',
+        ratesH:'Costo por hora (R$/h)', labor:'Mano de obra (H/H)', cons:'Consumibles / gases / energía', equip:'Renta de equipo', totalH:'Total (R$/h)',
+        basisH:'Base de tiempo por pieza', basisCycle:'Ciclo por pieza', basisSim:l=>`Tiempo simulado (corte de ${l})`,
+        cycleOxy:'Oxicorte (min/pieza)', cyclePl:'Plasma (min/pieza)', qty:'Cantidad de piezas',
+        simNote:'Usa el tiempo de corte del espesor y el amperaje elegidos arriba; el trazado y el rebabado no se incluyen.',
+        cOxy:'Costo Oxicorte', cPl:'Costo Plasma', save:'Ahorro con plasma', loss:'Plasma más caro', tie:'Costo equivalente',
+        perPiece:v=>`${v} / pieza`, saveSub:(p,h)=>`${p} menos · ${h} h menos`, lossSub:(p,h)=>`${p} más · ${h} h más`, tieSub:'diferencia mínima',
+        noCut:'No corta', noCutWarn:a=>`En este espesor el plasma ${a} A no corta — elige otro amperaje arriba o usa el modo “Ciclo por pieza”.`,
+        reset:'Restaurar valores del estudio',
+        foot:'Valores de la encuesta (refinería): H/H R$ 80/h · Oxicorte R$ 140/h · Plasma R$ 130/h · ciclo de 20 → 10 min por pieza · 20 piezas ≈ R$ 500 de ahorro. Orden de magnitud — ajústalo a tu caso.'
+      },
+      oxy:'Oxicorte', intro:'Elige el espesor de la placa y el amperaje del plasma, dale play y mira los dos cortando el mismo largo de acero al carbono lado a lado.',
+      thick:'Espesor de la placa', amps:'Amperaje del plasma', sys:'Sistema · largo del corte', sysImp:'Pulg · 3 ft',
+      reset:'Reiniciar', rt:'Tiempo real', play:'Cortar', pause:'Pausar', again:'Otra vez', resume:'Continuar',
+      speedRt:'Tiempo real', speedAcc:'Simulación acelerada',
+      oxyTotal:'Oxicorte · total', plTotal:a=>`Plasma ${a} A · total`, result:'Resultado',
+      ipm:'pulg/min', pre:'precal.', start:'arranque',
+      faster:(w,x)=>`${w} <em>${x}×</em> más rápido`, saves:(d,l)=>`ahorra ${d} cada ${l} de corte`, loses:(d,l)=>`el plasma pierde ${d} por ${l} en este espesor`,
+      tie:'Empate técnico', tieSub:'diferencia menor al 5%', noCut:'No corta', maxAt:(m,a)=>`máx. ${m} a ${a} A`,
+      oxyWins:'Gana el oxicorte', useAlt:a=>`para plasma, usa ${a} A o más`, noneAlt:'ningún amperaje de la lista corta esto',
+      oxyMeta:(s,p)=>`Oxiacetileno · ${s} · precalentamiento ${p} s`, plMeta:(s,st)=>`Aire comprimido · ${s} · arco + perforación ${st} s`, plMetaNo:m=>`Aire comprimido · fuera de capacidad (máx. ${m})`,
+      noteBad:(t,a,m)=>`<b class="bad">No corta ${t}.</b> ${a} A separa como máximo ${m}.`,
+      noteWarn:r=>`<b class="warn">Corte de separación.</b> Recomendado hasta ${r}; mal acabado por encima.`,
+      noteOk:(r,m)=>`<b class="ok">Dentro de lo recomendado</b> (hasta ${r}; separa hasta ${m}).`,
+      compareH:'Todos los amperajes en este espesor', compareSub:(l,t)=>`Tiempo total para cortar ${l} de ${t} · haz clic en un amperaje para simular`,
+      oxyShort:'Oxi', acet:'acetileno', rec:'recomendado', sep:'separación', nocut:'no corta',
+      leg0:'Precalentamiento / perforación', leg1:'Corte oxicorte', leg2:'Corte plasma', leg3:'Fuera de capacidad',
+      ph:{idle:'Listo',pre:'Precalentando',cut:'Cortando',done:'Terminado',arc:'Encendiendo arco',no:'No corta'},
+      cvNo:(a,t)=>`${a} A NO CORTA ${t}`, cvAlt:a=>`Sube a ${a} A o más`, cvNone:'Fuera del rango de estos equipos',
+      leadEyebrow:'Tabla para el taller', leadH:'Llévate la comparación completa en PDF', leadP:'Una hoja lista para imprimir y colgar junto a la mesa de corte.',
+      leadL1:'Tu escenario simulado, con los dos tiempos', leadL2:'Tiempos de 14 espesores × 6 amperajes × oxicorte', leadL3:'Formato A4 o Carta, en el idioma elegido',
+      fName:'Nombre', fEmail:'Correo electrónico', fCompany:'Empresa (opcional)', fBtn:'Descargar PDF', fBusy:'Generando PDF…', fine:'Sin spam. Tus datos se usan solo para enviarte el material.',
+      errName:'Escribe tu nombre.', errEmail:'Revisa el correo: parece incompleto.', errPdf:'No se pudo generar el PDF. Revisa la conexión e inténtalo de nuevo.',
+      doneH:'PDF descargado', doneP:'¿Cambiaste el espesor o el amperaje? Genéralo de nuevo con el escenario actual.', again2:'Descargar PDF de nuevo',
+      extP:'La descarga del PDF funciona en la versión publicada de la calculadora.', extBtn:'Abrir versión completa',
+      pdfSub:l=>`Tiempo para cortar ${l} de acero al carbono`, pdfScenario:'Tu escenario', pdfLen:'largo', pdfBars:t=>`Todos los amperajes en ${t}`,
+      pdfTable:l=>`Tiempo total (min:s) para cortar ${l}, por espesor`, pdfThick:'Espesor', pdfRec:'recomendado', pdfSep:'separación (mal acabado)', pdfNo:'no corta',
+      pdfFor:n=>`Preparado para ${n}`, pdfFile:'plasma-vs-oxicorte',
+      k:{ tape:'En remodelación · el operador del plasma se quedó sin nada que hacer', skip:'Saltar la obra', pct:p=>`Remodelación ${p}%`,
+        more:'Cortar otra pieza', count:n=>`${n} ${n===1?'pieza':'piezas'}`,
+        bubbles:['Terminé.','…¿y ahora?','Voy por un café.','¿Alguien quiere café?','Oxi, ¿todo bien por allá?','Ya que sobra tiempo…','Le doy una manita al sitio.','¡Cuidado con el cono!'],
+        oxyBubble:'Ya casi…', hint:'haz clic para clavar el letrero', pop:'¡TOC!', nailed:'¡Clavado!', thanks:'¡Gracias!',
+        paintQ:'Color nuevo de la pared:', painted:'¡Pintado!', sign:'Gran reapertura pronto',
+        shiftEyebrow:'Fin del turno', shiftH:'Resumen del día', shiftPl:'Plasma (+ café + remodelación del sitio)', shiftOxy:'Oxicorte',
+        shiftMax:(m,d)=>`En ${d}, el plasma corta hasta ${m} piezas. El oxicorte, 1.`,
+        cta:'Llévate la tabla completa en PDF →', undo:'Deshacer la remodelación' },
+      a:{ h:'Simulación terminada.', p:'Puedes descargar el informe completo en PDF justo abajo.', pdf:'Descargar informe ↓', rt:'Ver en tiempo real ▶',
+        note:(o,p)=>`¿Por qué no correrla en tiempo real para sentir de verdad la diferencia? Son ${o} de oxicorte contra ${p} de plasma.`,
+        noteNo:o=>`¿Por qué no correrla en tiempo real para sentirlo de verdad? Son ${o} de oxicorte.` },
+      note1:'<b>De dónde salen los números.</b> Acero al carbono, corte recto empezando por el borde. Oxicorte con oxiacetileno: velocidades promedio de tablas de boquilla (≈ 24 pulg/min en placa delgada hasta ≈ 10 pulg/min en 2″) y precalentamiento de ≈ 12 s + 25 s por pulgada de espesor. Plasma con aire: curvas típicas de equipos de 30 a 125 A, donde el espesor “recomendado” de cada amperaje corta a ≈ 20 pulg/min (500 mm/min); por encima es corte de separación, más lento y con mal acabado.',
+      note2:'<b>Úsalo como orden de magnitud.</b> Los números reales cambian con el gas (el propano precalienta más lento), la boquilla, la presión, los consumibles y si el corte es manual o en mesa CNC. Revisa siempre la tabla de corte del fabricante de tu equipo.'
+    },
+    en:{
+      locale:'en-US', title:'Plasma × Oxyfuel',
+      cost:{
+        eyebrow:'Optional · cost study',
+        h:'Cost add-on — how much you save',
+        intro:'Turns the same time comparison into money. The default values come from the refinery survey — change any field to match your own scenario.',
+        ratesH:'Cost per hour (R$/h)', labor:'Labor (man-hour)', cons:'Consumables / gas / energy', equip:'Equipment rental', totalH:'Total (R$/h)',
+        basisH:'Time basis per piece', basisCycle:'Full cycle per piece', basisSim:l=>`Simulated time (${l} cut)`,
+        cycleOxy:'Oxyfuel (min/piece)', cyclePl:'Plasma (min/piece)', qty:'Number of pieces',
+        simNote:'Uses the cut time for the thickness and amperage picked above; marking and deburring are not included.',
+        cOxy:'Oxyfuel cost', cPl:'Plasma cost', save:'Savings with plasma', loss:'Plasma costs more', tie:'About the same cost',
+        perPiece:v=>`${v} / piece`, saveSub:(p,h)=>`${p} lower · ${h} h saved`, lossSub:(p,h)=>`${p} more · ${h} h more`, tieSub:'negligible difference',
+        noCut:'No cut', noCutWarn:a=>`At this thickness plasma ${a} A can't cut — pick another amperage above or use “Full cycle per piece”.`,
+        reset:'Restore study defaults',
+        foot:'Survey defaults (refinery): man-hour R$ 80/h · Oxyfuel R$ 140/h · Plasma R$ 130/h · cycle 20 → 10 min per piece · 20 pieces ≈ R$ 500 saved. Ballpark — adjust to your case.'
+      },
+      oxy:'Oxyfuel', intro:'Pick the plate thickness and plasma amperage, hit play, and watch both processes cut the same length of mild steel side by side.',
+      thick:'Plate thickness', amps:'Plasma amperage', sys:'Units · cut length', sysImp:'in · 3 ft',
+      reset:'Reset', rt:'Real time', play:'Cut', pause:'Pause', again:'Again', resume:'Resume',
+      speedRt:'Real time', speedAcc:'Sped up',
+      oxyTotal:'Oxyfuel · total', plTotal:a=>`Plasma ${a} A · total`, result:'Result',
+      ipm:'in/min', pre:'preheat', start:'start',
+      faster:(w,x)=>`${w} <em>${x}×</em> faster`, saves:(d,l)=>`saves ${d} for every ${l} of cut`, loses:(d,l)=>`plasma loses ${d} per ${l} at this thickness`,
+      tie:'Dead heat', tieSub:'less than 5% apart', noCut:'No cut', maxAt:(m,a)=>`max. ${m} at ${a} A`,
+      oxyWins:'Oxyfuel wins', useAlt:a=>`for plasma, use ${a} A or more`, noneAlt:'no listed amperage cuts this',
+      oxyMeta:(s,p)=>`Oxy-acetylene · ${s} · preheat ${p} s`, plMeta:(s,st)=>`Compressed air · ${s} · arc + pierce ${st} s`, plMetaNo:m=>`Compressed air · over capacity (max. ${m})`,
+      noteBad:(t,a,m)=>`<b class="bad">Can't cut ${t}.</b> ${a} A severs ${m} at most.`,
+      noteWarn:r=>`<b class="warn">Severance cut.</b> Recommended up to ${r}; poor edge quality beyond that.`,
+      noteOk:(r,m)=>`<b class="ok">Within recommended range</b> (up to ${r}; severs up to ${m}).`,
+      compareH:'Every amperage at this thickness', compareSub:(l,t)=>`Total time to cut ${l} of ${t} · click an amperage to simulate it`,
+      oxyShort:'Oxy', acet:'acetylene', rec:'recommended', sep:'severance', nocut:'no cut',
+      leg0:'Preheat / pierce', leg1:'Oxyfuel cut', leg2:'Plasma cut', leg3:'Over capacity',
+      ph:{idle:'Ready',pre:'Preheating',cut:'Cutting',done:'Done',arc:'Striking arc',no:'No cut'},
+      cvNo:(a,t)=>`${a} A CAN'T CUT ${t}`, cvAlt:a=>`Step up to ${a} A or more`, cvNone:'Beyond the range of these machines',
+      leadEyebrow:'Shop-floor chart', leadH:'Take the full comparison as a PDF', leadP:'A one-page sheet ready to print and pin up next to the cutting table.',
+      leadL1:'Your simulated scenario, with both times', leadL2:'Times for 14 thicknesses × 6 amperages × oxyfuel', leadL3:'Letter or A4, in the language you picked',
+      fName:'Name', fEmail:'Email', fCompany:'Company (optional)', fBtn:'Download PDF', fBusy:'Building PDF…', fine:'No spam. Your data is used only to send you the material.',
+      errName:'Enter your name.', errEmail:'Check the email address — it looks incomplete.', errPdf:"Couldn't build the PDF. Check your connection and try again.",
+      doneH:'PDF downloaded', doneP:'Changed the thickness or amperage? Build it again with the current scenario.', again2:'Download PDF again',
+      extP:'The PDF download works on the published version of the calculator.', extBtn:'Open full version',
+      pdfSub:l=>`Time to cut ${l} of mild steel`, pdfScenario:'Your scenario', pdfLen:'length', pdfBars:t=>`Every amperage at ${t}`,
+      pdfTable:l=>`Total time (min:s) to cut ${l}, by thickness`, pdfThick:'Thickness', pdfRec:'recommended', pdfSep:'severance (rough edge)', pdfNo:'no cut',
+      pdfFor:n=>`Prepared for ${n}`, pdfFile:'plasma-vs-oxyfuel',
+      k:{ tape:'Under renovation · the plasma operator ran out of things to do', skip:'Skip the renovation', pct:p=>`Renovation ${p}%`,
+        more:'Cut another part', count:n=>`${n} ${n===1?'part':'parts'}`,
+        bubbles:['Done.','…now what?','Grabbing a coffee.','Anyone want coffee?','You OK over there, oxy?','Since I have time…','Might as well fix up the site.','Watch the cone!'],
+        oxyBubble:'Almost there…', hint:'click to nail the sign back', pop:'BONK!', nailed:'Nailed it!', thanks:'Thanks!',
+        paintQ:'New wall color:', painted:'Painted!', sign:'Grand reopening soon',
+        shiftEyebrow:'End of shift', shiftH:'Daily report', shiftPl:'Plasma (+ coffee + site makeover)', shiftOxy:'Oxyfuel',
+        shiftMax:(m,d)=>`In ${d}, plasma can cut up to ${m} parts. Oxyfuel, 1.`,
+        cta:'Take the full chart as a PDF →', undo:'Undo the renovation' },
+      a:{ h:'Simulation complete.', p:'You can download the full PDF report just below.', pdf:'Get the report ↓', rt:'Watch in real time ▶',
+        note:(o,p)=>`Why not run it in real time to really feel the difference? That's ${o} of oxyfuel vs ${p} of plasma.`,
+        noteNo:o=>`Why not run it in real time to really feel it? That's ${o} of oxyfuel.` },
+      note1:'<b>Where the numbers come from.</b> Mild steel, straight cut starting from the edge. Oxy-acetylene: average speeds from tip charts (≈ 24 in/min on thin plate down to ≈ 10 in/min at 2″) and a preheat of ≈ 12 s + 25 s per inch of thickness. Air plasma: typical curves for 30–125 A machines, where each amperage’s “recommended” thickness cuts at ≈ 20 in/min (500 mm/min); beyond that it’s a severance cut, slower and with a rough edge.',
+      note2:'<b>Treat these as ballpark figures.</b> Real numbers change with the fuel gas (propane preheats slower), tip, pressure, consumables, and whether the cut is by hand or on a CNC table. Always check your machine manufacturer’s cut chart.'
+    }
+  };
+  let LANG='pt';
+  try{ const s=localStorage.getItem('pxo-lang'); if(I18N[s]) LANG=s; }catch(e){}
+  const tr = () => I18N[LANG];
+
+  function interp(tab,x){
+    if(x<=tab[0][0]) return tab[0][1];
+    for(let i=1;i<tab.length;i++){
+      if(x<=tab[i][0]){const [x0,y0]=tab[i-1],[x1,y1]=tab[i];return y0+(y1-y0)*(x-x0)/(x1-x0);}
+    }
+    return tab[tab.length-1][1];
+  }
+  const oxyIPM = t => interp(OXY,t);
+  const oxyPre = t => 12 + 25*t;
+  const plStart = t => 0.6 + 0.9*t;
+  function plasma(a,t){
+    const p=PL[a];
+    if(t>p.max+1e-6) return {ok:false,ipm:0,q:'bad',p};
+    const r=t/p.ref;
+    const ipm=Math.min(250,20*interp(REL,r));
+    return {ok:true,ipm,q:r<=1.0001?'ok':'warn',p};
+  }
+
+  // ---------- state ----------
+  const S = {sys:'imp', idx:5, amps:65, simT:0, running:false, realtime:false};
+  const list = () => S.sys==='imp'?TH_IMP:TH_MET;
+  const T = () => list()[S.idx].v;
+  const Lin = () => S.sys==='imp'?36:1000/25.4;
+
+  function calc(){
+    const t=T(), L=Lin();
+    const ov=oxyIPM(t), op=oxyPre(t), oc=L/ov*60;
+    const oxy={ipm:ov,pre:op,cut:oc,total:op+oc};
+    const pp=plasma(S.amps,t);
+    const pl=Object.assign(pp,{start:plStart(t)});
+    if(pp.ok){pl.cut=L/pp.ipm*60;pl.total=pl.start+pl.cut}
+    return {t,L,oxy,pl};
+  }
+
+  // ---------- formatting ----------
+  const nf=(v,d=0)=>v.toLocaleString(tr().locale,{minimumFractionDigits:d,maximumFractionDigits:d});
+  const inchLabel = v => { const m=TH_IMP.find(x=>Math.abs(x.v-v)<1e-6); return m?m.l:nf(v,2)+'″'; };
+  function fmtDur(s){
+    if(s<60) return nf(s,s<10?1:0)+' s';
+    const m=Math.floor(s/60), r=Math.round(s-m*60);
+    return r===60?(m+1)+' min':m+' min '+String(r).padStart(2,'0')+' s';
+  }
+  function fmtClock(s){
+    const m=Math.floor(s/60), r=s-m*60;
+    return m+':'+(r<10?'0':'')+r.toFixed(1).replace('.',LANG==='en'?'.':',');
+  }
+  const speedTxt = ipm => S.sys==='imp' ? nf(ipm,0)+' '+tr().ipm : nf(ipm*25.4,0)+' mm/min';
+  const thickShort = () => list()[S.idx].l;
+  const lenTxt = () => S.sys==='imp' ? '3 ft' : '1 m';
+
+  // ---------- DOM ----------
+  const $=id=>document.getElementById(id);
+  const ampsBox=$('amps');
+  AMPS.forEach(a=>{
+    const b=document.createElement('button');
+    b.type='button';b.id='amp'+a;b.textContent=a+' A';b.dataset.a=a;
+    b.addEventListener('click',()=>{S.amps=a;resetSim();render();});
+    ampsBox.appendChild(b);
+  });
+  $('thick').addEventListener('input',e=>{S.idx=+e.target.value;resetSim();render();});
+  document.querySelectorAll('#sys button').forEach(b=>b.addEventListener('click',()=>{
+    if(S.sys===b.dataset.sys) return;
+    const cur=T(); S.sys=b.dataset.sys;
+    let best=0,bd=1e9; list().forEach((x,i)=>{const d=Math.abs(x.v-cur); if(d<bd){bd=d;best=i;}});
+    S.idx=best; resetSim(); render();
+  }));
+  document.querySelectorAll('#lang button').forEach(b=>b.addEventListener('click',()=>{
+    LANG=b.dataset.lang; try{localStorage.setItem('pxo-lang',LANG);}catch(e){}
+    render();
+  }));
+  $('play').addEventListener('click',togglePlay);
+  $('reset').addEventListener('click',()=>{resetSim();render();});
+  $('rt').addEventListener('click',()=>{S.realtime=!S.realtime;render();});
+  document.addEventListener('keydown',e=>{
+    if(e.code==='Space' && !['INPUT','BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();togglePlay();}
+  });
+
+  function maxTotal(c){ return Math.max(c.oxy.total, c.pl.ok?c.pl.total:0); }
+  function factor(c){ return S.realtime?1:Math.max(1,maxTotal(c)/14); }
+
+  function togglePlay(){
+    const c=calc();
+    if(S.simT>=maxTotal(c)) resetSim();
+    S.running=!S.running; S.last=performance.now(); if(S.running) $('after').hidden=true;
+    updatePlayBtn();
+  }
+  function resetSim(){ $('after').hidden=true; endComedy(); K.done=false; K.pieces=1; S.simT=0; S.running=false; parts.oxy.length=0; parts.pl.length=0; updatePlayBtn(); }
+  function updatePlayBtn(){
+    const c=calc(), fin=S.simT>=maxTotal(c)&&S.simT>0;
+    const L=tr();
+    $('playTxt').textContent = S.running?L.pause:(fin?L.again:(S.simT>0?L.resume:L.play));
+    $('playIcon').innerHTML = S.running?'<path d="M2 1h3.5v12H2zM8.5 1H12v12H8.5z"/>':'<path d="M2 1l11 6-11 6z"/>';
+  }
+
+  // ---------- static render (controls, summary, compare) ----------
+  function render(){
+    const c=calc(), L=list();
+    const sl=$('thick'); sl.max=L.length-1; sl.value=S.idx;
+    $('thickMin').textContent=L[0].l; $('thickMax').textContent=L[L.length-1].l;
+    $('thickMain').textContent=L[S.idx].l;
+    $('thickAlt').textContent= S.sys==='imp' ? nf(c.t*25.4,1)+' mm' : nf(c.t,2)+'″';
+    document.querySelectorAll('#sys button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.sys===S.sys));
+    AMPS.forEach(a=>$('amp'+a).setAttribute('aria-pressed',a===S.amps));
+    $('rt').setAttribute('aria-pressed',S.realtime);
+
+    const T_=tr();
+    document.documentElement.lang=LANG; document.title=T_.title;
+    document.querySelectorAll('#lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===LANG));
+    document.querySelectorAll('[data-i]').forEach(el=>{el.textContent=T_[el.dataset.i];});
+    document.querySelectorAll('[data-ih]').forEach(el=>{el.innerHTML=T_[el.dataset.ih];});
+    const p=c.pl.p, refL=S.sys==='imp'?inchLabel(p.ref):nf(p.ref*25.4,0)+' mm', maxL=S.sys==='imp'?inchLabel(p.max):nf(p.max*25.4,0)+' mm';
+    const note=$('ampsNote');
+    if(!c.pl.ok) note.innerHTML=T_.noteBad(thickShort(),S.amps,maxL);
+    else if(c.pl.q==='warn') note.innerHTML=T_.noteWarn(refL);
+    else note.innerHTML=T_.noteOk(refL,maxL);
+
+    const f=factor(c);
+    $('speed').innerHTML = S.realtime ? `${T_.speedRt} <b>×1</b>` : `${T_.speedAcc} <b>×${nf(f,f<10?1:0)}</b>`;
+
+    // summary
+    $('sumOxy').textContent=fmtDur(c.oxy.total);
+    $('sumOxySub').textContent=`${speedTxt(c.oxy.ipm)} · ${T_.pre} ${nf(c.oxy.pre,0)} s`;
+    $('sumPlLabel').textContent=T_.plTotal(S.amps);
+    if(c.pl.ok){
+      $('sumPl').textContent=fmtDur(c.pl.total);
+      $('sumPlSub').textContent=`${speedTxt(c.pl.ipm)} · ${T_.start} ${nf(c.pl.start,1)} s`;
+      const ratio=c.oxy.total/c.pl.total, diff=c.oxy.total-c.pl.total;
+      if(ratio>=1.05){
+        $('verdict').innerHTML=T_.faster('Plasma',nf(ratio,1));
+        $('verdictSub').textContent=T_.saves(fmtDur(diff),lenTxt());
+      } else if(ratio<=0.95){
+        $('verdict').innerHTML=T_.faster(T_.oxy,nf(1/ratio,1));
+        $('verdictSub').textContent=T_.loses(fmtDur(-diff),lenTxt());
+      } else {
+        $('verdict').textContent=T_.tie;
+        $('verdictSub').textContent=T_.tieSub;
+      }
+    } else {
+      $('sumPl').textContent=T_.noCut;
+      $('sumPlSub').textContent=T_.maxAt(maxL,S.amps);
+      const alt=AMPS.find(a=>plasma(a,c.t).ok);
+      $('verdict').textContent=T_.oxyWins;
+      $('verdictSub').textContent= alt?T_.useAlt(alt):T_.noneAlt;
+    }
+
+    // lanes meta
+    $('oxyMeta').textContent=T_.oxyMeta(speedTxt(c.oxy.ipm),nf(c.oxy.pre,0));
+    $('plName').textContent=`Plasma ${S.amps} A`;
+    $('plMeta').textContent= c.pl.ok ? T_.plMeta(speedTxt(c.pl.ipm),nf(c.pl.start,1)) : T_.plMetaNo(maxL);
+
+    // compare rows
+    $('compareSub').textContent=T_.compareSub(lenTxt(),thickShort());
+    const rows=[{kind:'oxy',name:T_.oxyShort,sub:T_.acet,pre:c.oxy.pre,total:c.oxy.total,ipm:c.oxy.ipm,ok:true}];
+    AMPS.forEach(a=>{const r=plasma(a,c.t);const st=plStart(c.t);rows.push({kind:'pl',a,name:a+' A',sub:r.ok?(r.q==='ok'?T_.rec:T_.sep):T_.nocut,pre:st,total:r.ok?st+c.L/r.ipm*60:0,ipm:r.ipm,ok:r.ok,q:r.q});});
+    const mx=Math.max(...rows.map(r=>r.total));
+    const box=$('rows'); box.innerHTML='';
+    rows.forEach(r=>{
+      const el=document.createElement(r.kind==='oxy'?'div':'button');
+      el.className='row'+(r.kind==='oxy'?' oxyrow':'');
+      if(r.kind==='pl'){el.type='button';el.id='row'+r.a;el.setAttribute('aria-pressed',r.a===S.amps);el.addEventListener('click',()=>{S.amps=r.a;resetSim();render();});}
+      const subCls=r.kind==='oxy'?'':(r.ok?(r.q==='ok'?'ok':'warn'):'bad');
+      const bar = r.ok
+        ? `<i class="fill" style="width:${(r.total/mx*100).toFixed(2)}%"></i><i class="pre" style="width:${(r.pre/mx*100).toFixed(2)}%"></i>`
+        : `<i class="no"></i>`;
+      el.innerHTML=`<span class="nm">${r.name}<small class="${subCls}">${r.sub}</small></span><span class="track">${bar}</span><span class="val">${r.ok?fmtDur(r.total):'—'}<small>${r.ok?speedTxt(r.ipm):'&nbsp;'}</small></span>`;
+      box.appendChild(el);
+    });
+    if(K.active||!$('shift').hidden) comedyText();
+    if(!$('after').hidden) fillAfter();
+    if(COST_READY) renderCost();
+    updatePlayBtn();
+  }
+
+  // ---------- canvas ----------
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cvs={oxy:$('cvOxy'),pl:$('cvPl')};
+  const parts={oxy:[],pl:[]};
+  let dpr=1;
+  function sizeCanvases(){
+    dpr=Math.min(2,window.devicePixelRatio||1);
+    Object.values(cvs).forEach(c=>{const r=c.getBoundingClientRect();c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);});
+  }
+  new ResizeObserver(sizeCanvases).observe(cvs.oxy);
+
+  function geom(c,t){
+    const W=c.width/dpr,H=c.height/dpr, narrow=W<520;
+    const x0=narrow?46:66, dx=narrow?18:26, D=narrow?16:22;
+    const x1=W-18-dx, yb=H-40, h=5+t*28;
+    return {W,H,x0,x1,dx,D,yb,h,yk:yb-h-D/2,narrow};
+  }
+
+  function steelGrad(ctx,x0,y0,x1,y1,a,b){const g=ctx.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,a);g.addColorStop(1,b);return g;}
+
+  function drawPlate(ctx,g,t){
+    const {x0,x1,dx,D,yb,h,H}=g;
+    // table slats
+    ctx.fillStyle='#1d2228';
+    for(let x=x0-8;x<x1+dx+6;x+=16){ctx.fillRect(x,yb,3,10);}
+    ctx.fillStyle='#262c33';ctx.fillRect(x0-12,yb+10,x1+dx-x0+24,2);
+    // front
+    ctx.fillStyle=steelGrad(ctx,0,yb-h,0,yb,'#555e68','#353b43');ctx.fillRect(x0,yb-h,x1-x0,h);
+    // top
+    ctx.beginPath();ctx.moveTo(x0,yb-h);ctx.lineTo(x1,yb-h);ctx.lineTo(x1+dx,yb-h-D);ctx.lineTo(x0+dx,yb-h-D);ctx.closePath();
+    ctx.fillStyle=steelGrad(ctx,0,yb-h-D,0,yb-h,'#7a838d','#636b75');ctx.fill();
+    // right side
+    ctx.beginPath();ctx.moveTo(x1,yb);ctx.lineTo(x1,yb-h);ctx.lineTo(x1+dx,yb-h-D);ctx.lineTo(x1+dx,yb-D);ctx.closePath();
+    ctx.fillStyle='#2b3037';ctx.fill();
+    // edge highlight
+    ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x0,yb-h+.5);ctx.lineTo(x1,yb-h+.5);ctx.stroke();
+    // thickness dimension
+    const lx=x0-10;
+    ctx.strokeStyle='#8A929B';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(lx,yb-h);ctx.lineTo(lx,yb);ctx.moveTo(lx-3,yb-h+.5);ctx.lineTo(lx+3,yb-h+.5);ctx.moveTo(lx-3,yb-.5);ctx.lineTo(lx+3,yb-.5);ctx.stroke();
+    ctx.fillStyle='#C9CDD2';ctx.font=`600 ${g.narrow?10:11}px 'JetBrains Mono',monospace`;ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText(thickShort().replace(' mm','mm'),lx-5,yb-h/2);
+    // ruler
+    const ry=H-16, L=Lin();
+    ctx.strokeStyle='#3a424c';ctx.beginPath();ctx.moveTo(x0+dx/2,ry);ctx.lineTo(x1+dx/2,ry);ctx.stroke();
+    ctx.fillStyle='#6d757e';ctx.textAlign='center';ctx.textBaseline='top';ctx.font=`500 10px 'JetBrains Mono',monospace`;
+    const ticks = S.sys==='imp' ? {step:3,major:12,lab:v=>v===0?'0':(v/12)+' ft',max:36} : {step:5,major:25,lab:v=>v===0?'0':(v===100?'1 m':v+' cm'),max:100};
+    for(let v=0;v<=ticks.max+1e-6;v+=ticks.step){
+      const frac=v/ticks.max, x=x0+dx/2+(x1-x0)*frac, maj=Math.abs(v%ticks.major)<1e-6;
+      ctx.beginPath();ctx.moveTo(x,ry-(maj?6:3));ctx.lineTo(x,ry);ctx.stroke();
+      if(maj) ctx.fillText(ticks.lab(v),x,ry+3);
+    }
+  }
+
+  function drawKerf(ctx,g,frac,kind,hot){
+    const {x0,x1,dx,yk}=g, xs=x0+dx/2, xe=xs+(x1-x0)*frac;
+    if(frac<=0) return;
+    ctx.strokeStyle='#07080a';ctx.lineWidth=kind==='oxy'?3:2.4;ctx.lineCap='butt';
+    ctx.beginPath();ctx.moveTo(xs,yk);ctx.lineTo(xe,yk);ctx.stroke();
+    // kerf through front edge at start
+    ctx.fillStyle='#07080a';ctx.fillRect(x0+dx/2-1.2,g.yb-g.h,2.4,0);
+    if(hot){
+      const tail=kind==='oxy'?170:55; // wider heat-affected zone on oxyfuel
+      const gr=ctx.createLinearGradient(xe,0,Math.max(xs,xe-tail),0);
+      gr.addColorStop(0,kind==='oxy'?'rgba(255,170,60,1)':'rgba(255,230,170,1)');
+      gr.addColorStop(.25,'rgba(255,90,20,.75)');gr.addColorStop(1,'rgba(160,30,0,0)');
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle=gr;ctx.lineWidth=kind==='oxy'?5:3;
+      ctx.beginPath();ctx.moveTo(Math.max(xs,xe-tail),yk);ctx.lineTo(xe,yk);ctx.stroke();ctx.restore();
+    }
+  }
+
+  function glow(ctx,x,y,r,inner,outer){
+    const gr=ctx.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,inner);gr.addColorStop(1,outer);
+    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  }
+
+  function cyl(ctx,x,y,w,h,a,b){ctx.fillStyle=steelGrad(ctx,x,0,x+w,0,a,b);ctx.fillRect(x,y,w,h);}
+
+  function drawTorch(ctx,tx,tip,kind){
+    if(kind==='oxy'){
+      ctx.fillStyle=steelGrad(ctx,tx-7,0,tx+7,0,'#8d4f27','#d88c52');
+      ctx.beginPath();ctx.moveTo(tx-3.5,tip);ctx.lineTo(tx+3.5,tip);ctx.lineTo(tx+6.5,tip-16);ctx.lineTo(tx-6.5,tip-16);ctx.closePath();ctx.fill();
+      cyl(ctx,tx-9,tip-24,18,8,'#8a6a22','#e0b54e');
+      cyl(ctx,tx-5.5,-2,11,tip-22,'#6e5a2a','#c9ad62');
+    } else {
+      ctx.fillStyle=steelGrad(ctx,tx-9,0,tx+9,0,'#8d4f27','#d88c52');
+      ctx.beginPath();ctx.moveTo(tx-4.5,tip);ctx.lineTo(tx+4.5,tip);ctx.lineTo(tx+9,tip-10);ctx.lineTo(tx-9,tip-10);ctx.closePath();ctx.fill();
+      cyl(ctx,tx-11,tip-27,22,17,'#23272c','#4b525b');
+      ctx.fillStyle='#72D4FF';ctx.fillRect(tx-11,tip-29,22,2);
+      cyl(ctx,tx-9,-2,18,tip-27,'#1b1f24','#3b424a');
+    }
+  }
+
+  function drawOxyFlame(ctx,tx,tip,yk,cutting,heat,now){
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    const f=Math.sin(now/37)*1.2+Math.sin(now/71);
+    const ol=cutting||heat>0? (yk-tip+4):16;
+    glow(ctx,tx,tip+ol*.5,Math.max(10,ol*.8),'rgba(110,140,255,.45)','rgba(70,50,200,0)');
+    ctx.fillStyle='rgba(130,160,255,.35)';ctx.beginPath();ctx.ellipse(tx,tip+ol*.5,4.5,ol*.55+f*.4,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(220,236,255,.95)';
+    [-2.4,0,2.4].forEach(o=>{ctx.beginPath();ctx.moveTo(tx+o-1,tip);ctx.lineTo(tx+o+1,tip);ctx.lineTo(tx+o,tip+4.5+f*.3);ctx.closePath();ctx.fill();});
+    if(cutting){
+      ctx.strokeStyle='rgba(255,230,180,.9)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(tx,tip);ctx.lineTo(tx,yk+1);ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawArc(ctx,tx,tip,yk,yb,power,now){
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    const fl=.85+Math.random()*.3;
+    glow(ctx,tx,(tip+yk)/2,34*power*fl,'rgba(170,215,255,.55)','rgba(90,150,255,0)');
+    glow(ctx,tx,yk,18*power,'rgba(255,255,255,.7)','rgba(150,210,255,0)');
+    const pts=[];const n=6;for(let i=0;i<=n;i++){pts.push([tx+(i&&i<n?(Math.random()-.5)*1.6:0),tip+(yk-tip)*i/n]);}
+    [[7,'rgba(110,180,255,.35)'],[3.5,'rgba(190,230,255,.8)'],[1.6,'#ffffff']].forEach(([w,c])=>{
+      ctx.strokeStyle=c;ctx.lineWidth=w*power;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();
+    });
+    // jet under plate
+    if(power>.9) glow(ctx,tx,yb+4,16,'rgba(255,240,200,.55)','rgba(255,160,60,0)');
+    ctx.restore();
+  }
+
+  function emit(arr,kind,x,y,n,up){
+    const lim=reduce?120:520; if(arr.length>lim) return;
+    for(let i=0;i<n;i++){
+      if(up){arr.push({x,y,vx:(Math.random()-.5)*60,vy:-30-Math.random()*60,life:1,decay:1.6+Math.random(),slag:false});continue;}
+      if(kind==='pl') arr.push({x:x+(Math.random()-.5)*3,y,vx:-40-Math.random()*170,vy:40+Math.random()*120,life:1,decay:.9+Math.random()*.9,slag:false});
+      else arr.push({x:x+(Math.random()-.5)*4,y,vx:-10-Math.random()*70,vy:10+Math.random()*50,life:1,decay:.6+Math.random()*.7,slag:Math.random()<.25});
+    }
+  }
+  function stepParts(ctx,arr,kind,dt,floor){
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+    for(let i=arr.length-1;i>=0;i--){
+      const p=arr[i];p.vy+=(p.slag?520:380)*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=p.decay*dt;
+      if(p.y>floor&&p.vy>0){p.y=floor;p.vy*=-.3;p.vx*=.6;}
+      if(p.life<=0){arr.splice(i,1);continue;}
+      const a=p.life;
+      if(p.slag){ctx.fillStyle=`rgba(255,${80+a*80|0},20,${a})`;ctx.beginPath();ctx.arc(p.x,p.y,1.8,0,Math.PI*2);ctx.fill();continue;}
+      ctx.strokeStyle= kind==='pl' ? `rgba(255,${200+a*55|0},${120+a*120|0},${a})` : `rgba(255,${140+a*90|0},${40+a*60|0},${a})`;
+      ctx.lineWidth=kind==='pl'?1.3:1.5;
+      ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*.025,p.y-p.vy*.025);ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function phaseOf(kind,c){
+    const s=S.simT;
+    if(kind==='oxy'){
+      const o=c.oxy;
+      if(s<=0) return {ph:'idle',frac:0,heat:0,clock:0};
+      if(s<o.pre) return {ph:'pre',frac:0,heat:s/o.pre,clock:s};
+      if(s<o.total) return {ph:'cut',frac:(s-o.pre)/o.cut,heat:1,clock:s};
+      return {ph:'done',frac:1,heat:0,clock:o.total};
+    }
+    const p=c.pl;
+    if(!p.ok) return {ph:'no',frac:0,clock:0};
+    const ls=K.plExtra!=null?s-K.plExtra:s;
+    if(ls<=0) return {ph:K.plExtra!=null?'pre':'idle',frac:0,clock:0,local:0};
+    if(ls<p.start) return {ph:'pre',frac:0,clock:ls,local:ls};
+    if(ls<p.total) return {ph:'cut',frac:(ls-p.start)/p.cut,clock:ls,local:ls};
+    return {ph:'done',frac:1,clock:p.total,local:ls};
+  }
+
+  const PH_TXT={oxy:{idle:['idle',''],pre:['pre','hot'],cut:['cut','hot'],done:['done','done']},
+                pl:{idle:['idle',''],pre:['arc','arc'],cut:['cut','arc'],done:['done','done'],no:['no','bad']}};
+
+  function drawLane(kind,c,st,dt,now){
+    const cv=cvs[kind],ctx=cv.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cv.width,cv.height);
+    const g=geom(cv,c.t);
+    drawPlate(ctx,g,c.t);
+    const cutting=st.ph==='cut';
+    drawKerf(ctx,g,st.frac,kind,cutting);
+    const tx=g.x0+g.dx/2+(g.x1-g.x0)*st.frac;
+    const stand=kind==='oxy'?11:5, tip=g.yk-stand;
+    const arr=parts[kind];
+
+    if(kind==='oxy'){
+      if(st.ph==='pre'){
+        ctx.save();ctx.globalCompositeOperation='lighter';
+        const h=st.heat;
+        glow(ctx,tx,g.yk,6+h*16,`rgba(255,${120+h*110|0},${40+h*60|0},${.25+h*.7})`,'rgba(200,40,0,0)');
+        glow(ctx,g.x0+2,g.yb-g.h/2,4+h*10,`rgba(255,110,30,${h*.6})`,'rgba(200,40,0,0)');
+        ctx.restore();
+        if(h>.6 && Math.random()<h*.5) emit(arr,kind,tx,g.yk,1,true);
+      }
+      if(cutting){
+        ctx.save();ctx.globalCompositeOperation='lighter';glow(ctx,tx,g.yk,16,'rgba(255,200,90,.9)','rgba(255,80,0,0)');ctx.restore();
+        emit(arr,kind,tx,g.yb+2,reduce?1:4);
+      }
+      const lit=st.ph!=='done';
+      drawTorch(ctx,tx,tip,'oxy');
+      if(lit) drawOxyFlame(ctx,tx,tip,g.yk,cutting,st.heat||0,now);
+    } else {
+      if(st.ph==='no'){
+        drawTorch(ctx,tx,tip,'pl');
+        ctx.fillStyle='rgba(15,18,21,.72)';ctx.fillRect(0,0,g.W,g.H);
+        ctx.fillStyle='#FF6B6B';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.font=`700 ${g.narrow?18:22}px 'Barlow Condensed',sans-serif`;
+        ctx.fillText(tr().cvNo(S.amps,thickShort().toUpperCase()),g.W/2,g.H/2-10);
+        ctx.fillStyle='#C9CDD2';ctx.font=`500 12px 'IBM Plex Sans',sans-serif`;
+        const alt=AMPS.find(a=>plasma(a,c.t).ok);
+        ctx.fillText(alt?tr().cvAlt(alt):tr().cvNone,g.W/2,g.H/2+14);
+      } else {
+        drawTorch(ctx,tx,tip,'pl');
+        if(st.ph==='pre'){
+          const pr=st.local/c.pl.start;
+          if(pr<.45){ // pilot arc flicker inside nozzle
+            ctx.save();ctx.globalCompositeOperation='lighter';glow(ctx,tx,tip,8+Math.random()*5,'rgba(190,150,255,.9)','rgba(120,80,255,0)');ctx.restore();
+          } else {
+            drawArc(ctx,tx,tip,g.yk,g.yb,.6+pr*.4,now);
+            if(Math.random()<.6) emit(arr,kind,tx,g.yk,2,true);
+          }
+        }
+        if(cutting){ drawArc(ctx,tx,tip,g.yk,g.yb,1,now); emit(arr,kind,tx,g.yb+2,reduce?2:7); }
+      }
+    }
+    stepParts(ctx,arr,kind,dt,g.yb+10);
+    drawComedy(kind,ctx,g,st,tx,now);
+
+    // HUD
+    const [key,cls]=PH_TXT[kind][st.ph], txt=tr().ph[key];
+    const pill=$(kind==='oxy'?'oxyPhase':'plPhase');
+    if(pill.textContent!==txt){pill.textContent=txt;pill.className='pill '+cls;}
+    $(kind==='oxy'?'oxyTimer':'plTimer').textContent = st.ph==='no'?'—':fmtClock(st.clock);
+    $(kind==='oxy'?'oxyBar':'plBar').style.width=(st.frac*100).toFixed(2)+'%';
+  }
+
+  let lastFrame=performance.now();
+  function loop(now){
+    const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;
+    const c=calc();
+    if(S.running){
+      S.simT+=dt*factor(c);
+      const mt=maxTotal(c);
+      if(S.simT>=mt){S.simT=mt;S.running=false;updatePlayBtn();if(!K.active&&!K.done)showAfter();}
+    }
+    if(!K.active&&!K.done&&comedyOk(c)&&S.simT>=c.pl.total&&S.simT<c.oxy.total) startComedy();
+    comedyTick(c,dt);
+    drawLane('oxy',c,phaseOf('oxy',c),dt,now);
+    drawLane('pl',c,phaseOf('pl',c),dt,now);
+    requestAnimationFrame(loop);
+  }
+
+
+  // ---------- comedy break: real-time mode, plasma finished, oxyfuel still cutting ----------
+  const K={active:false,done:false,pieces:1,plExtra:null,stage:0,tilt:0,wall:null,paintP:0,pickerAt:0,coneAt:0,roller:null,els:[]};
+  const comedyOk=c=>S.realtime&&c.pl.ok&&(c.oxy.total-c.pl.total)>=20;
+  const KT=()=>tr().k;
+  const q=sel=>document.querySelector(sel);
+
+  function popAt(x,y,txt){const p=document.createElement('div');p.className='pop';p.textContent=txt;p.style.left=x+'px';p.style.top=y+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),850);}
+  function addEl(parent,cls,html){const e=document.createElement('div');e.className=cls;if(html)e.innerHTML=html;parent.appendChild(e);K.els.push(e);return e;}
+
+  function startComedy(){
+    Object.assign(K,{active:true,done:false,pieces:1,plExtra:null,stage:0,tilt:0,wall:null,paintP:0,coneAt:0,roller:null});
+    $('tape').classList.add('on');
+    comedyText();
+  }
+  function comedyText(){
+    const k=KT();
+    $('tapeTxt').textContent=k.tape; $('tapeSkip').textContent=k.skip;
+    $('plMore').textContent=k.more; $('plCount').textContent=k.count(K.pieces);
+    const h=q('.hint'); if(h) h.textContent=k.hint;
+    const pk=q('.picker span'); if(pk) pk.textContent=K.paintP>=100?k.painted:k.paintQ;
+    const sg=q('.sign'); if(sg) sg.textContent=k.sign;
+    if(!$('shift').hidden) fillShift();
+  }
+  function spawnCone(){
+    const hosts=[q('.summary'),q('.stage'),q('.controls'),q('.compare')];
+    const host=hosts[Math.floor(Math.random()*hosts.length)];
+    const b=document.createElement('button');b.type='button';b.className='cone';b.setAttribute('aria-label','cone');
+    b.style.left=(6+Math.random()*82)+'%'; b.style.top='-24px';
+    b.addEventListener('click',e=>{popAt(e.clientX,e.clientY,KT().thanks);b.classList.add('down');setTimeout(()=>b.remove(),450);});
+    host.appendChild(b);K.els.push(b);
+  }
+  function stageUp(n){
+    const k=KT(); K.stage=n;
+    if(n===1){ for(let i=0;i<3;i++) setTimeout(()=>{ if(K.active) spawnCone(); },i*350); K.coneAt=performance.now(); }
+    if(n===2){ const h1=q('h1'); h1.classList.add('nailme'); K.tilt=5; h1.addEventListener('click',nail);
+      const hint=document.createElement('span');hint.className='hint';hint.textContent=k.hint;q('header').appendChild(hint);K.els.push(hint); }
+    if(n===3){ const pk=addEl(q('.compare'),'picker',`<span>${k.paintQ}</span>`);
+      ['#72D4FF','#FF8A2A','#7BD88F'].forEach(col=>{const b=document.createElement('button');b.type='button';b.style.background=col;b.setAttribute('aria-label',col);b.addEventListener('click',()=>paint(col));pk.appendChild(b);});
+      K.pickerAt=performance.now(); }
+    if(n===4){ addEl(q('.stage'),'scaffold'); }
+    if(n===5){ addEl(q('header'),'sign',k.sign); }
+  }
+  function nail(e){
+    if(!K.active||K.tilt<=0) return;
+    K.tilt=Math.max(0,K.tilt-2.2);
+    popAt(e.clientX,e.clientY,K.tilt===0?KT().nailed:KT().pop);
+  }
+  function paint(col){
+    if(K.wall) return;
+    K.wall=col; const host=q('.compare');
+    host.style.setProperty('--wall',col);
+    K.roller=addEl(host,'roller');
+  }
+  function comedyTick(c,dt){
+    if(!K.active) return;
+    if(!S.realtime){ endComedy(); return; }
+    const k=KT(), bt=S.simT-c.pl.total, dur=c.oxy.total-c.pl.total, f=Math.min(1,Math.max(0,bt/dur)), now=performance.now();
+    $('tapeBar').style.width=(f*100).toFixed(1)+'%';
+    $('tapePct').textContent=k.pct(Math.round(f*100));
+    if(K.plExtra!=null && S.simT-K.plExtra>=c.pl.total){ K.pieces++; K.plExtra=null; $('plCount').textContent=k.count(K.pieces); }
+    $('plMore').hidden = K.plExtra!=null; $('plCount').hidden=false;
+    const TH=[0,.08,.24,.4,.58,.76];
+    for(let n=K.stage+1;n<TH.length&&f>=TH[n];n++) stageUp(n);
+    if(K.stage>=1 && now-K.coneAt>9000){ K.coneAt=now; if(document.querySelectorAll('.cone:not(.down)').length<6) spawnCone(); }
+    if(K.stage>=2){ K.tilt=Math.min(10,K.tilt+dt*.7); q('h1').style.transform=`rotate(${(-K.tilt).toFixed(2)}deg)`; }
+    if(K.stage>=3){
+      if(!K.wall && now-K.pickerAt>8000) paint('#72D4FF');
+      if(K.wall && K.paintP<100){
+        K.paintP=Math.min(100,K.paintP+dt*(reduce?100:22));
+        q('.compare').style.backgroundImage=`linear-gradient(90deg, ${K.wall}26 ${K.paintP}%, transparent ${K.paintP}%)`;
+        if(K.roller) K.roller.style.left=K.paintP+'%';
+        if(K.paintP>=100){ if(K.roller){K.roller.remove();K.roller=null;} const sp=q('.picker span'); if(sp) sp.textContent=k.painted; }
+      }
+    }
+    if(S.simT>=c.oxy.total){ K.active=false; K.done=true; K.plExtra=null; $('plMore').hidden=true; showShift(); }
+  }
+  function fillShift(){
+    const k=KT(), c=calc(), m=Math.max(K.pieces,Math.floor(c.oxy.total/c.pl.total));
+    $('shiftEyebrow').textContent=k.shiftEyebrow; $('shiftH').textContent=k.shiftH;
+    $('shiftPl').textContent=k.shiftPl; $('shiftPlN').textContent=K.pieces;
+    $('shiftOxy').textContent=k.shiftOxy;
+    $('shiftMax').textContent=k.shiftMax(m,fmtDur(c.oxy.total));
+    $('shiftCta').textContent=k.cta; $('shiftUndo').textContent=k.undo;
+  }
+  function showShift(){ fillShift(); $('shift').hidden=false; $('shiftCta').focus({preventScroll:true}); }
+  function endComedy(){
+    K.active=false; K.plExtra=null;
+    $('tape').classList.remove('on'); $('shift').hidden=true; $('plMore').hidden=true; $('plCount').hidden=true;
+    K.els.forEach(e=>e.remove()); K.els=[]; document.querySelectorAll('.cone').forEach(e=>e.remove());
+    const h1=q('h1'); h1.classList.remove('nailme'); h1.style.transform=''; h1.removeEventListener('click',nail);
+    q('.compare').style.backgroundImage=''; K.roller=null;
+  }
+
+  $('plMore').addEventListener('click',()=>{ if(!K.active||K.plExtra!=null) return; K.plExtra=S.simT; parts.pl.length=0; $('plMore').hidden=true; });
+  $('tapeSkip').addEventListener('click',()=>{ const c=calc(); S.simT=maxTotal(c); S.running=false; updatePlayBtn(); comedyTick(c,0); });
+  $('shiftUndo').addEventListener('click',endComedy);
+  $('shiftCta').addEventListener('click',()=>{ endComedy(); $('lead').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); const n=$('leadName'); if(!n.closest('[hidden]')) setTimeout(()=>n.focus({preventScroll:true}),500); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('shift').hidden) endComedy(); });
+
+  function bubble(ctx,x,y,text,W){
+    ctx.font="600 12px 'IBM Plex Sans',sans-serif";
+    const w=ctx.measureText(text).width+16,h=24,bx=Math.min(Math.max(4,x-w/2),W-w-4),by=y-h;
+    ctx.fillStyle='#E8E6E1';ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(bx,by,w,h,6); else ctx.rect(bx,by,w,h);
+    ctx.moveTo(x-5,by+h);ctx.lineTo(x,by+h+7);ctx.lineTo(x+5,by+h);ctx.fill();
+    ctx.fillStyle='#16181b';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(text,bx+8,by+h/2+.5);
+  }
+  function drawOperator(ctx,g,now){
+    const x=g.W*.66, feet=g.yb+10, bob=Math.sin(now/600)*1.2, sip=(now%6000)<1400;
+    ctx.save();ctx.strokeStyle='#C9CDD2';ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';
+    const hy=feet-52+bob;
+    ctx.beginPath();ctx.moveTo(x,hy+8);ctx.lineTo(x,feet-22);ctx.moveTo(x,feet-22);ctx.lineTo(x-6,feet);ctx.moveTo(x,feet-22);ctx.lineTo(x+6,feet);
+    ctx.moveTo(x,hy+14);ctx.lineTo(x-9,hy+26);
+    const hx=x+(sip?5:11), hyy=hy+(sip?6:20);
+    ctx.moveTo(x,hy+14);ctx.lineTo(x+9,hy+22);ctx.lineTo(hx,hyy);ctx.stroke();
+    ctx.fillStyle='#C9CDD2';ctx.beginPath();ctx.arc(x,hy,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#F2C14E';ctx.beginPath();ctx.arc(x,hy-1,7.6,Math.PI,0);ctx.fill();ctx.fillRect(x-9.5,hy-1.5,19,2.4);
+    ctx.fillStyle='#FF8A2A';ctx.fillRect(hx-1,hyy-9,8,9);ctx.strokeStyle='#FF8A2A';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(hx+8,hyy-4.5,2.6,-Math.PI/2,Math.PI/2);ctx.stroke();
+    ctx.strokeStyle='rgba(232,230,225,.45)';ctx.lineWidth=1.2;
+    for(let i=0;i<2;i++){const sx=hx+1.5+i*3.5, ph=now/400+i*2;ctx.beginPath();ctx.moveTo(sx,hyy-11);ctx.quadraticCurveTo(sx+Math.sin(ph)*3,hyy-15,sx,hyy-19);ctx.stroke();}
+    ctx.restore();
+    const lines=KT().bubbles;
+    bubble(ctx,x,hy-12,lines[Math.floor(now/3200)%lines.length],g.W);
+  }
+  function drawComedy(kind,ctx,g,st,tx,now){
+    if(!K.active) return;
+    if(kind==='pl' && st.ph==='done' && K.plExtra==null) drawOperator(ctx,g,now);
+    if(kind==='oxy' && st.ph==='cut' && st.frac>.72) bubble(ctx,Math.max(70,tx-70),g.yk-16,KT().oxyBubble,g.W);
+  }
+
+  // ---------- end-of-run nudge: PDF below + try real time ----------
+  function fillAfter(){
+    const a=tr().a, c=calc();
+    $('afterH').textContent=a.h; $('afterP').textContent=a.p; $('afterPdf').textContent=a.pdf; $('afterRt').textContent=a.rt;
+    $('afterNote').textContent=c.pl.ok?a.note(fmtDur(c.oxy.total),fmtDur(c.pl.total)):a.noteNo(fmtDur(c.oxy.total));
+    $('afterRt').hidden=S.realtime; $('afterNote').hidden=S.realtime;
+  }
+  function showAfter(){ fillAfter(); $('after').hidden=false; }
+  $('afterPdf').addEventListener('click',()=>{
+    $('lead').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+    const n=$('leadName'); if(!n.closest('[hidden]')) setTimeout(()=>n.focus({preventScroll:true}),500);
+  });
+  $('afterRt').addEventListener('click',()=>{
+    S.realtime=true; resetSim(); render(); togglePlay();
+    q('.stage').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  });
+
+  // ---------- lead capture + PDF ----------
+  const SB_URL='https://cdgwyfriwerksrthwgun.supabase.co';
+  const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZ3d5ZnJpd2Vya3NydGh3Z3VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NDkwMDYsImV4cCI6MjA5MDAyNTAwNn0.WLJsVfCUHYu1ikc7fX7ivxM8cxdy4JZSnaZma5udGbY';
+  const JSPDF_SRC='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  const ON_SITE = location.protocol==='file:' || /(^|\.)industrialcuttinglabs\.com$|\.vercel\.app$|^localhost$|^127\./.test(location.hostname);
+  let leadInfo=null;
+  try{ leadInfo=JSON.parse(localStorage.getItem('pxo-lead')||'null'); }catch(e){}
+
+  function showLeadState(){
+    $('leadForm').hidden = !ON_SITE || !!leadInfo;
+    $('leadDone').hidden = !ON_SITE || !leadInfo;
+    $('leadExt').hidden = ON_SITE;
+  }
+
+  let pdfLib=null;
+  function loadPdf(){
+    if(window.jspdf) return Promise.resolve(window.jspdf);
+    if(pdfLib) return pdfLib;
+    pdfLib=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=JSPDF_SRC;sc.onload=()=>res(window.jspdf);sc.onerror=()=>{pdfLib=null;rej(new Error('jspdf'));};document.head.appendChild(sc);});
+    return pdfLib;
+  }
+
+  function leadPayload(c){
+    const ratio=c.pl.ok?c.oxy.total/c.pl.total:null;
+    return {
+      calc:'plasmavsoxy', lang:LANG, units:S.sys, thickness_in:+c.t.toFixed(4), thickness_label:thickShort(),
+      amps:S.amps, length:lenTxt(), oxy_total_s:+c.oxy.total.toFixed(1), plasma_total_s:c.pl.ok?+c.pl.total.toFixed(1):null,
+      plasma_ok:c.pl.ok, ratio:ratio?+ratio.toFixed(2):null
+    };
+  }
+  async function saveLead(form){
+    const c=calc(), ratio=c.pl.ok?c.oxy.total/c.pl.total:0;
+    const body={email:form.email, first_name:form.name, company:form.company||null, source:'plasmavsoxy',
+      recommended_process: !c.pl.ok||ratio<=0.95?'oxyfuel':(ratio>=1.05?'plasma':'tie'), payload:leadPayload(c)};
+    const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(),6000);
+    try{
+      await fetch(SB_URL+'/rest/v1/leads',{method:'POST',signal:ctl.signal,
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(body)});
+    }catch(e){ /* non-blocking, same as the other calculators */ }
+    clearTimeout(tm);
+  }
+
+  $('leadForm').addEventListener('focusin',()=>{ loadPdf().catch(()=>{}); },{once:true});
+  $('leadForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const L_=tr(), f={name:$('leadName').value.trim(), email:$('leadEmail').value.trim(), company:$('leadCompany').value.trim()};
+    const err=$('leadErr');
+    if(!f.name){err.textContent=L_.errName;$('leadName').focus();return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email)){err.textContent=L_.errEmail;$('leadEmail').focus();return;}
+    err.textContent='';
+    const btn=$('leadBtn'); btn.disabled=true; $('leadBtnTxt').textContent=L_.fBusy;
+    await saveLead(f);
+    try{ await makePdf(f.name); }
+    catch(x){ err.textContent=L_.errPdf; btn.disabled=false; $('leadBtnTxt').textContent=L_.fBtn; return; }
+    leadInfo={name:f.name}; try{localStorage.setItem('pxo-lead',JSON.stringify(leadInfo));}catch(x){}
+    btn.disabled=false; $('leadBtnTxt').textContent=L_.fBtn;
+    showLeadState();
+  });
+  $('againBtn').addEventListener('click',()=>{ makePdf(leadInfo&&leadInfo.name).catch(()=>{}); });
+
+  async function makePdf(name){
+    const {jsPDF}=await loadPdf();
+    const L_=tr(), c=calc(), metric=S.sys==='met', list_=list();
+    const clean=s=>String(s).replace(/<[^>]+>/g,'').replace(/″/g,'"').replace(/≈/g,'~').replace(/[“”]/g,'"').replace(/’/g,"'").replace(/[–—]/g,'-').replace(/…/g,'...');
+    const doc=new jsPDF({unit:'mm',format:metric?'a4':'letter'});
+    const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=14, CW=W-2*M;
+    const ORG=[235,120,20], BLU=[30,140,200], INK=[20,24,28], MUT=[105,113,122];
+    const locDate=new Date().toLocaleDateString(L_.locale);
+    const tShort=s=>{ if(s<60) return Math.round(s)+' s'; const m=Math.floor(s/60), r=Math.round(s-m*60); return r===60?(m+1)+':00':m+':'+String(r).padStart(2,'0'); };
+    const heading=(txt,yy)=>{doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...INK);doc.text(clean(txt.toUpperCase()),M,yy);};
+
+    // header band
+    doc.setFillColor(15,18,21); doc.rect(0,0,W,28,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(22);
+    let x=M; doc.setTextColor(114,212,255); doc.text('PLASMA',x,15); x+=doc.getTextWidth('PLASMA ');
+    doc.setTextColor(120,128,137); doc.text('×',x,15); x+=doc.getTextWidth('× ');
+    doc.setTextColor(255,138,42); doc.text(clean(L_.oxy.toUpperCase()),x,15);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(200,204,208);
+    doc.text(clean(L_.pdfSub(lenTxt())),M,22);
+    doc.text('industrialcuttinglabs.com',W-M,15,{align:'right'});
+    doc.text(clean((name?L_.pdfFor(name)+'  ·  ':'')+locDate),W-M,22,{align:'right'});
+
+    // scenario
+    let y=37;
+    heading(L_.pdfScenario,y);
+    const hw=doc.getTextWidth(clean(L_.pdfScenario.toUpperCase()));
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...MUT);
+    doc.text(clean(`${thickShort()}  ·  ${L_.pdfLen} ${lenTxt()}  ·  Plasma ${S.amps} A`),M+hw+5,y);
+    y+=4;
+    const bw=(CW-6)/2, bh=24;
+    const box=(bx,col,label,big,sub)=>{
+      doc.setDrawColor(222,225,229); doc.setFillColor(248,249,250); doc.roundedRect(bx,y,bw,bh,1.5,1.5,'FD');
+      doc.setFillColor(...col); doc.rect(bx,y,1.8,bh,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...MUT); doc.text(clean(label.toUpperCase()),bx+6,y+6);
+      doc.setFontSize(18); doc.setTextColor(...col); doc.text(clean(big),bx+6,y+15);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...MUT); doc.text(clean(sub),bx+6,y+20.5);
+    };
+    const maxL=S.sys==='imp'?inchLabel(c.pl.p.max):nf(c.pl.p.max*25.4,0)+' mm';
+    box(M,ORG,L_.oxyTotal,fmtDur(c.oxy.total),`${speedTxt(c.oxy.ipm)} · ${L_.pre} ${nf(c.oxy.pre,0)} s`);
+    box(M+bw+6,BLU,L_.plTotal(S.amps),c.pl.ok?fmtDur(c.pl.total):L_.noCut,c.pl.ok?`${speedTxt(c.pl.ipm)} · ${L_.start} ${nf(c.pl.start,1)} s`:L_.maxAt(maxL,S.amps));
+    y+=bh+7;
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...INK);
+    doc.text(clean($('verdict').innerHTML),M,y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...MUT);
+    doc.text(clean($('verdictSub').textContent),M,y+5);
+
+    // bars for the current thickness
+    y+=14;
+    heading(L_.pdfBars(thickShort()),y); y+=3;
+    const rowsB=[{n:L_.oxyShort,pre:c.oxy.pre,tot:c.oxy.total,ok:true,oxy:true}];
+    AMPS.forEach(a=>{const r=plasma(a,c.t),st=plStart(c.t);rowsB.push({n:a+' A',a,pre:st,tot:r.ok?st+c.L/r.ipm*60:0,ok:r.ok});});
+    const mxB=Math.max(...rowsB.map(r=>r.tot)), lx=M+16, tw=CW-16-22, rh=5.2;
+    rowsB.forEach(r=>{
+      doc.setFont('helvetica',r.a===S.amps?'bold':'normal'); doc.setFontSize(8); doc.setTextColor(...INK);
+      doc.text(clean(r.n),M,y+3.6);
+      doc.setFillColor(238,240,242); doc.rect(lx,y+.6,tw,3.6,'F');
+      if(r.ok){
+        doc.setFillColor(...(r.oxy?ORG:BLU)); doc.rect(lx,y+.6,tw*r.tot/mxB,3.6,'F');
+        doc.setFillColor(255,200,160); doc.rect(lx,y+.6,Math.max(.4,tw*r.pre/mxB),3.6,'F');
+        doc.setTextColor(...INK); doc.text(tShort(r.tot),W-M,y+3.6,{align:'right'});
+      } else { doc.setTextColor(200,70,70); doc.text(clean(L_.pdfNo),lx+2,y+3.5); doc.text('-',W-M,y+3.6,{align:'right'}); }
+      y+=rh;
+    });
+
+    // full table
+    y+=7;
+    heading(L_.pdfTable(lenTxt()),y); y+=3;
+    const cols=[L_.pdfThick,L_.oxyShort,...AMPS.map(a=>a+' A')], cw0=24, cwn=(CW-cw0)/(cols.length-1), th=6.4;
+    const cx=i=>i===0?M:M+cw0+cwn*(i-1);
+    const top=y;
+    doc.setFillColor(15,18,21); doc.rect(M,y,CW,th,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8);
+    cols.forEach((h,i)=>{
+      if(i>1&&AMPS[i-2]===S.amps){doc.setFillColor(...BLU);doc.rect(cx(i),y,cwn,th,'F');}
+      doc.setTextColor(...(i===1?[255,138,42]:[255,255,255]));
+      doc.text(clean(h),i===0?cx(i)+2:cx(i)+cwn/2,y+4.3,{align:i===0?'left':'center'});
+    });
+    y+=th;
+    const L2=Lin();
+    list_.forEach((row,ri)=>{
+      const cur=ri===S.idx;
+      doc.setFillColor(...(cur?[225,242,251]:(ri%2?[247,248,249]:[255,255,255]))); doc.rect(M,y,CW,th,'F');
+      doc.setFont('helvetica',cur?'bold':'normal'); doc.setTextColor(...INK);
+      doc.text(clean(row.l),cx(0)+2,y+4.3);
+      const ot=oxyPre(row.v)+L2/oxyIPM(row.v)*60;
+      doc.setTextColor(...ORG); doc.text(tShort(ot),cx(1)+cwn/2,y+4.3,{align:'center'});
+      AMPS.forEach((a,ai)=>{
+        const r=plasma(a,row.v), i=ai+2;
+        if(!r.ok){doc.setFillColor(252,232,232);doc.rect(cx(i)+.3,y+.3,cwn-.6,th-.6,'F');doc.setTextColor(200,90,90);doc.text('-',cx(i)+cwn/2,y+4.3,{align:'center'});return;}
+        if(r.q==='warn'){doc.setFillColor(253,244,214);doc.rect(cx(i)+.3,y+.3,cwn-.6,th-.6,'F');}
+        doc.setTextColor(...INK);
+        doc.text(tShort(plStart(row.v)+L2/r.ipm*60),cx(i)+cwn/2,y+4.3,{align:'center'});
+      });
+      y+=th;
+    });
+    doc.setDrawColor(222,225,229); doc.rect(M,top,CW,y-top);
+
+    // legend
+    y+=5; doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    let lgx=M;
+    const sw=(col,txt)=>{doc.setFillColor(...col);doc.setDrawColor(200,204,208);doc.rect(lgx,y-2.6,3.2,3.2,'FD');doc.setTextColor(...MUT);doc.text(clean(txt),lgx+4.6,y);lgx+=4.6+doc.getTextWidth(clean(txt))+7;};
+    sw([255,255,255],L_.pdfRec); sw([253,244,214],L_.pdfSep); sw([252,232,232],L_.pdfNo);
+
+    // notes
+    y+=6; doc.setFontSize(7.2); doc.setTextColor(...MUT);
+    [L_.note1,L_.note2].forEach(n=>{const lines=doc.splitTextToSize(clean(n),CW); if(y+lines.length*3.1<H-12){doc.text(lines,M,y); y+=lines.length*3.1+1.6;}});
+
+    // footer
+    doc.setDrawColor(222,225,229); doc.line(M,H-10,W-M,H-10);
+    doc.setFontSize(7.5); doc.setTextColor(...MUT);
+    doc.text('Industrial Cutting Labs  ·  industrialcuttinglabs.com/plasmavsoxy',M,H-6);
+    doc.text(locDate,W-M,H-6,{align:'right'});
+
+    const slug=thickShort().replace(/″/g,'in').replace(/\//g,'-').replace(/\s+/g,'').replace(/[^a-z0-9-]/gi,'');
+    doc.save(`${L_.pdfFile}-${slug}-${S.amps}A.pdf`);
+  }
+
+  // ---------- cost study (rev 2, optional) ----------
+  const COST_DEF = { basis:'cycle', qty:20, cycleOxy:20, cyclePl:10,
+    r:{ oxyLabor:80, oxyCons:40, oxyEquip:20, plLabor:80, plCons:30, plEquip:20 } };
+  const CST = JSON.parse(JSON.stringify(COST_DEF));
+  let COST_READY=false;
+  const money  = v => 'R$ ' + Math.abs(v).toLocaleString(tr().locale,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const money0 = v => 'R$ ' + Math.round(v).toLocaleString(tr().locale);
+
+  const costInputs=[
+    ['rOxyLabor','r.oxyLabor'],['rOxyCons','r.oxyCons'],['rOxyEquip','r.oxyEquip'],
+    ['rPlLabor','r.plLabor'],['rPlCons','r.plCons'],['rPlEquip','r.plEquip'],
+    ['costCycleOxy','cycleOxy'],['costCyclePl','cyclePl'],['costQty','qty']
+  ];
+  const cstGet=p=>{const a=p.split('.');return a.length===1?CST[a[0]]:CST[a[0]][a[1]];};
+  const cstSet=(p,v)=>{const a=p.split('.');if(a.length===1)CST[a[0]]=v;else CST[a[0]][a[1]]=v;};
+
+  costInputs.forEach(([id,path])=>{
+    const el=$(id); if(!el) return;
+    el.addEventListener('input',()=>{
+      let v=parseFloat(String(el.value).replace(',','.'));
+      if(isNaN(v)||v<0) v=0;
+      if(id==='costQty') v=Math.max(1,Math.round(v));
+      cstSet(path,v); renderCostResults();
+    });
+  });
+  document.querySelectorAll('#costBasis button').forEach(b=>b.addEventListener('click',()=>{ CST.basis=b.dataset.basis; renderCost(); }));
+  $('costToggle').addEventListener('click',()=>{
+    const t=$('costToggle'), open=t.getAttribute('aria-expanded')!=='true';
+    t.setAttribute('aria-expanded',open); $('costBody').hidden=!open;
+  });
+  $('costReset').addEventListener('click',()=>{ Object.assign(CST,JSON.parse(JSON.stringify(COST_DEF))); renderCost(); });
+
+  function syncCostInputs(){
+    costInputs.forEach(([id,path])=>{ const el=$(id); if(el && document.activeElement!==el) el.value=cstGet(path); });
+  }
+  function renderCostLabels(){
+    const k=tr().cost;
+    $('costEyebrow').textContent=k.eyebrow; $('costH').textContent=k.h; $('costIntro').textContent=k.intro;
+    $('costRatesH').textContent=k.ratesH; $('costColOxy').textContent=tr().oxy;
+    $('costLaborL').textContent=k.labor; $('costConsL').textContent=k.cons; $('costEquipL').textContent=k.equip; $('costTotalL').textContent=k.totalH;
+    $('costBasisH').textContent=k.basisH; $('costBasisCycle').textContent=k.basisCycle; $('costBasisSim').textContent=k.basisSim(lenTxt());
+    $('costCycleOxyL').textContent=k.cycleOxy; $('costCyclePlL').textContent=k.cyclePl; $('costQtyL').textContent=k.qty;
+    $('costSimNote').textContent=k.simNote; $('costCOxyL').textContent=k.cOxy; $('costCPlL').textContent=k.cPl;
+    $('costReset').textContent=k.reset; $('costFoot').textContent=k.foot;
+  }
+  function renderCost(){
+    document.querySelectorAll('#costBasis button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.basis===CST.basis));
+    $('costCycleFields').hidden = CST.basis!=='cycle';
+    $('costSimNote').hidden = CST.basis!=='sim';
+    renderCostLabels(); syncCostInputs(); renderCostResults();
+  }
+  function renderCostResults(){
+    const k=tr().cost, c=calc();
+    const rOxy=CST.r.oxyLabor+CST.r.oxyCons+CST.r.oxyEquip, rPl=CST.r.plLabor+CST.r.plCons+CST.r.plEquip;
+    $('costTotOxy').textContent=money0(rOxy); $('costTotPl').textContent=money0(rPl);
+    const qty=CST.qty, card=$('costSaveCard'), warn=$('costWarn');
+    let hOxy, hPl, plOk=true;
+    if(CST.basis==='sim'){ hOxy=c.oxy.total/3600; if(c.pl.ok) hPl=c.pl.total/3600; else plOk=false; }
+    else { hOxy=CST.cycleOxy/60; hPl=CST.cyclePl/60; }
+
+    const costOxy=hOxy*rOxy*qty;
+    $('costCOxy').textContent=money(costOxy);
+    $('costCOxySub').textContent=k.perPiece(money(hOxy*rOxy));
+    $('costCOxyL').textContent=k.cOxy; $('costCPlL').textContent=k.cPl;
+
+    if(CST.basis==='sim' && !plOk){
+      card.classList.remove('neg');
+      $('costCPl').textContent=k.noCut; $('costCPlSub').textContent='—';
+      $('costSaveL').textContent=k.save; $('costSave').textContent='—'; $('costSaveSub').textContent='—';
+      warn.innerHTML='<b>'+k.noCutWarn(S.amps)+'</b>'; warn.hidden=false;
+      return;
+    }
+    warn.hidden=true;
+    const costPl=hPl*rPl*qty;
+    $('costCPl').textContent=money(costPl);
+    $('costCPlSub').textContent=k.perPiece(money(hPl*rPl));
+
+    const save=costOxy-costPl, hoursSaved=(hOxy-hPl)*qty;
+    const pctTxt=nf(costOxy>0?Math.abs(save)/costOxy*100:0,0)+'%', hTxt=nf(Math.abs(hoursSaved),1);
+    if(Math.abs(save) < Math.max(0.01, 0.005*costOxy)){
+      card.classList.remove('neg'); $('costSaveL').textContent=k.tie; $('costSave').textContent=money(0); $('costSaveSub').textContent=k.tieSub;
+    } else if(save>0){
+      card.classList.remove('neg'); $('costSaveL').textContent=k.save; $('costSave').textContent=money(save); $('costSaveSub').textContent=k.saveSub(pctTxt,hTxt);
+    } else {
+      card.classList.add('neg'); $('costSaveL').textContent=k.loss; $('costSave').textContent=money(save); $('costSaveSub').textContent=k.lossSub(pctTxt,hTxt);
+    }
+  }
+  COST_READY=true;
+
+  showLeadState();
+  sizeCanvases();
+  render();
+  requestAnimationFrame(loop);
+})();
+</script>
+
+<script defer src="/_vercel/insights/script.js"></script>
+</html>

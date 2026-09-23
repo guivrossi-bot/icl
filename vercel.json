@@ -5,6 +5,8 @@
     { "source": "/regressionmodel/(.*)", "destination": "/regressionmodel/$1" },
     { "source": "/plasmavsoxy", "destination": "/plasmavsoxy/index.html" },
     { "source": "/plasmavsoxy/(.*)", "destination": "/plasmavsoxy/$1" },
-    { "source": "/((?!regressionmodel|plasmavsoxy).*)", "destination": "/index.html" }
+    { "source": "/plasmavsoxy2", "destination": "/plasmavsoxy2/index.html" },
+    { "source": "/plasmavsoxy2/(.*)", "destination": "/plasmavsoxy2/$1" },
+    { "source": "/((?!regressionmodel|plasmavsoxy|plasmavsoxy2).*)", "destination": "/index.html" }
   ]
 }

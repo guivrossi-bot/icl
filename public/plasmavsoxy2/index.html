@@ -448,7 +448,7 @@
   </section>
 
   <div class="notes">
-    <p data-ih="note1"><b>De onde vêm os números.</b> Aço carbono, corte reto começando pela borda. Oxicorte com oxiacetileno: velocidades médias de tabelas de bico (≈ 24 pol/min em chapa fina até ≈ 10 pol/min em 2″) e pré-aquecimento de ≈ 12 s + 25 s por polegada de espessura. Plasma a ar: curvas típicas de equipamentos de 30 a 125 A, onde a espessura “recomendada” de cada corrente corta a ≈ 20 pol/min (500 mm/min); acima dela é corte de separação, mais lento e com acabamento ruim.</p>
+    <p data-ih="note1"><b>De onde vêm os números.</b> Aço carbono, corte reto começando pela borda. Oxicorte com oxiacetileno: velocidades médias de tabelas de bico (≈ 24 pol/min em chapa fina até ≈ 10 pol/min em 2″) e pré-aquecimento de ≈ 12 s + 25 s por polegada de espessura. Plasma: velocidades reais das tabelas de corte Hypertherm Powermax (ajuste “Production”) para aço carbono — Powermax45/65/85/105/125 em 45/65/85/105/125 A; 30 A pela velocidade máxima de corte do manual. Acima da capacidade nominal de cada corrente é corte de separação, mais lento e com acabamento ruim.</p>
     <p data-ih="note2"><b>Use como ordem de grandeza.</b> Os números reais mudam com o gás (propano pré-aquece mais devagar), o bico, a pressão, o consumível e se o corte é manual ou em mesa CNC. Confira sempre a tabela de corte do fabricante do seu equipamento.</p>
   </div>
 </div>
@@ -464,10 +464,17 @@
 
   // oxyfuel (acetylene) cutting speed, in/min vs thickness in
   const OXY = [[0.125,24],[0.25,22],[0.375,20],[0.5,18],[0.75,16],[1,14],[1.25,13],[1.5,12],[2,10]];
-  // plasma: recommended thickness (≈20 ipm) and max severance, inches
-  const PL = {30:{ref:.375,max:.625},45:{ref:.625,max:1.125},65:{ref:.75,max:1.25},85:{ref:1,max:1.5},105:{ref:1.25,max:2},125:{ref:1.5,max:2.25}};
-  // speed multiplier relative to 20 ipm, as a function of t/ref
-  const REL = [[0.08,12],[0.15,9],[0.2,7.5],[0.3,5.4],[0.5,2.95],[0.6,2.3],[0.8,1.45],[1,1],[1.25,.58],[1.6,.25],[2,.15]];
+  // plasma: real Hypertherm Powermax cut charts, mild steel, PRODUCTION settings (thickness mm -> cut speed mm/min).
+  // 45/65/85/105/125 A = shielded consumables; 30 A = manual "maximum cut speed" (no production chart published).
+  // rec = recommended cut capacity, max = severance/last rated thickness (mm).
+  const PLPROD = {
+    30 :{rec:10,  max:16,   sp:[[1,10160],[2,7530],[3,4185],[5,1835],[8,780],[12,320],[16,175]]},
+    45 :{rec:6.4, max:6.4,  sp:[[0.5,12500],[1,10800],[1.5,10200],[2,7800],[3,4900],[4,3560],[6,2050],[6.35,1855]]},
+    65 :{rec:20,  max:25.4, sp:[[2,7000],[3,6100],[4,5100],[6,3240],[8,2230],[10,1500],[12,1140],[16,650],[20,450],[25,270]]},
+    85 :{rec:25,  max:32,   sp:[[3,9200],[4,7300],[6,4400],[8,3100],[10,2070],[12,1600],[16,930],[20,680],[25,450],[30,300],[32,254]]},
+    105:{rec:32,  max:40,   sp:[[6,5090],[8,3870],[10,2790],[12,2060],[16,1310],[20,940],[25,580],[30,410],[32,370],[35,320],[40,210]]},
+    125:{rec:38,  max:57,   sp:[[6,5960],[8,4570],[10,3330],[12,2510],[16,1660],[20,1140],[25,780],[30,580],[32,500],[35,430],[40,310],[44,250],[57,125]]},
+  };
   const AMPS = [30,45,65,85,105,125];
 
   // ---------- i18n ----------
@@ -526,7 +533,7 @@
       a:{ h:'Simulação concluída.', p:'Dá para baixar o relatório completo em PDF logo abaixo.', pdf:'Baixar relatório ↓', rt:'Ver em tempo real ▶',
         note:(o,p)=>`Que tal rodar em tempo real para sentir a diferença de verdade? São ${o} de oxicorte contra ${p} de plasma.`,
         noteNo:o=>`Que tal rodar em tempo real para sentir de verdade? São ${o} de oxicorte.` },
-      note1:'<b>De onde vêm os números.</b> Aço carbono, corte reto começando pela borda. Oxicorte com oxiacetileno: velocidades médias de tabelas de bico (≈ 24 pol/min em chapa fina até ≈ 10 pol/min em 2″) e pré-aquecimento de ≈ 12 s + 25 s por polegada de espessura. Plasma a ar: curvas típicas de equipamentos de 30 a 125 A, onde a espessura “recomendada” de cada corrente corta a ≈ 20 pol/min (500 mm/min); acima dela é corte de separação, mais lento e com acabamento ruim.',
+      note1:'<b>De onde vêm os números.</b> Aço carbono, corte reto começando pela borda. Oxicorte com oxiacetileno: velocidades médias de tabelas de bico (≈ 24 pol/min em chapa fina até ≈ 10 pol/min em 2″) e pré-aquecimento de ≈ 12 s + 25 s por polegada de espessura. Plasma: velocidades reais das tabelas de corte Hypertherm Powermax (ajuste “Production”) para aço carbono — Powermax45/65/85/105/125 em 45/65/85/105/125 A; 30 A pela velocidade máxima de corte do manual. Acima da capacidade nominal de cada corrente é corte de separação, mais lento e com acabamento ruim.',
       note2:'<b>Use como ordem de grandeza.</b> Os números reais mudam com o gás (propano pré-aquece mais devagar), o bico, a pressão, o consumível e se o corte é manual ou em mesa CNC. Confira sempre a tabela de corte do fabricante do seu equipamento.'
     },
     es:{
@@ -583,7 +590,7 @@
       a:{ h:'Simulación terminada.', p:'Puedes descargar el informe completo en PDF justo abajo.', pdf:'Descargar informe ↓', rt:'Ver en tiempo real ▶',
         note:(o,p)=>`¿Por qué no correrla en tiempo real para sentir de verdad la diferencia? Son ${o} de oxicorte contra ${p} de plasma.`,
         noteNo:o=>`¿Por qué no correrla en tiempo real para sentirlo de verdad? Son ${o} de oxicorte.` },
-      note1:'<b>De dónde salen los números.</b> Acero al carbono, corte recto empezando por el borde. Oxicorte con oxiacetileno: velocidades promedio de tablas de boquilla (≈ 24 pulg/min en placa delgada hasta ≈ 10 pulg/min en 2″) y precalentamiento de ≈ 12 s + 25 s por pulgada de espesor. Plasma con aire: curvas típicas de equipos de 30 a 125 A, donde el espesor “recomendado” de cada amperaje corta a ≈ 20 pulg/min (500 mm/min); por encima es corte de separación, más lento y con mal acabado.',
+      note1:'<b>De dónde salen los números.</b> Acero al carbono, corte recto empezando por el borde. Oxicorte con oxiacetileno: velocidades promedio de tablas de boquilla (≈ 24 pulg/min en placa delgada hasta ≈ 10 pulg/min en 2″) y precalentamiento de ≈ 12 s + 25 s por pulgada de espesor. Plasma: velocidades reales de las tablas de corte Hypertherm Powermax (ajuste “Production”) para acero al carbono — Powermax45/65/85/105/125 a 45/65/85/105/125 A; 30 A según la velocidad máxima de corte del manual. Por encima de la capacidad nominal de cada amperaje es corte de separación, más lento y con mal acabado.',
       note2:'<b>Úsalo como orden de magnitud.</b> Los números reales cambian con el gas (el propano precalienta más lento), la boquilla, la presión, los consumibles y si el corte es manual o en mesa CNC. Revisa siempre la tabla de corte del fabricante de tu equipo.'
     },
     en:{
@@ -640,7 +647,7 @@
       a:{ h:'Simulation complete.', p:'You can download the full PDF report just below.', pdf:'Get the report ↓', rt:'Watch in real time ▶',
         note:(o,p)=>`Why not run it in real time to really feel the difference? That's ${o} of oxyfuel vs ${p} of plasma.`,
         noteNo:o=>`Why not run it in real time to really feel it? That's ${o} of oxyfuel.` },
-      note1:'<b>Where the numbers come from.</b> Mild steel, straight cut starting from the edge. Oxy-acetylene: average speeds from tip charts (≈ 24 in/min on thin plate down to ≈ 10 in/min at 2″) and a preheat of ≈ 12 s + 25 s per inch of thickness. Air plasma: typical curves for 30–125 A machines, where each amperage’s “recommended” thickness cuts at ≈ 20 in/min (500 mm/min); beyond that it’s a severance cut, slower and with a rough edge.',
+      note1:'<b>Where the numbers come from.</b> Mild steel, straight cut starting from the edge. Oxy-acetylene: average speeds from tip charts (≈ 24 in/min on thin plate down to ≈ 10 in/min at 2″) and a preheat of ≈ 12 s + 25 s per inch of thickness. Plasma: real Hypertherm Powermax cut-chart speeds (Production settings) for mild steel — Powermax45/65/85/105/125 at 45/65/85/105/125 A; 30 A on the manual’s maximum-cut-speed basis. Beyond each amperage’s rated capacity it’s a severance cut, slower and with a rough edge.',
       note2:'<b>Treat these as ballpark figures.</b> Real numbers change with the fuel gas (propane preheats slower), tip, pressure, consumables, and whether the cut is by hand or on a CNC table. Always check your machine manufacturer’s cut chart.'
     }
   };
@@ -658,12 +665,11 @@
   const oxyIPM = t => interp(OXY,t);
   const oxyPre = t => 12 + 25*t;
   const plStart = t => 0.6 + 0.9*t;
-  function plasma(a,t){
-    const p=PL[a];
-    if(t>p.max+1e-6) return {ok:false,ipm:0,q:'bad',p};
-    const r=t/p.ref;
-    const ipm=Math.min(250,20*interp(REL,r));
-    return {ok:true,ipm,q:r<=1.0001?'ok':'warn',p};
+  function plasma(a,t){                       // t in inches
+    const p=PLPROD[a], mm=t*25.4;             // work in mm to match the cut charts
+    if(mm>p.max+1e-6) return {ok:false,ipm:0,q:'bad',p};
+    const ipm=interp(p.sp,mm)/25.4;           // chart speed (mm/min) -> in/min
+    return {ok:true,ipm,q:mm<=p.rec+1e-6?'ok':'warn',p};
   }
 
   // ---------- state ----------
@@ -758,7 +764,7 @@
     document.querySelectorAll('#lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===LANG));
     document.querySelectorAll('[data-i]').forEach(el=>{el.textContent=T_[el.dataset.i];});
     document.querySelectorAll('[data-ih]').forEach(el=>{el.innerHTML=T_[el.dataset.ih];});
-    const p=c.pl.p, refL=S.sys==='imp'?inchLabel(p.ref):nf(p.ref*25.4,0)+' mm', maxL=S.sys==='imp'?inchLabel(p.max):nf(p.max*25.4,0)+' mm';
+    const p=c.pl.p, refL=S.sys==='imp'?inchLabel(p.rec/25.4):nf(p.rec,0)+' mm', maxL=S.sys==='imp'?inchLabel(p.max/25.4):nf(p.max,0)+' mm';
     const note=$('ampsNote');
     if(!c.pl.ok) note.innerHTML=T_.noteBad(thickShort(),S.amps,maxL);
     else if(c.pl.q==='warn') note.innerHTML=T_.noteWarn(refL);
@@ -1310,7 +1316,7 @@
       doc.setFontSize(18); doc.setTextColor(...col); doc.text(clean(big),bx+6,y+15);
       doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...MUT); doc.text(clean(sub),bx+6,y+20.5);
     };
-    const maxL=S.sys==='imp'?inchLabel(c.pl.p.max):nf(c.pl.p.max*25.4,0)+' mm';
+    const maxL=S.sys==='imp'?inchLabel(c.pl.p.max/25.4):nf(c.pl.p.max,0)+' mm';
     box(M,ORG,L_.oxyTotal,fmtDur(c.oxy.total),`${speedTxt(c.oxy.ipm)} · ${L_.pre} ${nf(c.oxy.pre,0)} s`);
     box(M+bw+6,BLU,L_.plTotal(S.amps),c.pl.ok?fmtDur(c.pl.total):L_.noCut,c.pl.ok?`${speedTxt(c.pl.ipm)} · ${L_.start} ${nf(c.pl.start,1)} s`:L_.maxAt(maxL,S.amps));
     y+=bh+7;

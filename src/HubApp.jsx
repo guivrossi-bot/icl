@@ -6,6 +6,7 @@ import './hub.css'
 const NL_URL = 'https://www.linkedin.com/newsletters/7419724116267520000/?displayConfirmation=true'
 const LI_URL = 'https://www.linkedin.com/in/guivrossi/'
 const IGNITE_URL = 'https://ignite.industrialcuttinglabs.com'
+const QUIZ_URL = 'https://quiz.industrialcuttinglabs.com'
 
 // ── Color palettes ────────────────────────────────────────────────────────────
 const C_DARK = {
@@ -64,6 +65,7 @@ function buildStyles(C) {
     navLinks: { display: 'flex', alignItems: 'center', gap: 2 },
     navBtn: (active) => ({ fontFamily: "'DM Sans', sans-serif", fontSize: 12, letterSpacing: '0.5px', textTransform: 'uppercase', color: active ? C.hi : C.t65, background: active ? C.t10 : 'none', border: 'none', cursor: 'pointer', padding: '5px 11px', borderRadius: 3 }),
     soonBadge: { fontSize: 8, background: C.border, color: C.t36, padding: '2px 4px', borderRadius: 2, marginLeft: 4, verticalAlign: 'middle' },
+    newBadge: { fontSize: 8, fontWeight: 700, letterSpacing: '0.5px', background: C.accent, color: '#fff', padding: '2px 4px', borderRadius: 2, marginLeft: 4, verticalAlign: 'middle' },
     langSw: { display: 'flex', gap: 2, marginLeft: 8, borderLeft: `0.5px solid ${C.border}`, paddingLeft: 10 },
     langBtn: (active) => ({ fontFamily: "'DM Sans', sans-serif", fontSize: 10, letterSpacing: '1px', color: active ? C.hi : C.t40, background: active ? C.t12 : 'none', border: 'none', cursor: 'pointer', padding: '3px 6px', borderRadius: 2 }),
     talkBtn: { fontFamily: "'DM Sans', sans-serif", fontSize: 12, letterSpacing: '0.5px', textTransform: 'uppercase', background: C.accent, color: '#fff', border: 'none', padding: '7px 18px', borderRadius: 3, cursor: 'pointer', marginLeft: 10 },
@@ -243,10 +245,16 @@ export default function HubApp() {
           {mobileMenuOpen ? '✕' : '☰'}
         </button>
         <div style={s.navLinks} className="hub-nav-links">
-          {['home','labs','media','newsletter','coolhub','about'].map(p => (
-            <button key={p} style={s.navBtn(page === p)} onClick={() => go(p)}>
+          {['home','labs','quiz','newsletter','coolhub','about'].map(p => (
+            <button
+              key={p}
+              style={s.navBtn(page === p)}
+              title={p === 'quiz' ? t.nav.quizTitle : undefined}
+              onClick={() => (p === 'quiz' ? window.open(QUIZ_URL, '_blank', 'noopener,noreferrer') : go(p))}
+            >
               {t.nav[p] || p}
-              {(p === 'media' || p === 'coolhub') && <span style={s.soonBadge}>{t.nav.soon}</span>}
+              {p === 'quiz' && <span style={s.newBadge}>{t.nav.new}</span>}
+              {p === 'coolhub' && <span style={s.soonBadge}>{t.nav.soon}</span>}
             </button>
           ))}
           <div style={s.langSw}>
@@ -268,13 +276,14 @@ export default function HubApp() {
         <div className="hub-mobile-menu" style={{
           display: 'none', flexDirection: 'column', background: C.bg2, borderBottom: `0.5px solid ${C.border}`,
         }}>
-          {['home','labs','media','newsletter','coolhub','about','talk'].map(p => (
-            <button key={p} onClick={() => go(p)} style={{
+          {['home','labs','quiz','newsletter','coolhub','about','talk'].map(p => (
+            <button key={p} onClick={() => (p === 'quiz' ? window.open(QUIZ_URL, '_blank', 'noopener,noreferrer') : go(p))} style={{
               ...s.navBtn(page === p), padding: '14px 20px', textAlign: 'left',
               borderBottom: `0.5px solid ${C.border}`, borderRadius: 0, width: '100%',
               fontSize: 12, letterSpacing: '0.5px',
             }}>
               {t.nav[p] || p}
+              {p === 'quiz' && <span style={s.newBadge}>{t.nav.new}</span>}
             </button>
           ))}
           <div style={{ padding: '10px 16px', display: 'flex', gap: 6, borderTop: `0.5px solid ${C.border}` }}>

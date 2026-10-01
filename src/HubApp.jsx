@@ -89,6 +89,7 @@ function buildStyles(C) {
     hsecLabel: (feat) => ({ fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: feat ? C.accent : C.t32, marginBottom: 2 }),
     hsecTitle: { fontSize: 14, fontWeight: 500, color: C.t85 },
     soonPill: { fontSize: 8, letterSpacing: '1px', textTransform: 'uppercase', background: C.t06, color: C.t32, padding: '2px 6px', borderRadius: 2 },
+    newPill: { fontSize: 8, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: C.accent, color: '#fff', padding: '2px 6px', borderRadius: 2 },
     secArrow: { fontSize: 13, color: C.t25 },
 
     stats: { display: 'flex', padding: '36px 48px 0', borderTop: `0.5px solid ${C.border}`, marginTop: 40 },
@@ -321,9 +322,9 @@ function HomePage({ t, go, s, C }) {
   const h = t.home
   const sections = [
     { id: 'labs', label: h.hsl, title: h.hst, icon: '⚡', feat: true },
-    { id: 'media', label: h.hml, title: h.hmt, icon: '▶', soon: true },
+    { id: 'quiz', label: h.hql, title: h.hqt, icon: '◆', isNew: true, external: QUIZ_URL },
     { id: 'newsletter', label: h.hnl, title: h.hnt, icon: '✦' },
-    { id: 'coolhub', label: t.coolhub.homeLabel, title: t.coolhub.homeTitle, icon: '◈', soon: true },
+    { id: 'media', label: h.hml, title: h.hmt, icon: '▶', soon: true },
     { id: 'talk', label: h.htl, title: h.htt, icon: '◎' },
   ]
   return (
@@ -345,13 +346,21 @@ function HomePage({ t, go, s, C }) {
         <div className="hub-home-right">
           <div style={s.heroSections}>
             {sections.map(sec => (
-              <div key={sec.id} style={s.hsec(sec.feat)} onClick={() => go(sec.id)}>
+              <div
+                key={sec.id}
+                style={s.hsec(sec.feat)}
+                onClick={() => (sec.external ? window.open(sec.external, '_blank', 'noopener,noreferrer') : go(sec.id))}
+              >
                 <div style={s.hsecIcon(sec.feat)}>{sec.icon}</div>
                 <div style={{ flex: 1 }}>
                   <div style={s.hsecLabel(sec.feat)}>{sec.label}</div>
                   <div style={s.hsecTitle}>{sec.title}</div>
                 </div>
-                {sec.soon ? <span style={s.soonPill}>{h.soon}</span> : <span style={s.secArrow}>→</span>}
+                {sec.isNew
+                  ? <span style={s.newPill}>{t.nav.new}</span>
+                  : sec.soon
+                    ? <span style={s.soonPill}>{h.soon}</span>
+                    : <span style={s.secArrow}>→</span>}
               </div>
             ))}
           </div>
@@ -359,9 +368,9 @@ function HomePage({ t, go, s, C }) {
       </div>
       <div style={s.stats} className="hub-stats">
         {[
-          { val: '5', label: h.st },
+          { val: '6', label: h.st },
           { val: '12', label: h.sy },
-          { val: '11', label: h.snl },
+          { val: '25', label: h.snl },
           { val: '4', label: h.sc },
         ].map((st, i) => (
           <div key={i} style={s.stat(i < 3)} className="hub-stat">
